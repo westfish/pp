@@ -394,9 +394,9 @@ class SelfAttention1d(nn.Layer):
         key_proj = self.key(hidden_states)
         value_proj = self.value(hidden_states)
 
-        query_proj = self.reshape_heads_to_batch_dim(query_proj, transpose=self._use_memory_efficient_attention_xformers)
-        key_proj = self.reshape_heads_to_batch_dim(key_proj, transpose=self._use_memory_efficient_attention_xformers)
-        value_proj = self.reshape_heads_to_batch_dim(value_proj, transpose=self._use_memory_efficient_attention_xformers)
+        query_proj = self.reshape_heads_to_batch_dim(query_proj, transpose=not self._use_memory_efficient_attention_xformers)
+        key_proj = self.reshape_heads_to_batch_dim(key_proj, transpose=not self._use_memory_efficient_attention_xformers)
+        value_proj = self.reshape_heads_to_batch_dim(value_proj, transpose=not self._use_memory_efficient_attention_xformers)
 
         if self._use_memory_efficient_attention_xformers:
             # Memory efficient attention
@@ -408,7 +408,7 @@ class SelfAttention1d(nn.Layer):
             hidden_states = paddle.matmul(attention_probs, value_proj)
 
         # reshape hidden_states
-        hidden_states = self.reshape_batch_dim_to_heads(hidden_states, transpose=self._use_memory_efficient_attention_xformers)
+        hidden_states = self.reshape_batch_dim_to_heads(hidden_states, transpose=not self._use_memory_efficient_attention_xformers)
 
         # compute next hidden_states
         hidden_states = self.proj_attn(hidden_states)
