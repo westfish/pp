@@ -147,6 +147,7 @@ ALLOW_PATTERNS_MAPPING = {
         "special_tokens_map.json",
         "spiece.model",
         "merges.txt",
+        "sentencepiece.bpe.model",
     ],
     "feature_extractor": ["preprocessor_config.json"],
     "transformer": [
