@@ -106,7 +106,8 @@ class UNet1DModelTests(ModelTesterMixin, unittest.TestCase):
 
     def test_forward_with_norm_groups(self):
         pass
-
+    
+    # TODO, check this why not pass
     @slow
     def test_unet_1d_maestro(self):
         model_id = "harmonai/maestro-150k"

@@ -243,4 +243,5 @@ class StableDiffusionUpscalePipelineIntegrationTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(0)
         _ = pipe(prompt=prompt, image=image, generator=generator,
             num_inference_steps=5, output_type='np')
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 2.65 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes < 2.65 * 10 ** 9

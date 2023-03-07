@@ -51,9 +51,9 @@ def transpose_state_dict(state_dict):
     new_state_dict = {}
     for k, v in state_dict.items():
         if v.ndim == 2:
-            new_state_dict[k] = v.T
+            new_state_dict[k] = v.T.contiguous() if hasattr(v, "contiguous") else v.T
         else:
-            new_state_dict[k] = v
+            new_state_dict[k] = v.contiguous() if hasattr(v, "contiguous") else v
     return new_state_dict
 
 

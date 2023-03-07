@@ -216,7 +216,7 @@ class StableDiffusion2PipelineSlowTests(unittest.TestCase):
     def get_inputs(self, dtype="float32", seed=0):
         generator = paddle.Generator().manual_seed(seed)
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
-        latents = paddle.to_tensor(data=latents).cast(dtype)
+        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {
             "prompt": "a photograph of an astronaut riding a horse",
             "latents": latents,

@@ -141,15 +141,14 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
             'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_imgvar/input_image_vermeer.png'
             )
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        latents = paddle.to_tensor(data=latents).cast(dtype)
+        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {'image': init_image, 'latents': latents, 'generator':
             generator, 'num_inference_steps': 3, 'guidance_scale': 7.5,
             'output_type': 'numpy'}
@@ -171,7 +170,7 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
     def test_stable_diffusion_img_variation_intermediate_state(self):
         number_of_steps = 0
 
->>>        def callback_fn(step: int, timestep: int, latents: torch.FloatTensor
+        def callback_fn(step: int, timestep: int, latents: paddle.Tensor
             ) ->None:
             callback_fn.has_been_called = True
             nonlocal number_of_steps
@@ -214,7 +213,8 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
         pipe.enable_sequential_cpu_offload()
         inputs = self.get_inputs(dtype='float16')
         _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 2.6 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes < 2.6 * 10 ** 9
 
 
 @nightly
@@ -234,7 +234,7 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
             )
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
         """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        latents = paddle.to_tensor(data=latents).cast(dtype)
+>>>        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {'image': init_image, 'latents': latents, 'generator':
             generator, 'num_inference_steps': 50, 'guidance_scale': 7.5,
             'output_type': 'numpy'}

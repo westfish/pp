@@ -126,7 +126,7 @@ class UNetLDMModelTests(ModelTesterMixin, unittest.TestCase):
         paddle.device.cuda.empty_cache()
         gc.collect()
         model_normal_load, _ = UNet2DModel.from_pretrained(
-            "fusing/unet-ldm-dummy-update", output_loading_info=True, low_cpu_mem_usage=False
+            "fusing/unet-ldm-dummy-update", output_loading_info=True, 
         )
         model_normal_load.eval()
         arr_normal_load = model_normal_load(noise, time_step)["sample"]
@@ -144,7 +144,7 @@ class UNetLDMModelTests(ModelTesterMixin, unittest.TestCase):
         paddle.device.cuda.empty_cache()
         gc.collect()
         model_normal_load, _ = UNet2DModel.from_pretrained(
-            "fusing/unet-ldm-dummy-update", output_loading_info=True, low_cpu_mem_usage=False
+            "fusing/unet-ldm-dummy-update", output_loading_info=True, 
         )
         model_normal_load.eval()
         _, peak_normal = tracemalloc.get_traced_memory()
@@ -161,7 +161,7 @@ class UNetLDMModelTests(ModelTesterMixin, unittest.TestCase):
         time_step = paddle.to_tensor([10] * noise.shape[0])
         with paddle.no_grad():
             output = model(noise, time_step).sample
-        output_slice = output[(0), (-1), -3:, -3:].flatten().cpu()
+        output_slice = output[0, -1, -3:, -3:].flatten().cpu()
         expected_output_slice = paddle.to_tensor(
             [-13.3258, -20.11, -15.9873, -17.6617, -23.0596, -17.9419, -13.3675, -16.1889, -12.38]
         )
@@ -225,7 +225,7 @@ class NCSNppModelTests(ModelTesterMixin, unittest.TestCase):
         time_step = paddle.to_tensor(batch_size * [0.0001])
         with paddle.no_grad():
             output = model(noise, time_step).sample
-        output_slice = output[(0), -3:, -3:, (-1)].flatten().cpu()
+        output_slice = output[0, -3:, -3:, -1].flatten().cpu()
         expected_output_slice = paddle.to_tensor(
             [-4836.2231, -6487.1387, -3816.7969, -7964.9253, -10966.2842, -20043.6016, 8137.0571, 2340.3499, 544.6114]
         )
@@ -241,7 +241,7 @@ class NCSNppModelTests(ModelTesterMixin, unittest.TestCase):
         time_step = paddle.to_tensor(batch_size * [0.0001])
         with paddle.no_grad():
             output = model(noise, time_step).sample
-        output_slice = output[(0), -3:, -3:, (-1)].flatten().cpu()
+        output_slice = output[0, -3:, -3:, -1].flatten().cpu()
         expected_output_slice = paddle.to_tensor(
             [-0.0325, -0.09, -0.0869, -0.0332, -0.0725, -0.027, -0.0101, 0.0227, 0.0256]
         )

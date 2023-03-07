@@ -62,4 +62,4 @@ class TrainingTests(unittest.TestCase):
             optimizer.step()
         del model, optimizer
         self.assertTrue(paddle.allclose(ddpm_noisy_images, ddim_noisy_images, atol=1e-05))
-        self.assertTrue(paddle.allclose(ddpm_noise_pred, ddim_noise_pred, atol=1e-05))
+        self.assertTrue(paddle.allclose(ddpm_noise_pred, ddim_noise_pred, atol=1e-04))

@@ -219,7 +219,8 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         pipe.enable_sequential_cpu_offload()
         inputs = self.get_inputs(dtype='float16')
         _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 2.2 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes < 2.2 * 10 ** 9
 
 
 @nightly

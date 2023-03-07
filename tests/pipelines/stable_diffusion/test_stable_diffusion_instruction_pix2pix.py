@@ -274,7 +274,8 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
         pipe.enable_sequential_cpu_offload()
         inputs = self.get_inputs()
         _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 2.2 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes < 2.2 * 10 ** 9
 
     def test_stable_diffusion_pix2pix_pipeline_multiple_of_8(self):
         inputs = self.get_inputs()

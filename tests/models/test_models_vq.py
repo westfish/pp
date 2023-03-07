@@ -71,7 +71,7 @@ class VQModelTests(ModelTesterMixin, unittest.TestCase):
         image = paddle.randn(shape=[1, model.config.in_channels, model.config.sample_size, model.config.sample_size])
         with paddle.no_grad():
             output = model(image).sample
-        output_slice = output[(0), (-1), -3:, -3:].flatten().cpu()
+        output_slice = output[0, -1, -3:, -3:].flatten().cpu()
         expected_output_slice = paddle.to_tensor(
             [-0.0153, -0.4044, -0.188, -0.5161, -0.2418, -0.4072, -0.1612, -0.0633, -0.0143]
         )

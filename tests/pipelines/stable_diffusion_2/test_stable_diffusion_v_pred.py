@@ -245,7 +245,6 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_stable_diffusion_attention_slicing_v_pred(self):
->>>        torch.cuda.reset_peak_memory_stats()
         model_id = 'stabilityai/stable-diffusion-2'
         pipe = StableDiffusionPipeline.from_pretrained(model_id,
             paddle_dtype=paddle.float16)
@@ -256,14 +255,15 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         output_chunked = pipe([prompt], generator=generator, guidance_scale
             =7.5, num_inference_steps=10, output_type='numpy')
         image_chunked = output_chunked.images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()>>>        torch.cuda.reset_peak_memory_stats()
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
         assert mem_bytes < 5.5 * 10 ** 9
         pipe.disable_attention_slicing()
         generator = paddle.Generator().manual_seed(0)
         output = pipe([prompt], generator=generator, guidance_scale=7.5,
             num_inference_steps=10, output_type='numpy')
         image = output.images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes > 5.5 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes > 5.5 * 10 ** 9
         assert np.abs(image_chunked.flatten() - image.flatten()).max() < 0.001
 
     def test_stable_diffusion_text2img_pipeline_v_pred_default(self):
@@ -300,8 +300,8 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
     def test_stable_diffusion_text2img_intermediate_state_v_pred(self):
         number_of_steps = 0
 
->>>        def test_callback_fn(step: int, timestep: int, latents: torch.
-            FloatTensor) ->None:
+        def test_callback_fn(step: int, timestep: int, latents: paddle.
+            Tensor) ->None:
             test_callback_fn.has_been_called = True
             nonlocal number_of_steps
             number_of_steps += 1
@@ -333,18 +333,6 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         assert test_callback_fn.has_been_called
         assert number_of_steps == 20
 
-    def test_stable_diffusion_low_cpu_mem_usage_v_pred(self):
-        pipeline_id = 'stabilityai/stable-diffusion-2'
-        start_time = time.time()
-        pipeline_low_cpu_mem_usage = StableDiffusionPipeline.from_pretrained(
-            pipeline_id, paddle_dtype=paddle.float16)
-        pipeline_low_cpu_mem_usage
-        low_cpu_mem_usage_time = time.time() - start_time
-        start_time = time.time()
-        _ = StableDiffusionPipeline.from_pretrained(pipeline_id,
-            paddle_dtype='float16', low_cpu_mem_usage=False)
-        normal_load_time = time.time() - start_time
-        assert 2 * low_cpu_mem_usage_time < normal_load_time
 
     def test_stable_diffusion_pipeline_with_sequential_cpu_offloading_v_pred(
         self):
@@ -359,4 +347,5 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         pipeline.enable_sequential_cpu_offload()
         generator = paddle.Generator().manual_seed(0)
         _ = pipeline(prompt, generator=generator, num_inference_steps=5)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 2.8 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes < 2.8 * 10 ** 9

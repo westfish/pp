@@ -238,7 +238,7 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
     def test_stable_diffusion_pix2pix_zero_intermediate_state(self):
         number_of_steps = 0
 
->>>        def callback_fn(step: int, timestep: int, latents: torch.FloatTensor
+        def callback_fn(step: int, timestep: int, latents: paddle.Tensor
             ) ->None:
             callback_fn.has_been_called = True
             nonlocal number_of_steps
@@ -283,7 +283,8 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
         pipe.enable_sequential_cpu_offload()
         inputs = self.get_inputs()
         _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 8.2 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes < 8.2 * 10 ** 9
 
 
 @slow

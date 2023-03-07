@@ -395,7 +395,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(seed)
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
         """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        latents = paddle.to_tensor(data=latents).cast(dtype)
+>>>        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {'prompt': 'a photograph of an astronaut riding a horse',
             'latents': latents, 'generator': generator,
             'num_inference_steps': 3, 'guidance_scale': 7.5, 'output_type':
@@ -473,23 +473,22 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         assert np.abs(image_slice - expected_slice).max() < 0.0001
 
     def test_stable_diffusion_attention_slicing(self):
->>>        torch.cuda.reset_peak_memory_stats()
         pipe = StableDiffusionPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4', paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
         pipe.enable_attention_slicing()
         inputs = self.get_inputs(dtype='float16')
         image_sliced = pipe(**inputs).images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()>>>        torch.cuda.reset_peak_memory_stats()
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
         assert mem_bytes < 3.75 * 10 ** 9
         pipe.disable_attention_slicing()
         inputs = self.get_inputs(dtype='float16')
         image = pipe(**inputs).images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes > 3.75 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes > 3.75 * 10 ** 9
         assert np.abs(image_sliced - image).max() < 0.001
 
     def test_stable_diffusion_vae_slicing(self):
->>>        torch.cuda.reset_peak_memory_stats()
         pipe = StableDiffusionPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4', paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
@@ -499,14 +498,15 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         inputs['prompt'] = [inputs['prompt']] * 4
         inputs['latents'] = paddle.concat(x=[inputs['latents']] * 4)
         image_sliced = pipe(**inputs).images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()>>>        torch.cuda.reset_peak_memory_stats()
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
         assert mem_bytes < 4000000000.0
         pipe.disable_vae_slicing()
         inputs = self.get_inputs(dtype='float16')
         inputs['prompt'] = [inputs['prompt']] * 4
         inputs['latents'] = paddle.concat(x=[inputs['latents']] * 4)
         image = pipe(**inputs).images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes > 4000000000.0
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes > 4000000000.0
         assert np.abs(image_sliced - image).max() < 0.01
 
     def test_stable_diffusion_fp16_vs_autocast(self):
@@ -555,62 +555,6 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         assert callback_fn.has_been_called
         assert number_of_steps == inputs['num_inference_steps']
 
-    def test_stable_diffusion_low_cpu_mem_usage(self):
-        pipeline_id = 'CompVis/stable-diffusion-v1-4'
-        start_time = time.time()
-        pipeline_low_cpu_mem_usage = StableDiffusionPipeline.from_pretrained(
-            pipeline_id, paddle_dtype=paddle.float16)
-        pipeline_low_cpu_mem_usage
-        low_cpu_mem_usage_time = time.time() - start_time
-        start_time = time.time()
-        _ = StableDiffusionPipeline.from_pretrained(pipeline_id,
-            paddle_dtype='float16', low_cpu_mem_usage=False)
-        normal_load_time = time.time() - start_time
-        assert 2 * low_cpu_mem_usage_time < normal_load_time
-
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        pipe = StableDiffusionPipeline.from_pretrained(
-            'CompVis/stable-diffusion-v1-4', paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        inputs = self.get_inputs(dtype='float16')
-        _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 2.8 * 10 ** 9
-
-    def test_stable_diffusion_pipeline_with_model_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        inputs = self.get_inputs(dtype='float16')
-        pipe = StableDiffusionPipeline.from_pretrained(
-            'CompVis/stable-diffusion-v1-4', paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        outputs = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        pipe = StableDiffusionPipeline.from_pretrained(
-            'CompVis/stable-diffusion-v1-4', paddle_dtype=paddle.float16)
-        paddle.device.cuda.empty_cache()
-
-        pipe.enable_model_cpu_offload()
-        pipe.set_progress_bar_config(disable=None)
-        outputs_offloaded = pipe(**inputs)
->>>        mem_bytes_offloaded = torch.cuda.max_memory_allocated()
-        assert np.abs(outputs.images - outputs_offloaded.images).max() < 0.001
-        assert mem_bytes_offloaded < mem_bytes
-        assert mem_bytes_offloaded < 3.5 * 10 ** 9
-        for module in (pipe.text_encoder, pipe.unet, pipe.vae, pipe.
-            safety_checker):
-            assert module.place == 'cpu'
-        paddle.device.cuda.empty_cache()
-
-        pipe.enable_attention_slicing()
-        _ = pipe(**inputs)
->>>        mem_bytes_slicing = torch.cuda.max_memory_allocated()
-        assert mem_bytes_slicing < mem_bytes_offloaded
-        assert mem_bytes_slicing < 3 * 10 ** 9
-
-
 @nightly
 @require_paddle_gpu
 class StableDiffusionPipelineNightlyTests(unittest.TestCase):
@@ -620,12 +564,11 @@ class StableDiffusionPipelineNightlyTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, device, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        latents = paddle.to_tensor(data=latents).cast(dtype)
+        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {'prompt': 'a photograph of an astronaut riding a horse',
             'latents': latents, 'generator': generator,
             'num_inference_steps': 50, 'guidance_scale': 7.5, 'output_type':

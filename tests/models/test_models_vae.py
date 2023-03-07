@@ -84,7 +84,7 @@ class AutoencoderKLTests(ModelTesterMixin, unittest.TestCase):
         )
         with paddle.no_grad():
             output = model(image, sample_posterior=True, generator=generator).sample
-        output_slice = output[(0), (-1), -3:, -3:].flatten().cpu()
+        output_slice = output[0, -1, -3:, -3:].flatten().cpu()
         expected_output_slice = paddle.to_tensor(
             [-0.2421, 0.4642, 0.2507, -0.0438, 0.0682, 0.316, -0.2018, -0.0727, 0.2485]
         )
@@ -102,13 +102,13 @@ class AutoencoderKLIntegrationTests(unittest.TestCase):
         paddle.device.cuda.empty_cache()
 
     def get_sd_image(self, seed=0, shape=(4, 3, 512, 512), fp16=False):
-        dtype = "float16" if fp16 else "float32"
+        dtype = paddle.float16 if fp16 else paddle.float32
         image = paddle.to_tensor(data=load_hf_numpy(self.get_file_format(seed, shape))).cast(dtype)
         return image
 
     def get_sd_vae_model(self, model_id="CompVis/stable-diffusion-v1-4", fp16=False):
         revision = "fp16" if fp16 else None
-        paddle_dtype = "float16" if fp16 else "float32"
+        paddle_dtype = paddle.float16 if fp16 else paddle.float32
         model = AutoencoderKL.from_pretrained(model_id, subfolder="vae", paddle_dtype=paddle_dtype, revision=revision)
         model.eval()
         return model
@@ -231,7 +231,7 @@ class AutoencoderKLIntegrationTests(unittest.TestCase):
             dist = model.encode(image).latent_dist
             sample = dist.sample(generator=generator)
         assert list(sample.shape) == [image.shape[0], 4] + [(i // 8) for i in image.shape[2:]]
-        output_slice = sample[(0), (-1), -3:, -3:].flatten().cpu()
+        output_slice = sample[0, -1, -3:, -3:].flatten().cpu()
         expected_output_slice = paddle.to_tensor(expected_slice)
         tolerance = 0.01
         assert paddle_all_close(output_slice, expected_output_slice, atol=tolerance)

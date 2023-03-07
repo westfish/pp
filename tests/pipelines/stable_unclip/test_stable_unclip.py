@@ -152,4 +152,5 @@ class StableUnCLIPPipelineIntegrationTests(unittest.TestCase):
         pipe.enable_sequential_cpu_offload()
         _ = pipe('anime turtle', prior_num_inference_steps=2,
             num_inference_steps=2, output_type='np')
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 7 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes < 7 * 10 ** 9

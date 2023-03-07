@@ -99,7 +99,7 @@ class Upsample2DBlockTests(unittest.TestCase):
         with paddle.no_grad():
             upsampled = upsample(sample)
         assert tuple(upsampled.shape) == (1, 32, 64, 64)
-        output_slice = upsampled[(0), (-1), -3:, -3:]
+        output_slice = upsampled[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor([-0.2173, -1.2079, -1.2079, 0.2952, 1.1254, 1.1254, 0.2952, 1.1254, 1.1254])
         assert paddle.allclose(output_slice.flatten(), expected_slice, atol=0.001)
 
@@ -110,7 +110,7 @@ class Upsample2DBlockTests(unittest.TestCase):
         with paddle.no_grad():
             upsampled = upsample(sample)
         assert tuple(upsampled.shape) == (1, 32, 64, 64)
-        output_slice = upsampled[(0), (-1), -3:, -3:]
+        output_slice = upsampled[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor([0.7145, 1.3773, 0.3492, 0.8448, 1.0839, -0.3341, 0.5956, 0.125, -0.4841])
         assert paddle.allclose(output_slice.flatten(), expected_slice, atol=0.001)
 
@@ -121,7 +121,7 @@ class Upsample2DBlockTests(unittest.TestCase):
         with paddle.no_grad():
             upsampled = upsample(sample)
         assert tuple(upsampled.shape) == (1, 64, 64, 64)
-        output_slice = upsampled[(0), (-1), -3:, -3:]
+        output_slice = upsampled[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor([0.2703, 0.1656, -0.2538, -0.0553, -0.2984, 0.1044, 0.1155, 0.2579, 0.7755])
         assert paddle.allclose(output_slice.flatten(), expected_slice, atol=0.001)
 
@@ -132,7 +132,7 @@ class Upsample2DBlockTests(unittest.TestCase):
         with paddle.no_grad():
             upsampled = upsample(sample)
         assert tuple(upsampled.shape) == (1, 32, 64, 64)
-        output_slice = upsampled[(0), (-1), -3:, -3:]
+        output_slice = upsampled[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(
             [-0.3028, -0.1582, 0.0071, 0.035, -0.4799, -0.1139, 0.1056, -0.1153, -0.1046]
         )
@@ -147,7 +147,7 @@ class Downsample2DBlockTests(unittest.TestCase):
         with paddle.no_grad():
             downsampled = downsample(sample)
         assert tuple(downsampled.shape) == (1, 32, 32, 32)
-        output_slice = downsampled[(0), (-1), -3:, -3:]
+        output_slice = downsampled[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor([-0.0513, -0.3889, 0.064, 0.0836, -0.546, -0.0341, -0.0169, -0.6967, 0.1179])
         max_diff = (output_slice.flatten() - expected_slice).abs().sum().item()
         assert max_diff <= 0.001
@@ -159,7 +159,7 @@ class Downsample2DBlockTests(unittest.TestCase):
         with paddle.no_grad():
             downsampled = downsample(sample)
         assert tuple(downsampled.shape) == (1, 32, 32, 32)
-        output_slice = downsampled[(0), (-1), -3:, -3:]
+        output_slice = downsampled[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(
             [0.9267, 0.5878, 0.3337, 1.2321, -0.1191, -0.3984, -0.7532, -0.0715, -0.3913]
         )
@@ -172,7 +172,7 @@ class Downsample2DBlockTests(unittest.TestCase):
         with paddle.no_grad():
             downsampled = downsample(sample)
         assert tuple(downsampled.shape) == (1, 32, 32, 32)
-        output_slice = downsampled[(0), (-1), -3:, -3:]
+        output_slice = downsampled[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(
             [0.9267, 0.5878, 0.3337, 1.2321, -0.1191, -0.3984, -0.7532, -0.0715, -0.3913]
         )
@@ -185,7 +185,7 @@ class Downsample2DBlockTests(unittest.TestCase):
         with paddle.no_grad():
             downsampled = downsample(sample)
         assert tuple(downsampled.shape) == (1, 16, 32, 32)
-        output_slice = downsampled[(0), (-1), -3:, -3:]
+        output_slice = downsampled[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor([-0.6586, 0.5985, 0.0721, 0.1256, -0.1492, 0.4436, -0.2544, 0.5021, 1.1522])
         assert paddle.allclose(output_slice.flatten(), expected_slice, atol=0.001)
 
@@ -199,7 +199,7 @@ class ResnetBlock2DTests(unittest.TestCase):
         with paddle.no_grad():
             output_tensor = resnet_block(sample, temb)
         assert tuple(output_tensor.shape) == (1, 32, 64, 64)
-        output_slice = output_tensor[(0), (-1), -3:, -3:]
+        output_slice = output_tensor[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(
             [-1.901, -0.2974, -0.8245, -1.3533, 0.8742, -0.9645, -2.0584, 1.3387, -0.4746]
         )
@@ -213,7 +213,7 @@ class ResnetBlock2DTests(unittest.TestCase):
         with paddle.no_grad():
             output_tensor = resnet_block(sample, temb)
         assert tuple(output_tensor.shape) == (1, 32, 64, 64)
-        output_slice = output_tensor[(0), (-1), -3:, -3:]
+        output_slice = output_tensor[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor([0.2226, -1.0791, -0.1629, 0.3659, -0.2889, -1.2376, 0.0582, 0.9206, 0.0044])
         assert paddle.allclose(output_slice.flatten(), expected_slice, atol=0.001)
 
@@ -225,7 +225,7 @@ class ResnetBlock2DTests(unittest.TestCase):
         with paddle.no_grad():
             output_tensor = resnet_block(sample, temb)
         assert tuple(output_tensor.shape) == (1, 32, 128, 128)
-        output_slice = output_tensor[(0), (-1), -3:, -3:]
+        output_slice = output_tensor[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(
             [1.213, -0.8753, -0.9027, 1.5783, -0.5362, -0.5001, 1.0726, -0.7732, -0.4182]
         )
@@ -239,7 +239,7 @@ class ResnetBlock2DTests(unittest.TestCase):
         with paddle.no_grad():
             output_tensor = resnet_block(sample, temb)
         assert tuple(output_tensor.shape) == (1, 32, 32, 32)
-        output_slice = output_tensor[(0), (-1), -3:, -3:]
+        output_slice = output_tensor[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(
             [-0.3002, -0.7135, 0.1359, 0.0561, -0.7935, 0.0113, -0.1766, -0.6714, -0.0436]
         )
@@ -253,7 +253,7 @@ class ResnetBlock2DTests(unittest.TestCase):
         with paddle.no_grad():
             output_tensor = resnet_block(sample, temb)
         assert tuple(output_tensor.shape) == (1, 32, 32, 32)
-        output_slice = output_tensor[(0), (-1), -3:, -3:]
+        output_slice = output_tensor[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(
             [-0.0934, -0.5729, 0.0909, -0.271, -0.5044, 0.0243, -0.0665, -0.5267, -0.3136]
         )
@@ -267,7 +267,7 @@ class ResnetBlock2DTests(unittest.TestCase):
         with paddle.no_grad():
             output_tensor = resnet_block(sample, temb)
         assert tuple(output_tensor.shape) == (1, 32, 32, 32)
-        output_slice = output_tensor[(0), (-1), -3:, -3:]
+        output_slice = output_tensor[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(
             [-0.3002, -0.7135, 0.1359, 0.0561, -0.7935, 0.0113, -0.1766, -0.6714, -0.0436]
         )
@@ -355,8 +355,8 @@ class Transformer2DModelTests(unittest.TestCase):
             attention_scores_2 = spatial_transformer_block(sample, timestep=timestep_2).sample
         assert tuple(attention_scores_1.shape) == (1, 64, 64, 64)
         assert tuple(attention_scores_2.shape) == (1, 64, 64, 64)
-        output_slice_1 = attention_scores_1[(0), (-1), -3:, -3:]
-        output_slice_2 = attention_scores_2[(0), (-1), -3:, -3:]
+        output_slice_1 = attention_scores_1[0, -1, -3:, -3:]
+        output_slice_2 = attention_scores_2[0, -1, -3:, -3:]
         expected_slice_1 = paddle.to_tensor(
             [-0.1874, -0.9704, -1.429, -1.3357, 1.5138, 0.3036, -0.0976, -1.1667, 0.1283]
         )

@@ -327,4 +327,5 @@ class UnCLIPPipelineIntegrationTests(unittest.TestCase):
         _ = pipe('horse', num_images_per_prompt=1,
             prior_num_inference_steps=2, decoder_num_inference_steps=2,
             super_res_num_inference_steps=2, output_type='np')
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 7 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        assert mem_bytes < 7 * 10 ** 9

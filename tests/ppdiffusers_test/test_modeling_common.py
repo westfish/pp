@@ -75,7 +75,8 @@ class ModelTesterMixin:
                 self.model_class.from_pretrained(tmpdirname)
                 
             # make sure that error message states what keys are missing
-            assert "Error no file named model_state.pdparams found in directory" in str(error_context.exception)
+            # support diffusion_pytorch_model.bin and model_state.pdparams
+            assert "Error no file named model_state.pdparams found in directory" in str(error_context.exception) or "Error no file named diffusion_pytorch_model.bin found in directory" in str(error_context.exception)
         with paddle.no_grad():
 
             image = model(**inputs_dict)
@@ -96,9 +97,9 @@ class ModelTesterMixin:
             with tempfile.TemporaryDirectory() as tmpdirname:
                 model.to(dtype=dtype)
                 model.save_pretrained(tmpdirname)
-                new_model = self.model_class.from_pretrained(tmpdirname, low_cpu_mem_usage=True, paddle_dtype=dtype)
+                new_model = self.model_class.from_pretrained(tmpdirname, paddle_dtype=dtype)
                 assert new_model.dtype == dtype
-                new_model = self.model_class.from_pretrained(tmpdirname, low_cpu_mem_usage=False, paddle_dtype=dtype)
+                new_model = self.model_class.from_pretrained(tmpdirname, paddle_dtype=dtype)
                 assert new_model.dtype == dtype
 
     def test_determinism(self):

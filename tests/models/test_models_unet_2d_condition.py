@@ -106,7 +106,7 @@ class UNet2DConditionModelTests(ModelTesterMixin, unittest.TestCase):
         model = self.model_class(**init_dict)
         model.enable_xformers_memory_efficient_attention()
         assert (
-            model.mid_block.attentions[0].transformer_blocks[0].attn1._use_memory_efficient_attention_xformers
+            hasattr(model.mid_block.attentions[0].transformer_blocks[0].attn1.processor, "attention_op")
         ), "xformers is not enabled"
 
     def test_gradient_checkpointing(self):
@@ -306,7 +306,7 @@ class UNet2DConditionModelTests(ModelTesterMixin, unittest.TestCase):
         assert (sample - old_sample).abs().max() < 0.0001
 
     @unittest.skipIf(
-        is_cutlass_fused_multi_head_attention_available(),
+        not is_cutlass_fused_multi_head_attention_available(),
         reason="cutlass_fused_multi_head_attention attention is only available with CUDA and `cutlass_fused_multi_head_attention` installed",
     )
     def test_lora_xformers_on_off(self):
@@ -337,13 +337,13 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
         paddle.device.cuda.empty_cache()
 
     def get_latents(self, seed=0, shape=(4, 4, 64, 64), fp16=False):
-        dtype = "float16" if fp16 else "float32"
+        dtype = paddle.float16 if fp16 else paddle.float32
         image = paddle.to_tensor(data=load_hf_numpy(self.get_file_format(seed, shape))).cast(dtype)
         return image
 
     def get_unet_model(self, fp16=False, model_id="CompVis/stable-diffusion-v1-4"):
         revision = "fp16" if fp16 else None
-        paddle_dtype = "float16" if fp16 else "float32"
+        paddle_dtype = paddle.float16 if fp16 else paddle.float32
         model = UNet2DConditionModel.from_pretrained(
             model_id, subfolder="unet", paddle_dtype=paddle_dtype, revision=revision
         )

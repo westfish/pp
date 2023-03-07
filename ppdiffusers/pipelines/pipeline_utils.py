@@ -519,11 +519,6 @@ class DiffusionPipeline(ConfigMixin):
                 To have Accelerate compute the most optimized `device_map` automatically, set `device_map="auto"`. For
                 more information about each option see [designing a device
                 map](https://hf.co/docs/accelerate/main/en/usage_guides/big_modeling#designing-a-device-map).
-            low_cpu_mem_usage (`bool`, *optional*, defaults to `True` if torch version >= 1.9.0 else `False`):
-                Speed up model loading by not initializing the weights and only loading the pre-trained weights. This
-                also tries to not use more than 1x model size in CPU memory (including peak memory) while loading the
-                model. This is only supported when torch version >= 1.9.0. If you are using an older version of torch,
-                setting this argument to `True` will raise an error.
             return_cached_folder (`bool`, *optional*, defaults to `False`):
                 If set to `True`, path to downloaded cached folder will be returned in addition to loaded pipeline.
             kwargs (remaining dictionary of keyword arguments, *optional*):

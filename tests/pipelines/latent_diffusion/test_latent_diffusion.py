@@ -99,7 +99,7 @@ class LDMTextToImagePipelineSlowTests(unittest.TestCase):
         generator = paddle.seed(seed=seed)
         latents = np.random.RandomState(seed).standard_normal((1, 4, 32, 32))
         """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        latents = paddle.to_tensor(data=latents).cast(dtype)
+>>>        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {'prompt': 'A painting of a squirrel eating a burger',
             'latents': latents, 'generator': generator,
             'num_inference_steps': 3, 'guidance_scale': 6.0, 'output_type':
@@ -133,7 +133,7 @@ class LDMTextToImagePipelineNightlyTests(unittest.TestCase):
         generator = paddle.seed(seed=seed)
         latents = np.random.RandomState(seed).standard_normal((1, 4, 32, 32))
         """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        latents = paddle.to_tensor(data=latents).cast(dtype)
+>>>        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {'prompt': 'A painting of a squirrel eating a burger',
             'latents': latents, 'generator': generator,
             'num_inference_steps': 50, 'guidance_scale': 6.0, 'output_type':

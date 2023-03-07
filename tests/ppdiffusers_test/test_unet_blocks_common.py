@@ -81,7 +81,7 @@ class UNetBlockTesterMixin:
         if isinstance(output, Tuple):
             output = output[0]
         self.assertEqual(output.shape, self.output_shape)
-        output_slice = output[(0), (-1), -3:, -3:]
+        output_slice = output[0, -1, -3:, -3:]
         expected_slice = paddle.to_tensor(expected_slice)
         assert paddle_all_close(output_slice.flatten(), expected_slice, atol=0.005)
 
