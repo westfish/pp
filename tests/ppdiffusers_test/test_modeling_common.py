@@ -70,9 +70,12 @@ class ModelTesterMixin:
         with tempfile.TemporaryDirectory() as tmpdirname:
             model.save_pretrained(tmpdirname, variant="fp16")
             new_model = self.model_class.from_pretrained(tmpdirname, variant="fp16")
+            # non-variant cannot be loaded
             with self.assertRaises(OSError) as error_context:
                 self.model_class.from_pretrained(tmpdirname)
-            assert "Error no file named diffusion_pytorch_model.bin found in directory" in str(error_context.exception)
+                
+            # make sure that error message states what keys are missing
+            assert "Error no file named model_state.pdparams found in directory" in str(error_context.exception)
         with paddle.no_grad():
 
             image = model(**inputs_dict)
@@ -178,7 +181,7 @@ class ModelTesterMixin:
         output = model(**inputs_dict)
         if isinstance(output, dict):
             output = output.sample
-        noise = paddle.randn(shape=["((inputs_dict[sample].shape[0],) + self.output_shape)"])
+        noise = paddle.randn(shape=list((inputs_dict["sample"].shape[0],) + self.output_shape))
         loss = paddle.nn.functional.mse_loss(input=output, label=noise)
         loss.backward()
 
@@ -190,7 +193,8 @@ class ModelTesterMixin:
         output = model(**inputs_dict)
         if isinstance(output, dict):
             output = output.sample
-        noise = paddle.randn(shape=["((inputs_dict[sample].shape[0],) + self.output_shape)"])
+        # breakpoint()
+        noise = paddle.randn(shape=list((inputs_dict["sample"].shape[0],) + self.output_shape))
         loss = paddle.nn.functional.mse_loss(input=output, label=noise)
         loss.backward()
         ema_model.step(model.parameters())

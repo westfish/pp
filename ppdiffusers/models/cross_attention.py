@@ -302,8 +302,8 @@ class LoRALinearLayer(nn.Layer):
         if rank > min(in_features, out_features):
             raise ValueError(f"LoRA rank {rank} must be less or equal than {min(in_features, out_features)}")
 
-        self.down = nn.Linear(in_features, rank, bias=False)
-        self.up = nn.Linear(rank, out_features, bias=False)
+        self.down = nn.Linear(in_features, rank, bias_attr=False)
+        self.up = nn.Linear(rank, out_features, bias_attr=False)
 
         normal_(self.down.weight, std=1 / rank)
         zeros_(self.up.weight)
