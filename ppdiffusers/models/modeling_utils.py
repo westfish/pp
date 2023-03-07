@@ -50,7 +50,8 @@ logger = logging.get_logger(__name__)
 
 if is_safetensors_available():
     from safetensors.numpy import save_file as safetensors_numpy_save_file
-    from safetensors.torch import save_file as safetensors_torch_save_file
+    if is_torch_available():
+        from safetensors.torch import save_file as safetensors_torch_save_file
 
 if is_torch_available():
     import torch

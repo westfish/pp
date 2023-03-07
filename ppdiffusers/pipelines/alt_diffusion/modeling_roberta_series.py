@@ -101,6 +101,8 @@ class RobertaSeriesModelWithTransformation(RobertaPretrainedModel):
     def __init__(self, config):
         super().__init__(config)
         self.roberta = XLMRobertaModel(config)
+        # must reset _padding_idx
+        self.roberta.embeddings.word_embeddings._padding_idx = None
         self.transformation = nn.Linear(config.hidden_size, config.project_dim)
         self.apply(self.init_weights)
 

@@ -35,7 +35,7 @@ __all__ = ["smart_load", "torch_load", "safetensors_load"]
 
 
 paddle_suffix = [".pdparams", ".pd"]
-torch_suffix = [".pt", ".pth", ".bin"]
+torch_suffix = [".pt", ".pth", ".bin", ".ckpt"]
 safetensors_suffix = [".safetensors"]
 
 if is_safetensors_available():
@@ -139,6 +139,10 @@ class UnpicklerWrapperStage(pickle.Unpickler):
 
         # pure torch tensor builder
         if mod_name == "torch._utils":
+            if name == "_rebuild_parameter":
+                return _rebuild_parameter
+            if name == "_rebuild_parameter_with_state":
+                return _rebuild_parameter_with_state
             return _rebuild_tensor_stage
 
         # pytorch_lightning tensor builder
@@ -158,6 +162,11 @@ def _rebuild_tensor_stage(storage, storage_offset, size, stride, requires_grad, 
 
     return storage.reshape(size, order=order)
 
+def _rebuild_parameter(data, requires_grad, backward_hooks):
+    return data
+
+def _rebuild_parameter_with_state(data, requires_grad, backward_hooks, state):
+    return data
 
 def dumpy(*args, **kwarsg):
     return None
@@ -248,12 +257,15 @@ def convert_to_numpy(state_dict):
 
 
 def safetensors_load(path: str):
-    if is_torch_available():
-        from safetensors.torch import load_file
+    if is_safetensors_available():
+        if is_torch_available():
+            from safetensors.torch import load_file
+        else:
+            from safetensors.numpy import load_file
     else:
-        from safetensors.numpy import load_file
-    state_dict = load_file(path)
-    return state_dict
+        raise ImportError("`safetensors_load` requires the `safetensors library: `pip install safetensors`.")
+
+    return load_file(path)
 
 
 def smart_load(path: str, map_location: str = "cpu", return_numpy=False):

@@ -947,6 +947,7 @@ class DiffusionPipeline(ConfigMixin):
         paddle_dtype = kwargs.pop("paddle_dtype", None)
         cache_dir = kwargs.pop("cache_dir", DIFFUSERS_CACHE)
         original_config_file = kwargs.pop("original_config_file", None)
+        requires_safety_checker = kwargs.pop("requires_safety_checker", False)
         pretrained_model_name_or_path = str(pretrained_model_name_or_path)
         if os.path.isfile(pretrained_model_name_or_path):
             checkpoint_path = pretrained_model_name_or_path
@@ -965,6 +966,7 @@ class DiffusionPipeline(ConfigMixin):
             checkpoint_path=checkpoint_path,
             original_config_file=original_config_file,
             paddle_dtype=paddle_dtype,
+            requires_safety_checker=requires_safety_checker,
             **kwargs,
         )
 
