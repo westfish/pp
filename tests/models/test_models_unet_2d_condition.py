@@ -56,12 +56,12 @@ def create_lora_layers(model):
         lora_attn_procs[name] = LoRACrossAttnProcessor(
             hidden_size=hidden_size, cross_attention_dim=cross_attention_dim
         )
-        lora_attn_procs[name] = lora_attn_procs[name].to(model.place)
+        lora_attn_procs[name] = lora_attn_procs[name]
         with paddle.no_grad():
-            lora_attn_procs[name].to_q_lora.up.weight += 1
-            lora_attn_procs[name].to_k_lora.up.weight += 1
-            lora_attn_procs[name].to_v_lora.up.weight += 1
-            lora_attn_procs[name].to_out_lora.up.weight += 1
+            lora_attn_procs[name].to_q_lora.up.weight.set_value(lora_attn_procs[name].to_q_lora.up.weight + 1)
+            lora_attn_procs[name].to_k_lora.up.weight.set_value(lora_attn_procs[name].to_k_lora.up.weight + 1)
+            lora_attn_procs[name].to_v_lora.up.weight.set_value(lora_attn_procs[name].to_v_lora.up.weight + 1)
+            lora_attn_procs[name].to_out_lora.up.weight.set_value(lora_attn_procs[name].to_out_lora.up.weight + 1)
     return lora_attn_procs
 
 
@@ -114,7 +114,7 @@ class UNet2DConditionModelTests(ModelTesterMixin, unittest.TestCase):
         model = self.model_class(**init_dict)
         assert not model.is_gradient_checkpointing and model.training
         out = model(**inputs_dict).sample
-        model.clear_grad()
+        model.clear_gradients()
         labels = paddle.randn_like(out)
         loss = (out - labels).mean()
         loss.backward()
@@ -123,7 +123,7 @@ class UNet2DConditionModelTests(ModelTesterMixin, unittest.TestCase):
         model_2.enable_gradient_checkpointing()
         assert model_2.is_gradient_checkpointing and model_2.training
         out_2 = model_2(**inputs_dict).sample
-        model_2.clear_grad()
+        model_2.clear_gradients()
         loss_2 = (out_2 - labels).mean()
         loss_2.backward()
         self.assertTrue((loss - loss_2).abs() < 1e-05)
@@ -253,10 +253,10 @@ class UNet2DConditionModelTests(ModelTesterMixin, unittest.TestCase):
                 hidden_size=hidden_size, cross_attention_dim=cross_attention_dim
             )
             with paddle.no_grad():
-                lora_attn_procs[name].to_q_lora.up.weight += 1
-                lora_attn_procs[name].to_k_lora.up.weight += 1
-                lora_attn_procs[name].to_v_lora.up.weight += 1
-                lora_attn_procs[name].to_out_lora.up.weight += 1
+                lora_attn_procs[name].to_q_lora.up.weight.set_value(lora_attn_procs[name].to_q_lora.up.weight + 1)
+                lora_attn_procs[name].to_k_lora.up.weight.set_value(lora_attn_procs[name].to_k_lora.up.weight + 1)
+                lora_attn_procs[name].to_v_lora.up.weight.set_value(lora_attn_procs[name].to_v_lora.up.weight + 1)
+                lora_attn_procs[name].to_out_lora.up.weight.set_value(lora_attn_procs[name].to_out_lora.up.weight + 1)
         model.set_attn_processor(lora_attn_procs)
         model.set_attn_processor(model.attn_processors)
         with paddle.no_grad():

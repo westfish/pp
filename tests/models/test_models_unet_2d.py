@@ -156,7 +156,7 @@ class UNetLDMModelTests(ModelTesterMixin, unittest.TestCase):
         model.eval()
         noise = paddle.randn(
             shape=[1, model.config.in_channels, model.config.sample_size, model.config.sample_size],
-            generator=paddle.seed(0),
+            generator=paddle.Generator().manual_seed(0),
         )
         time_step = paddle.to_tensor([10] * noise.shape[0])
         with paddle.no_grad():
@@ -237,7 +237,7 @@ class NCSNppModelTests(ModelTesterMixin, unittest.TestCase):
         batch_size = 4
         num_channels = 3
         sizes = 32, 32
-        noise = paddle.ones(shape=[(batch_size, num_channels) + sizes])
+        noise = paddle.ones(shape=(batch_size, num_channels) + sizes)
         time_step = paddle.to_tensor(batch_size * [0.0001])
         with paddle.no_grad():
             output = model(noise, time_step).sample
