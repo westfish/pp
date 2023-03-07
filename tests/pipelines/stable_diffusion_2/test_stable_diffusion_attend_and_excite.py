@@ -113,7 +113,7 @@ class StableDiffusionAttendAndExcitePipelineFastTests(PipelineTesterMixin, unitt
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         self.assertEqual(image.shape, (1, 64, 64, 3))
         expected_slice = np.array(
             [0.5644937, 0.60543084, 0.48239064, 0.5206757, 0.55623394, 0.46045133, 0.5100435, 0.48919064, 0.4759359]

@@ -247,8 +247,10 @@ class GaussianFourierProjection(nn.Layer):
             self.weight = self.W
 
     def forward(self, x):
+        # TODO must cast x to float32
+        x = x.cast(self.weight.dtype)
         if self.log:
-            x = paddle.log(x.cast(self.weight.dtype))
+            x = paddle.log(x)
 
         x_proj = x[:, None] * self.weight[None, :] * 2 * np.pi
 

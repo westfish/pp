@@ -58,7 +58,7 @@ class OnnxStableDiffusionPipelineFastTests(OnnxPipelineTesterMixin, unittest.Tes
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.65072, 0.58492, 0.48219, 0.55521, 0.5318, 0.55939, 0.50697, 0.398, 0.46455])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -69,7 +69,7 @@ class OnnxStableDiffusionPipelineFastTests(OnnxPipelineTesterMixin, unittest.Tes
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.65863, 0.59425, 0.49326, 0.56313, 0.53875, 0.56627, 0.51065, 0.39777, 0.4633])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -80,7 +80,7 @@ class OnnxStableDiffusionPipelineFastTests(OnnxPipelineTesterMixin, unittest.Tes
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.53755, 0.60786, 0.47402, 0.49488, 0.51869, 0.49819, 0.47985, 0.38957, 0.44279])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -91,7 +91,7 @@ class OnnxStableDiffusionPipelineFastTests(OnnxPipelineTesterMixin, unittest.Tes
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.53755, 0.60786, 0.47402, 0.49488, 0.51869, 0.49819, 0.47985, 0.38957, 0.44279])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -102,7 +102,7 @@ class OnnxStableDiffusionPipelineFastTests(OnnxPipelineTesterMixin, unittest.Tes
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.53817, 0.60812, 0.47384, 0.4953, 0.51894, 0.49814, 0.47984, 0.38958, 0.44271])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -113,7 +113,7 @@ class OnnxStableDiffusionPipelineFastTests(OnnxPipelineTesterMixin, unittest.Tes
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.53895, 0.60808, 0.47933, 0.49608, 0.51886, 0.4995, 0.48053, 0.38957, 0.442])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -147,7 +147,7 @@ class OnnxStableDiffusionPipelineIntegrationTests(unittest.TestCase):
         np.random.seed(0)
         output = sd_pipe([prompt], guidance_scale=6.0, num_inference_steps=10, output_type="np")
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.0452, 0.039, 0.0087, 0.035, 0.0617, 0.0364, 0.0544, 0.0523, 0.072])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
@@ -170,7 +170,7 @@ class OnnxStableDiffusionPipelineIntegrationTests(unittest.TestCase):
         generator = np.random.RandomState(0)
         output = sd_pipe([prompt], guidance_scale=7.5, num_inference_steps=10, generator=generator, output_type="np")
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.2867, 0.1974, 0.1481, 0.7294, 0.7251, 0.6667, 0.4194, 0.5642, 0.6486])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
@@ -193,7 +193,7 @@ class OnnxStableDiffusionPipelineIntegrationTests(unittest.TestCase):
         generator = np.random.RandomState(0)
         output = sd_pipe([prompt], guidance_scale=7.5, num_inference_steps=10, generator=generator, output_type="np")
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.2306, 0.1959, 0.1593, 0.6549, 0.6394, 0.5408, 0.5065, 0.601, 0.6161])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001

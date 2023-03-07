@@ -63,7 +63,7 @@ class RepaintPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([1.0, 0.5426, 0.5497, 0.22, 1.0, 1.0, 
             0.5623, 1.0, 0.6274])

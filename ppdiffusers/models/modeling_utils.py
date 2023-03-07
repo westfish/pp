@@ -389,6 +389,7 @@ class ModelMixin(nn.Layer):
             use_auth_token=use_auth_token,
             revision=revision,
             subfolder=subfolder,
+            from_hf_hub=from_hf_hub, # whether or not from_hf_hub
             **kwargs,
         )
         model = cls.from_config(config, **unused_kwargs)

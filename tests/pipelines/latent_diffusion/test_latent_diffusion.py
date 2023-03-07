@@ -79,7 +79,7 @@ class LDMTextToImagePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 16, 16, 3)
         expected_slice = np.array([0.5945, 0.64078, 0.55509, 0.51229, 
             0.6964, 0.3696, 0.59296, 0.60801, 0.49332])
@@ -112,7 +112,7 @@ class LDMTextToImagePipelineSlowTests(unittest.TestCase):
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 256, 256, 3)
         expected_slice = np.array([0.51825, 0.5285, 0.52543, 0.54258, 
             0.52304, 0.52569, 0.54363, 0.55276, 0.56878])

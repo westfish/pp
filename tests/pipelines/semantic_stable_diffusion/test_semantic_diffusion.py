@@ -119,7 +119,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         image_from_tuple = sd_pipe([prompt], generator=generator,
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5644, 0.6018, 0.4799, 0.5267, 0.5585, 
@@ -149,7 +149,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         image_from_tuple = sd_pipe([prompt], generator=generator,
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5095, 0.5674, 0.4668, 0.5126, 0.5697, 
@@ -227,7 +227,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.34673113, 0.38492733, 0.37597352, 0.34086335, 
             0.35650748, 0.35579205, 0.3384763, 0.34340236, 0.3573271]
         assert image.shape == (1, 512, 512, 3)
@@ -237,7 +237,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, **edit)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.41887826, 0.37728766, 0.30138272, 0.41416335, 
             0.41664985, 0.36283392, 0.36191246, 0.43364465, 0.43001732]
         assert image.shape == (1, 512, 512, 3)
@@ -261,7 +261,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.43497998, 0.91814065, 0.7540739, 0.55580205, 
             0.8467265, 0.5389691, 0.62574506, 0.58897763, 0.50926757]
         assert image.shape == (1, 512, 512, 3)
@@ -271,7 +271,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, **edit)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.3089719, 0.30500144, 0.29016042, 0.30630964, 
             0.325687, 0.29419225, 0.2908091, 0.28723598, 0.27696294]
         assert image.shape == (1, 512, 512, 3)
@@ -296,7 +296,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.75163555, 0.76037145, 0.61785, 0.9189673, 
             0.8627701, 0.85189694, 0.8512813, 0.87012076, 0.8312857]
         assert image.shape == (1, 512, 512, 3)
@@ -306,7 +306,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, **edit)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.73553365, 0.7537271, 0.74341905, 0.66480356, 
             0.6472925, 0.63039416, 0.64812905, 0.6749717, 0.6517102]
         assert image.shape == (1, 512, 512, 3)
@@ -330,7 +330,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.34887695, 0.3876953, 0.375, 0.34423828, 
             0.3581543, 0.35717773, 0.3383789, 0.34570312, 0.359375]
         assert image.shape == (1, 512, 512, 3)
@@ -340,7 +340,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, **edit)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.42285156, 0.36914062, 0.29077148, 0.42041016, 
             0.41918945, 0.35498047, 0.3618164, 0.4423828, 0.43115234]
         assert image.shape == (1, 512, 512, 3)

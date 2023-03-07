@@ -151,7 +151,7 @@ class StableDiffusionInpaintLegacyPipelineFastTests(unittest.TestCase):
         image_from_tuple = sd_pipe([prompt], generator=generator,
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             image=init_image, mask_image=mask_image, return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.4941, 0.5396, 0.4689, 0.6338, 0.5392, 
@@ -183,7 +183,7 @@ class StableDiffusionInpaintLegacyPipelineFastTests(unittest.TestCase):
             =generator, guidance_scale=6.0, num_inference_steps=2,
             output_type='np', image=init_image, mask_image=mask_image)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.4941, 0.5396, 0.4689, 0.6338, 0.5392, 
             0.4094, 0.5477, 0.5904, 0.5165])

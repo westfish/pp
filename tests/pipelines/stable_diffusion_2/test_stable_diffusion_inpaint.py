@@ -85,7 +85,7 @@ class StableDiffusion2InpaintPipelineFastTests(PipelineTesterMixin,
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.4727, 0.5735, 0.3941, 0.5446, 0.5926, 
             0.4394, 0.5062, 0.4654, 0.4476])

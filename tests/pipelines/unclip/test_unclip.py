@@ -178,7 +178,7 @@ class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image = output.images
         image_from_tuple = pipe(**self.get_dummy_inputs(),
             return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.9988, 0.0028, 0.9997, 0.9984, 

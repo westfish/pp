@@ -85,7 +85,7 @@ class StableDiffusionImageVariationPipelineFastTests(PipelineTesterMixin,
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5167, 0.5746, 0.4835, 0.4914, 0.5605, 
             0.4691, 0.5201, 0.4898, 0.4958])
@@ -161,7 +161,7 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.84491, 0.90789, 0.75708, 0.78734, 
             0.83485, 0.70099, 0.66938, 0.68727, 0.61379])

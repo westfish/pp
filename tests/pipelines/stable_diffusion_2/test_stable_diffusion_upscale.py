@@ -106,7 +106,7 @@ class StableDiffusionUpscalePipelineFastTests(unittest.TestCase):
         image_from_tuple = sd_pipe([prompt], image=low_res_image, generator
             =generator, guidance_scale=6.0, noise_level=20,
             num_inference_steps=2, output_type='np', return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         expected_height_width = low_res_image.size[0] * 4
         assert image.shape == (1, expected_height_width,

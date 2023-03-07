@@ -84,7 +84,7 @@ class StableDiffusionInstructPix2PixPipelineFastTests(PipelineTesterMixin,
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.7318, 0.3723, 0.4662, 0.623, 0.577, 
             0.5014, 0.4281, 0.555, 0.4813])
@@ -99,7 +99,7 @@ class StableDiffusionInstructPix2PixPipelineFastTests(PipelineTesterMixin,
         negative_prompt = 'french fries'
         output = sd_pipe(**inputs, negative_prompt=negative_prompt)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.7323, 0.3688, 0.4611, 0.6255, 0.5746, 
             0.5017, 0.433, 0.5553, 0.4827])
@@ -132,7 +132,7 @@ class StableDiffusionInstructPix2PixPipelineFastTests(PipelineTesterMixin,
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         slice = [round(x, 4) for x in image_slice.flatten().tolist()]
         print(','.join([str(x) for x in slice]))
         assert image.shape == (1, 32, 32, 3)
@@ -193,7 +193,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.5902, 0.6015, 0.6027, 0.5983, 0.6092, 
             0.6061, 0.5765, 0.5785, 0.5555])
@@ -208,7 +208,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.6578, 0.6817, 0.6972, 0.6761, 0.6856, 
             0.6916, 0.6428, 0.6516, 0.6301])
@@ -222,7 +222,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.3828, 0.3834, 0.3818, 0.3792, 0.3865, 
             0.3752, 0.3792, 0.3847, 0.3753])

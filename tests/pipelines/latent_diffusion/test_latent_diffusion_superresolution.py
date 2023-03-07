@@ -64,7 +64,7 @@ class LDMSuperResolutionPipelineFastTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(0)
         image = ldm(image=init_image, generator=generator,
             num_inference_steps=2, output_type='numpy').images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.8678, 0.8245, 0.6381, 0.683, 0.4385, 
             0.5599, 0.4641, 0.6201, 0.515])
@@ -106,7 +106,7 @@ class LDMSuperResolutionPipelineIntegrationTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(0)
         image = ldm(image=init_image, generator=generator,
             num_inference_steps=20, output_type='numpy').images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 256, 256, 3)
         expected_slice = np.array([0.7644, 0.7679, 0.7642, 0.7633, 0.7666, 
             0.756, 0.7425, 0.7257, 0.6907])

@@ -67,7 +67,7 @@ class DiTPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         self.assertEqual(image.shape, (1, 16, 16, 3))
         expected_slice = np.array([0.438, 0.4141, 0.5159, 0.0, 0.4282, 0.668, 0.5485, 0.2545, 0.6719])
         max_diff = np.abs(image_slice.flatten() - expected_slice).max()

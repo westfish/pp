@@ -77,7 +77,7 @@ class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5101, 0.5006, 0.4962, 0.3995, 0.3501, 
             0.4632, 0.5339, 0.525, 0.4878])
@@ -92,7 +92,7 @@ class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
         negative_prompt = 'french fries'
         output = sd_pipe(**inputs, negative_prompt=negative_prompt)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5326, 0.5009, 0.5074, 0.4133, 0.371, 
             0.464, 0.5432, 0.5429, 0.4896])
@@ -107,7 +107,7 @@ class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.48235387, 0.5423796, 0.46016198, 
             0.5377287, 0.5803722, 0.4876525, 0.5515428, 0.5045897, 0.50709957])
@@ -175,7 +175,7 @@ class StableDiffusionPanoramaSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 2048, 3)
         expected_slice = np.array([0.36968392, 0.27025372, 0.32446766, 
             0.28379387, 0.36363274, 0.30733347, 0.27100027, 0.27054125, 
@@ -191,7 +191,7 @@ class StableDiffusionPanoramaSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 2048, 3)
         expected_slice = np.array([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0]])

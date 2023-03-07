@@ -221,7 +221,7 @@ class NCSNppModelTests(ModelTesterMixin, unittest.TestCase):
         batch_size = 4
         num_channels = 3
         sizes = 256, 256
-        noise = paddle.ones(shape=[(batch_size, num_channels) + sizes])
+        noise = paddle.ones(shape=(batch_size, num_channels, *sizes))
         time_step = paddle.to_tensor(batch_size * [0.0001])
         with paddle.no_grad():
             output = model(noise, time_step).sample
@@ -237,7 +237,7 @@ class NCSNppModelTests(ModelTesterMixin, unittest.TestCase):
         batch_size = 4
         num_channels = 3
         sizes = 32, 32
-        noise = paddle.ones(shape=(batch_size, num_channels) + sizes)
+        noise = paddle.ones(shape=(batch_size, num_channels, *sizes))
         time_step = paddle.to_tensor(batch_size * [0.0001])
         with paddle.no_grad():
             output = model(noise, time_step).sample

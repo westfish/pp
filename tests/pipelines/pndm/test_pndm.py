@@ -46,7 +46,7 @@ class PNDMPipelineFastTests(unittest.TestCase):
         image = pndm(generator=generator, num_inference_steps=20, output_type="numpy").images
         generator = paddle.Generator().manual_seed(0)
         image_from_tuple = pndm(generator=generator, num_inference_steps=20, output_type="numpy", return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([1.0, 1.0, 0.0, 1.0, 0.0, 1.0, 0.0, 0.0, 0.0])
@@ -66,7 +66,7 @@ class PNDMPipelineIntegrationTests(unittest.TestCase):
         pndm.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         image = pndm(generator=generator, output_type="numpy").images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.1564, 0.14645, 0.1406, 0.14715, 0.12425, 0.14045, 0.13115, 0.12175, 0.125])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

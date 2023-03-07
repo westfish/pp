@@ -80,7 +80,7 @@ class LDMPipelineFastTests(unittest.TestCase):
         image = ldm(generator=generator, num_inference_steps=2, output_type="numpy").images
         generator = paddle.Generator().manual_seed(0)
         image_from_tuple = ldm(generator=generator, num_inference_steps=2, output_type="numpy", return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.8512, 0.818, 0.6411, 0.6808, 0.4465, 0.5618, 0.46, 0.6231, 0.5172])
@@ -98,7 +98,7 @@ class LDMPipelineIntegrationTests(unittest.TestCase):
         ldm.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         image = ldm(generator=generator, num_inference_steps=5, output_type="numpy").images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 256, 256, 3)
         expected_slice = np.array([0.4399, 0.44975, 0.46825, 0.474, 0.4359, 0.4581, 0.45095, 0.4341, 0.4447])
         tolerance = 0.01 if torch_device != "mps" else 0.03

@@ -62,7 +62,7 @@ class OnnxStableDiffusionImg2ImgPipelineFastTests(OnnxPipelineTesterMixin, unitt
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.69643, 0.58484, 0.50314, 0.5876, 0.55368, 0.59643, 0.51529, 0.41217, 0.49087])
         assert np.abs(image_slice - expected_slice).max() < 0.1
@@ -73,7 +73,7 @@ class OnnxStableDiffusionImg2ImgPipelineFastTests(OnnxPipelineTesterMixin, unitt
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.6171, 0.5339, 0.4931, 0.55622, 0.50982, 0.5824, 0.50716, 0.38629, 0.46856])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.1
@@ -85,7 +85,7 @@ class OnnxStableDiffusionImg2ImgPipelineFastTests(OnnxPipelineTesterMixin, unitt
         _ = pipe(**self.get_dummy_inputs())
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.52761, 0.59977, 0.49033, 0.49619, 0.54282, 0.50311, 0.476, 0.40918, 0.45203])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.1
@@ -96,7 +96,7 @@ class OnnxStableDiffusionImg2ImgPipelineFastTests(OnnxPipelineTesterMixin, unitt
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.52911, 0.60004, 0.49229, 0.49805, 0.54502, 0.5068, 0.47777, 0.41028, 0.45304])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.1
@@ -107,7 +107,7 @@ class OnnxStableDiffusionImg2ImgPipelineFastTests(OnnxPipelineTesterMixin, unitt
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.52911, 0.60004, 0.49229, 0.49805, 0.54502, 0.5068, 0.47777, 0.41028, 0.45304])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.1
@@ -118,7 +118,7 @@ class OnnxStableDiffusionImg2ImgPipelineFastTests(OnnxPipelineTesterMixin, unitt
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 128, 128, 3)
         expected_slice = np.array([0.65331, 0.58277, 0.48204, 0.56059, 0.53665, 0.56235, 0.50969, 0.40009, 0.46552])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.1

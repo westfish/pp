@@ -145,14 +145,13 @@ class AltDiffusionImg2ImgPipelineFastTests(unittest.TestCase):
             image=init_image,
             return_dict=False,
         )[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.4115, 0.387, 0.4089, 0.4807, 0.4668, 0.4144, 0.4151, 0.4721, 0.4569])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.005
         assert np.abs(image_from_tuple_slice.flatten() - expected_slice).max() < 0.005
 
-    @unittest.skipIf(torch_device != "cuda", "This test requires a GPU")
     def test_stable_diffusion_img2img_fp16(self):
         """Test that stable diffusion img2img works with fp16"""
         unet = self.dummy_cond_unet
@@ -182,7 +181,6 @@ class AltDiffusionImg2ImgPipelineFastTests(unittest.TestCase):
         ).images
         assert image.shape == (1, 32, 32, 3)
 
-    @unittest.skipIf(torch_device != "cuda", "This test requires a GPU")
     def test_stable_diffusion_img2img_pipeline_multiple_of_8(self):
         init_image = load_image(
             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"

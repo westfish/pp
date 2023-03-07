@@ -98,7 +98,7 @@ class PaintByExamplePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = pipe(**inputs)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.4701, 0.5555, 0.3994, 0.5107, 0.5691, 
             0.4517, 0.5125, 0.4769, 0.4539])
@@ -157,7 +157,7 @@ class PaintByExamplePipelineIntegrationTests(unittest.TestCase):
             example_image=example_image, generator=generator,
             guidance_scale=5.0, num_inference_steps=50, output_type='np')
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.4834, 0.4811, 0.4874, 0.5122, 0.5081, 
             0.5144, 0.5291, 0.529, 0.5374])

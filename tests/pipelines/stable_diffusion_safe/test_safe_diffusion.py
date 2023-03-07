@@ -119,7 +119,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         image_from_tuple = sd_pipe([prompt], generator=generator,
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5644, 0.6018, 0.4799, 0.5267, 0.5585, 
@@ -149,7 +149,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         image_from_tuple = sd_pipe([prompt], generator=generator,
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5095, 0.5674, 0.4668, 0.5126, 0.5697, 
@@ -226,7 +226,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=0)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.2278, 0.2231, 0.2249, 0.2333, 0.2303, 0.1885, 
             0.2273, 0.2144, 0.2176]
         assert image.shape == (1, 512, 512, 3)
@@ -237,7 +237,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             =512, height=512, sld_guidance_scale=2000, sld_warmup_steps=7,
             sld_threshold=0.025, sld_momentum_scale=0.5, sld_mom_beta=0.7)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.2383, 0.2276, 0.236, 0.2192, 0.2186, 0.2053, 
             0.1971, 0.1901, 0.1719]
         assert image.shape == (1, 512, 512, 3)
@@ -259,7 +259,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=0)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.3502, 0.3622, 0.3396, 0.3642, 0.3478, 0.3318, 
             0.35, 0.3348, 0.3297]
         assert image.shape == (1, 512, 512, 3)
@@ -270,7 +270,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             =512, height=512, sld_guidance_scale=2000, sld_warmup_steps=7,
             sld_threshold=0.025, sld_momentum_scale=0.5, sld_mom_beta=0.7)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = [0.5531, 0.5206, 0.4895, 0.5156, 0.5182, 0.4751, 
             0.4802, 0.4803, 0.4443]
         assert image.shape == (1, 512, 512, 3)
@@ -291,7 +291,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=0)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
             )
         assert image.shape == (1, 512, 512, 3)
@@ -302,7 +302,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             =512, height=512, sld_guidance_scale=2000, sld_warmup_steps=7,
             sld_threshold=0.025, sld_momentum_scale=0.5, sld_mom_beta=0.7)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         expected_slice = np.array([0.5818, 0.6285, 0.6835, 0.6019, 0.625, 
             0.6754, 0.6096, 0.6334, 0.6561])
         assert image.shape == (1, 512, 512, 3)

@@ -87,7 +87,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5643, 0.6017, 0.4799, 0.5267, 0.5584, 
             0.4641, 0.5159, 0.4963, 0.4791])
@@ -101,18 +101,18 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         lora_attn_procs = create_lora_layers(sd_pipe.unet)
         sd_pipe.unet.set_attn_processor(lora_attn_procs)
         sd_pipe = sd_pipe
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs, cross_attention_kwargs={'scale': 0.0})
         image = output.images
-        image_slice_1 = image[(0), -3:, -3:, (-1)]
+        image_slice_1 = image[0, -3:, -3:, -1]
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs, cross_attention_kwargs={'scale': 0.5})
         image = output.images
-        image_slice_2 = image[(0), -3:, -3:, (-1)]
+        image_slice_2 = image[0, -3:, -3:, -1]
         assert np.abs(image_slice - image_slice_1).max() < 0.01
         assert np.abs(image_slice - image_slice_2).max() > 0.01
 
@@ -174,7 +174,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs, height=136, width=136)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 136, 136, 3)
         expected_slice = np.array([0.5524, 0.5626, 0.6069, 0.4727, 0.386, 
             0.3995, 0.4613, 0.4328, 0.4269])
@@ -189,7 +189,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5094, 0.5674, 0.4667, 0.5125, 0.5696, 
             0.4674, 0.5277, 0.4964, 0.4945])
@@ -221,7 +221,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.47082293033599854, 0.5371589064598083,
             0.4562119245529175, 0.5220914483070374, 0.5733777284622192, 
@@ -239,7 +239,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.4707113206386566, 0.5372191071510315, 
             0.4563021957874298, 0.5220003724098206, 0.5734264850616455, 
@@ -257,7 +257,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.47082313895225525, 0.5371587872505188,
             0.4562119245529175, 0.5220913887023926, 0.5733776688575745, 
@@ -293,7 +293,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         negative_prompt = 'french fries'
         output = sd_pipe(**inputs, negative_prompt=negative_prompt)
         image = output.images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5108221173286438, 0.5688379406929016, 
             0.4685141146183014, 0.5098261833190918, 0.5657756328582764, 
@@ -409,7 +409,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.43625, 0.43554, 0.3667, 0.4066, 
             0.39703, 0.38658, 0.43936, 0.43557, 0.40592])
@@ -422,7 +422,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.574, 0.47841, 0.31625, 0.63583, 
             0.58306, 0.55056, 0.50825, 0.56306, 0.55748])
@@ -436,7 +436,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.38019, 0.28647, 0.27321, 0.40377, 
             0.3829, 0.35446, 0.39218, 0.38165, 0.42239])
@@ -451,7 +451,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.10542, 0.0962, 0.07332, 0.09015, 
             0.09382, 0.07597, 0.08496, 0.07806, 0.06455])
@@ -466,7 +466,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)].flatten()
+        image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.03503, 0.03494, 0.01087, 0.03128, 
             0.02552, 0.00803, 0.00742, 0.00372, 0.0])

@@ -187,7 +187,7 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
         image = output.images
         tuple_pipeline_inputs = self.get_dummy_inputs(device, pil_image=False)
         image_from_tuple = pipe(**tuple_pipeline_inputs, return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.0002, 0.9997, 0.9997, 0.9969, 
@@ -205,7 +205,7 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
         image = output.images
         tuple_pipeline_inputs = self.get_dummy_inputs(device, pil_image=True)
         image_from_tuple = pipe(**tuple_pipeline_inputs, return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.0003, 0.9997, 0.9997, 0.997, 
@@ -227,7 +227,7 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
         tuple_pipeline_inputs['image'] = [tuple_pipeline_inputs['image'],
             tuple_pipeline_inputs['image']]
         image_from_tuple = pipe(**tuple_pipeline_inputs, return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (2, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.9989, 0.0008, 0.0021, 0.996, 
@@ -250,7 +250,7 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
             tuple_pipeline_inputs['image']]
         image_from_tuple = pipe(**tuple_pipeline_inputs,
             num_images_per_prompt=2, return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (4, 64, 64, 3)
         expected_slice = np.array([0.998, 0.9997, 0.0023, 0.0029, 0.9997, 

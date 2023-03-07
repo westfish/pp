@@ -53,7 +53,7 @@ class DDIMPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         self.assertEqual(image.shape, (1, 32, 32, 3))
         expected_slice = np.array([1.0, 0.5717, 0.4717, 1.0, 0.0, 1.0, 0.0003, 0.0, 0.0009])
         max_diff = np.abs(image_slice.flatten() - expected_slice).max()
@@ -71,7 +71,7 @@ class DDIMPipelineIntegrationTests(unittest.TestCase):
         ddim.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         image = ddim(generator=generator, eta=0.0, output_type="numpy").images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.1723, 0.1617, 0.16, 0.1626, 0.1497, 0.1513, 0.1505, 0.1442, 0.1453])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -84,7 +84,7 @@ class DDIMPipelineIntegrationTests(unittest.TestCase):
         ddpm.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         image = ddpm(generator=generator, output_type="numpy").images
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 256, 256, 3)
         expected_slice = np.array([0.006, 0.0201, 0.0344, 0.0024, 0.0018, 0.0002, 0.0022, 0.0, 0.0069])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

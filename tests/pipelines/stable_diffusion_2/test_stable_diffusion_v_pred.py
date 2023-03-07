@@ -91,7 +91,7 @@ class StableDiffusion2VPredictionPipelineFastTests(unittest.TestCase):
         image_from_tuple = sd_pipe([prompt], generator=generator,
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.6424, 0.6109, 0.494, 0.5088, 0.4984, 
@@ -123,7 +123,7 @@ class StableDiffusion2VPredictionPipelineFastTests(unittest.TestCase):
         image_from_tuple = sd_pipe([prompt], generator=generator,
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
-        image_slice = image[(0), -3:, -3:, (-1)]
+        image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.4616, 0.5184, 0.4887, 0.5111, 0.4839, 
