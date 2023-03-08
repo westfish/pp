@@ -435,8 +435,8 @@ class DiffusionPipeline(ConfigMixin):
                       `CompVis/ldm-text2im-large-256`.
                     - A path to a *directory* containing pipeline weights saved using
                       [`~DiffusionPipeline.save_pretrained`], e.g., `./my_pipeline_directory/`.
-            torch_dtype (`str` or `torch.dtype`, *optional*):
-                Override the default `torch.dtype` and load the model under this dtype. If `"auto"` is passed the dtype
+            paddle_dtype (`str` or `paddle.dtype`, *optional*):
+                Override the default `paddle.dtype` and load the model under this dtype. If `"auto"` is passed the dtype
                 will be automatically derived from the model's weights.
             custom_pipeline (`str`, *optional*):
 
@@ -511,14 +511,6 @@ class DiffusionPipeline(ConfigMixin):
                 Mirror source to accelerate downloads in China. If you are from China and have an accessibility
                 problem, you can set this option to resolve it. Note that we do not guarantee the timeliness or safety.
                 Please refer to the mirror site for more information. specify the folder name here.
-            device_map (`str` or `Dict[str, Union[int, str, torch.device]]`, *optional*):
-                A map that specifies where each submodule should go. It doesn't need to be refined to each
-                parameter/buffer name, once a given module name is inside, every submodule of it will be sent to the
-                same device.
-
-                To have Accelerate compute the most optimized `device_map` automatically, set `device_map="auto"`. For
-                more information about each option see [designing a device
-                map](https://hf.co/docs/accelerate/main/en/usage_guides/big_modeling#designing-a-device-map).
             return_cached_folder (`bool`, *optional*, defaults to `False`):
                 If set to `True`, path to downloaded cached folder will be returned in addition to loaded pipeline.
             kwargs (remaining dictionary of keyword arguments, *optional*):

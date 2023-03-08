@@ -134,7 +134,7 @@ class StableDiffusionAttendAndExcitePipelineIntegrationTests(unittest.TestCase):
         paddle.device.cuda.empty_cache()
 
     def test_attend_and_excite_fp16(self):
-        generator = paddle.seed(seed=51)
+        generator = paddle.Generator().manual_seed(seed=51)
         pipe = StableDiffusionAttendAndExcitePipeline.from_pretrained(
             "CompVis/stable-diffusion-v1-4", paddle_dtype=paddle.float16
         )

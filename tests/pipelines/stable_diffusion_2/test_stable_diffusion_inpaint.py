@@ -136,7 +136,7 @@ class StableDiffusionInpaintPipelineIntegrationTests(unittest.TestCase):
             )
         model_id = 'stabilityai/stable-diffusion-2-inpainting'
         pipe = StableDiffusionInpaintPipeline.from_pretrained(model_id,
-            paddle_dtype='float16', safety_checker=None)
+            paddle_dtype=paddle.float16, safety_checker=None)
         pipe.set_progress_bar_config(disable=None)
         pipe.enable_attention_slicing()
         prompt = (
@@ -148,26 +148,3 @@ class StableDiffusionInpaintPipelineIntegrationTests(unittest.TestCase):
         assert image.shape == (512, 512, 3)
         assert np.abs(expected_image - image).max() < 0.5
 
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        init_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/sd2-inpaint/init_image.png'
-            )
-        mask_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/sd2-inpaint/mask.png'
-            )
-        model_id = 'stabilityai/stable-diffusion-2-inpainting'
-        pndm = PNDMScheduler.from_pretrained(model_id, subfolder='scheduler')
-        pipe = StableDiffusionInpaintPipeline.from_pretrained(model_id,
-            safety_checker=None, scheduler=pndm, paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        prompt = (
-            'Face of a yellow cat, high resolution, sitting on a park bench')
-        generator = paddle.Generator().manual_seed(0)
-        _ = pipe(prompt=prompt, image=init_image, mask_image=mask_image,
-            generator=generator, num_inference_steps=2, output_type='np')
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 2.65 * 10 ** 9

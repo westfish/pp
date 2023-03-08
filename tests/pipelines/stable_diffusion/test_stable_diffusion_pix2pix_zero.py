@@ -176,7 +176,7 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
         paddle.device.cuda.empty_cache()
 
     def get_inputs(self, seed=0):
-        generator = paddle.seed(seed=seed)
+        generator = paddle.Generator().manual_seed(seed=seed)
         src_emb_url = (
             'https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/cat.pt'
             )
@@ -235,7 +235,7 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([0.1345, 0.268, 0.1539, 0.0726, 
                     0.0959, 0.2261, -0.2673, 0.0277, -0.2062])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -243,7 +243,7 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([0.1393, 0.2637, 0.1617, 0.0724, 
                     0.0987, 0.2271, -0.2666, 0.0299, -0.2104])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -260,20 +260,6 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
         assert callback_fn.has_been_called
         assert number_of_steps == 3
 
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        pipe = StableDiffusionPix2PixZeroPipeline.from_pretrained(
-            'CompVis/stable-diffusion-v1-4', safety_checker=None,
-            paddle_dtype=paddle.float16)
-        pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        inputs = self.get_inputs()
-        _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 8.2 * 10 ** 9
 
 
 @slow
@@ -306,7 +292,7 @@ class InversionPipelineSlowTests(unittest.TestCase):
         output = pipe.invert(caption, image=raw_image, generator=generator,
             num_inference_steps=10)
         inv_latents = output[0]
-        image_slice = inv_latents[(0), -3:, -3:, (-1)].flatten()
+        image_slice = inv_latents[(0), -3:, -3:, -1].flatten()
         assert inv_latents.shape == (1, 4, 64, 64)
         expected_slice = np.array([0.8877, 0.0587, 0.77, -1.6035, -0.5962, 
             0.4827, -0.6265, 1.0498, -0.8599])

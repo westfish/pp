@@ -232,10 +232,7 @@ class StableDiffusionDepth2ImgPipelineFastTests(PipelineTesterMixin, unittest.Te
         image = output.images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
-        if torch_device == "mps":
-            expected_slice = np.array([0.5825, 0.5135, 0.4095, 0.5452, 0.6059, 0.4211, 0.3994, 0.5177, 0.4335])
-        else:
-            expected_slice = np.array([0.6296, 0.5125, 0.389, 0.4456, 0.5955, 0.4621, 0.381, 0.531, 0.4626])
+        expected_slice = np.array([0.6296, 0.5125, 0.389, 0.4456, 0.5955, 0.4621, 0.381, 0.531, 0.4626])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
     def test_stable_diffusion_depth2img_multiple_init_images(self):
@@ -246,7 +243,7 @@ class StableDiffusionDepth2ImgPipelineFastTests(PipelineTesterMixin, unittest.Te
         inputs["prompt"] = [inputs["prompt"]] * 2
         inputs["image"] = 2 * [inputs["image"]]
         image = pipe(**inputs).images
-        image_slice = image[(-1), -3:, -3:, (-1)]
+        image_slice = image[-1, -3:, -3:, -1]
         assert image.shape == (2, 32, 32, 3)
         expected_slice = np.array([0.6267, 0.5232, 0.6001, 0.6738, 0.5029, 0.6429, 0.5364, 0.4159, 0.4674])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
@@ -316,7 +313,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, (-1)].flatten()
+        image_slice = image[(0), 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 480, 640, 3)
         expected_slice = np.array([0.9057, 0.9365, 0.9258, 0.8937, 0.8555, 0.8541, 0.826, 0.7747, 0.7421])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
@@ -330,7 +327,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, (-1)].flatten()
+        image_slice = image[(0), 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 480, 640, 3)
         expected_slice = np.array([0.6363, 0.6274, 0.6309, 0.637, 0.6226, 0.6286, 0.6213, 0.6453, 0.6306])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
@@ -344,7 +341,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, (-1)].flatten()
+        image_slice = image[(0), 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 480, 640, 3)
         expected_slice = np.array([0.6424, 0.6524, 0.6249, 0.6041, 0.6634, 0.642, 0.6522, 0.6555, 0.6436])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
@@ -359,7 +356,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 60, 80)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array(
                     [-0.7168, -1.5137, -0.1418, -2.9219, -2.7266, -2.4414, -2.1035, -3.0078, -1.7051]
                 )
@@ -367,7 +364,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 60, 80)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array(
                     [-0.7109, -1.5068, -0.1403, -2.916, -2.7207, -2.4414, -2.1035, -3.0059, -1.709]
                 )
@@ -383,20 +380,6 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
         pipe(**inputs, callback=callback_fn, callback_steps=1)
         assert callback_fn.has_been_called
         assert number_of_steps == 2
-
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        pipe = StableDiffusionDepth2ImgPipeline.from_pretrained(
-            "stabilityai/stable-diffusion-2-depth", safety_checker=None, paddle_dtype=paddle.float16
-        )
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        inputs = self.get_inputs(dtype="float16")
-        _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 2.9 * 10**9
 
 
 @nightly

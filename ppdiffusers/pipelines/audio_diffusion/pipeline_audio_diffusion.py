@@ -114,8 +114,8 @@ class AudioDiffusionPipeline(DiffusionPipeline):
             mask_end_secs (`float`): number of seconds of audio to mask (not generate) at end
             step_generator (`paddle.Generator`): random number generator used to de-noise or None
             eta (`float`): parameter between 0 and 1 used with DDIM scheduler
-            noise (`torch.Tensor`): noise tensor of shape (batch_size, 1, height, width) or None
-            encoding (`torch.Tensor`): for UNet2DConditionModel shape (batch_size, seq_length, cross_attention_dim)
+            noise (`paddle.Tensor`): noise tensor of shape (batch_size, 1, height, width) or None
+            encoding (`paddle.Tensor`): for UNet2DConditionModel shape (batch_size, seq_length, cross_attention_dim)
             return_dict (`bool`): if True return AudioPipelineOutput, ImagePipelineOutput else Tuple
 
         Returns:

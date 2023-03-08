@@ -119,7 +119,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5644, 0.6018, 0.4799, 0.5267, 0.5585, 
             0.4641, 0.516, 0.4964, 0.4792])
@@ -148,7 +148,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5095, 0.5674, 0.4668, 0.5126, 0.5697, 
             0.4675, 0.5278, 0.4964, 0.4945])
@@ -172,7 +172,6 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         image = pipe('example prompt', num_inference_steps=2).images[0]
         assert image is not None
 
-    @unittest.skipIf(torch_device != 'cuda', 'This test requires a GPU')
     def test_semantic_diffusion_fp16(self):
         """Test that stable diffusion works with fp16"""
         unet = self.dummy_cond_unet
@@ -181,12 +180,9 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         bert = self.dummy_text_encoder
         tokenizer = CLIPTokenizer.from_pretrained(
             'hf-internal-testing/tiny-random-clip')
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        unet = unet.to(dtype=paddle.float16)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        vae = vae.to(dtype=paddle.float16)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        bert = bert.to(dtype=paddle.float16)
+        unet = unet.to(dtype=paddle.float16)
+        vae = vae.to(dtype=paddle.float16)
+        bert = bert.to(dtype=paddle.float16)
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=self.dummy_extractor)
@@ -207,7 +203,6 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
         paddle.device.cuda.empty_cache()
 
     def test_positive_guidance(self):
-        torch_device = 'cuda'
         pipe = StableDiffusionPipeline.from_pretrained(
             'runwayml/stable-diffusion-v1-5')
         pipe.set_progress_bar_config(disable=None)
@@ -218,8 +213,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             'edit_momentum_scale': 0.5, 'edit_mom_beta': 0.6}
         seed = 3
         guidance_scale = 7
-        generator = paddle.Generator(torch_device)
-        generator.manual_seed(seed)
+        generator = paddle.Generator().manual_seed(seed)
         output = pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512)
@@ -229,7 +223,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             0.35650748, 0.35579205, 0.3384763, 0.34340236, 0.3573271]
         assert image.shape == (1, 512, 512, 3)
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
-        generator.manual_seed(seed)
+        generator = paddle.Generator().manual_seed(seed)
         output = pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, **edit)
@@ -241,7 +235,6 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_negative_guidance(self):
-        torch_device = 'cuda'
         pipe = StableDiffusionPipeline.from_pretrained(
             'runwayml/stable-diffusion-v1-5')
         pipe.set_progress_bar_config(disable=None)
@@ -252,8 +245,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             'edit_momentum_scale': 0.5, 'edit_mom_beta': 0.6}
         seed = 9
         guidance_scale = 7
-        generator = paddle.Generator(torch_device)
-        generator.manual_seed(seed)
+        generator = paddle.Generator().manual_seed(seed)
         output = pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512)
@@ -263,7 +255,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             0.8467265, 0.5389691, 0.62574506, 0.58897763, 0.50926757]
         assert image.shape == (1, 512, 512, 3)
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
-        generator.manual_seed(seed)
+        generator = paddle.Generator().manual_seed(seed)
         output = pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, **edit)
@@ -275,7 +267,6 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_multi_cond_guidance(self):
-        torch_device = 'cuda'
         pipe = StableDiffusionPipeline.from_pretrained(
             'runwayml/stable-diffusion-v1-5')
         pipe.set_progress_bar_config(disable=None)
@@ -287,8 +278,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             'edit_mom_beta': 0.6}
         seed = 48
         guidance_scale = 7
-        generator = paddle.Generator(torch_device)
-        generator.manual_seed(seed)
+        generator = paddle.Generator().manual_seed(seed)
         output = pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512)
@@ -298,7 +288,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             0.8627701, 0.85189694, 0.8512813, 0.87012076, 0.8312857]
         assert image.shape == (1, 512, 512, 3)
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
-        generator.manual_seed(seed)
+        generator = paddle.Generator().manual_seed(seed)
         output = pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, **edit)
@@ -310,7 +300,6 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_guidance_fp16(self):
-        torch_device = 'cuda'
         pipe = StableDiffusionPipeline.from_pretrained(
             'runwayml/stable-diffusion-v1-5', paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
@@ -321,8 +310,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             'edit_momentum_scale': 0.5, 'edit_mom_beta': 0.6}
         seed = 3
         guidance_scale = 7
-        generator = paddle.Generator(torch_device)
-        generator.manual_seed(seed)
+        generator = paddle.Generator().manual_seed(seed)
         output = pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512)
@@ -332,7 +320,7 @@ class SemanticDiffusionPipelineIntegrationTests(unittest.TestCase):
             0.3581543, 0.35717773, 0.3383789, 0.34570312, 0.359375]
         assert image.shape == (1, 512, 512, 3)
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
-        generator.manual_seed(seed)
+        generator = paddle.Generator().manual_seed(seed)
         output = pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, **edit)

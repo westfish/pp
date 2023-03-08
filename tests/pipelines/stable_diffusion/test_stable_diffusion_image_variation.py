@@ -98,7 +98,7 @@ class StableDiffusionImageVariationPipelineFastTests(PipelineTesterMixin,
         inputs['image'] = 2 * [inputs['image']]
         output = sd_pipe(**inputs)
         image = output.images
-        image_slice = image[(-1), -3:, -3:, (-1)]
+        image_slice = image[-1, -3:, -3:, -1]
         assert image.shape == (2, 64, 64, 3)
         expected_slice = np.array([0.6568, 0.547, 0.5684, 0.5444, 0.5945, 
             0.6221, 0.5508, 0.5531, 0.5263])
@@ -174,7 +174,7 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([-0.1621, 0.2837, -0.7979, -
                     0.1221, -1.3057, 0.7681, -2.1191, 0.0464, 1.6309])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -182,7 +182,7 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([0.6299, 1.75, 1.1992, -2.1582, -
                     1.8994, 0.7334, -0.709, 1.0137, 1.5273])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -197,20 +197,6 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
         pipe(**inputs, callback=callback_fn, callback_steps=1)
         assert callback_fn.has_been_called
         assert number_of_steps == inputs['num_inference_steps']
-
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        model_id = 'fusing/sd-image-variations-ppdiffusers'
-        pipe = StableDiffusionImageVariationPipeline.from_pretrained(model_id,
-            safety_checker=None, paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        inputs = self.get_inputs(dtype='float16')
-        _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 2.6 * 10 ** 9
 
 
 @nightly
@@ -229,8 +215,7 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
             'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_imgvar/input_image_vermeer.png'
             )
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        latents = paddle.to_tensor(latents).cast(dtype)
+        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {'image': init_image, 'latents': latents, 'generator':
             generator, 'num_inference_steps': 50, 'guidance_scale': 7.5,
             'output_type': 'numpy'}

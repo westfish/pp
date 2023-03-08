@@ -47,10 +47,8 @@ class RepaintPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         generator = paddle.Generator().manual_seed(seed)
 
         image = np.random.RandomState(seed).standard_normal((1, 3, 32, 32))
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        image = paddle.to_tensor(data=image).to(device=device, dtype='float32')
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        mask = (image > 0).to(device=device, dtype='float32')
+        image = paddle.to_tensor(data=image).cast('float32')
+        mask = (image > 0).cast('float32')
         inputs = {'image': image, 'mask_image': mask, 'generator':
             generator, 'num_inference_steps': 5, 'eta': 0.0, 'jump_length':
             2, 'jump_n_sample': 2, 'output_type': 'numpy'}

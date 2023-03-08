@@ -46,7 +46,7 @@ class KarrasVePipelineFastTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(0)
         image_from_tuple = pipe(num_inference_steps=2, generator=generator, output_type="numpy", return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

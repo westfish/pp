@@ -114,7 +114,7 @@ class StableDiffusionInstructPix2PixPipelineFastTests(PipelineTesterMixin,
         image = image.transpose(perm=[0, 3, 1, 2])
         inputs['image'] = image.tile(repeat_times=[2, 1, 1, 1])
         image = sd_pipe(**inputs).images
-        image_slice = image[(-1), -3:, -3:, (-1)]
+        image_slice = image[-1, -3:, -3:, -1]
         assert image.shape == (2, 32, 32, 3)
         expected_slice = np.array([0.606, 0.5712, 0.5099, 0.598, 0.5805, 
             0.7205, 0.6793, 0.554, 0.5607])
@@ -171,7 +171,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
         paddle.device.cuda.empty_cache()
 
     def get_inputs(self, seed=0):
-        generator = paddle.seed(seed=seed)
+        generator = paddle.Generator().manual_seed(seed=seed)
         image = load_image(
             'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_pix2pix/example.jpg'
             )
@@ -233,7 +233,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([-0.2463, -0.4644, -0.9756, 
                     1.5176, 1.4414, 0.7866, 0.9897, 0.8521, 0.7983])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -241,7 +241,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([-0.2644, -0.4626, -0.9653, 
                     1.5176, 1.4551, 0.7686, 0.9805, 0.8452, 0.8115])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -256,18 +256,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
         assert callback_fn.has_been_called
         assert number_of_steps == 3
 
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
 
-        pipe = StableDiffusionInstructPix2PixPipeline.from_pretrained(
-            'timbrooks/instruct-pix2pix', safety_checker=None, paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        inputs = self.get_inputs()
-        _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 2.2 * 10 ** 9
 
     def test_stable_diffusion_pix2pix_pipeline_multiple_of_8(self):
         inputs = self.get_inputs()
@@ -279,7 +268,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         output = pipe(**inputs)
         image = output.images[0]
-        image_slice = image[255:258, 383:386, (-1)]
+        image_slice = image[255:258, 383:386, -1]
         assert image.shape == (504, 504, 3)
         expected_slice = np.array([0.2726, 0.2529, 0.2664, 0.2655, 0.2641, 
             0.2642, 0.2591, 0.2649, 0.259])

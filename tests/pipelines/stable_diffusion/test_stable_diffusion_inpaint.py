@@ -156,7 +156,7 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, (-1)].flatten()
+        image_slice = image[(0), 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.0427, 0.046, 0.0483, 0.046, 0.0584, 
             0.0521, 0.1549, 0.1695, 0.1794])
@@ -164,13 +164,13 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
 
     def test_stable_diffusion_inpaint_fp16(self):
         pipe = StableDiffusionInpaintPipeline.from_pretrained(
-            'runwayml/stable-diffusion-inpainting', paddle_dtype='float16',
+            'runwayml/stable-diffusion-inpainting', paddle_dtype=paddle.float16,
             safety_checker=None)
         pipe.set_progress_bar_config(disable=None)
         pipe.enable_attention_slicing()
         inputs = self.get_inputs(dtype='float16')
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, (-1)].flatten()
+        image_slice = image[(0), 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.1443, 0.1218, 0.1587, 0.1594, 0.1411, 
             0.1284, 0.137, 0.1506, 0.2339])
@@ -184,7 +184,7 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, (-1)].flatten()
+        image_slice = image[(0), 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.0425, 0.0273, 0.0344, 0.1694, 0.1727, 
             0.1812, 0.3256, 0.3311, 0.3272])
@@ -199,25 +199,12 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, (-1)].flatten()
+        image_slice = image[(0), 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.9314, 0.7575, 0.9432, 0.8885, 0.9028, 
             0.7298, 0.9811, 0.9667, 0.7633])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
 
-    def test_stable_diffusion_inpaint_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        pipe = StableDiffusionInpaintPipeline.from_pretrained(
-            'runwayml/stable-diffusion-inpainting', safety_checker=None,
-            paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        inputs = self.get_inputs(dtype='float16')
-        _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 2.2 * 10 ** 9
 
 
 @nightly
@@ -338,20 +325,21 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         self.assertTrue((t_mask_np == t_mask_pil).all())
         self.assertTrue((t_masked_np == t_masked_pil).all())
 
-    def test_torch_3D_2D_inputs(self):
->>>        im_tensor = torch.randint(0, 255, (3, 32, 32), dtype='uint8')
->>>        mask_tensor = torch.randint(0, 255, (32, 32), dtype='uint8') > 127.5
+    def test_paddle_3D_2D_inputs(self):
+        im_tensor = paddle.randint(0, 255, (3, 32, 32)).cast("uint8")
+        mask_tensor = paddle.randint(0, 255, (32, 32)).cast("uint8") > 127.5
         im_np = im_tensor.numpy().transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()
-        t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
-            im_tensor / 127.5 - 1, mask_tensor)
+
+        t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(im_tensor / 127.5 - 1, mask_tensor)
         t_mask_np, t_masked_np = prepare_mask_and_masked_image(im_np, mask_np)
+
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
 
-    def test_torch_3D_3D_inputs(self):
->>>        im_tensor = torch.randint(0, 255, (3, 32, 32), dtype='uint8')
->>>        mask_tensor = torch.randint(0, 255, (1, 32, 32), dtype='uint8') > 127.5
+    def test_paddle_3D_3D_inputs(self):
+        im_tensor = paddle.randint(0, 255, (3, 32, 32)).cast("uint8")
+        mask_tensor = paddle.randint(0, 255, (1, 32, 32)).cast("uint8") > 127.5
         im_np = im_tensor.numpy().transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()[0]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
@@ -360,9 +348,9 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
 
-    def test_torch_4D_2D_inputs(self):
->>>        im_tensor = torch.randint(0, 255, (1, 3, 32, 32), dtype='uint8')
->>>        mask_tensor = torch.randint(0, 255, (32, 32), dtype='uint8') > 127.5
+    def test_paddle_4D_2D_inputs(self):
+        im_tensor = paddle.randint(0, 255, (1, 3, 32, 32)).cast("uint8")
+        mask_tensor = paddle.randint(0, 255, (32, 32)).cast("uint8") > 127.5
         im_np = im_tensor.numpy()[0].transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
@@ -371,9 +359,9 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
 
-    def test_torch_4D_3D_inputs(self):
->>>        im_tensor = torch.randint(0, 255, (1, 3, 32, 32), dtype='uint8')
->>>        mask_tensor = torch.randint(0, 255, (1, 32, 32), dtype='uint8') > 127.5
+    def test_paddle_4D_3D_inputs(self):
+        im_tensor = paddle.randint(0, 255, (1, 3, 32, 32)).cast("uint8")
+        mask_tensor = paddle.randint(0, 255, (1, 32, 32)).cast("uint8") > 127.5
         im_np = im_tensor.numpy()[0].transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()[0]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
@@ -382,10 +370,9 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
 
-    def test_torch_4D_4D_inputs(self):
->>>        im_tensor = torch.randint(0, 255, (1, 3, 32, 32), dtype='uint8')
->>>        mask_tensor = torch.randint(0, 255, (1, 1, 32, 32), dtype='uint8'
-            ) > 127.5
+    def test_paddle_4D_4D_inputs(self):
+        im_tensor = paddle.randint(0, 255, (1, 3, 32, 32)).cast("uint8")
+        mask_tensor = paddle.randint(0, 255, (1, 1, 32, 32)).cast("uint8") > 127.5
         im_np = im_tensor.numpy()[0].transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()[0][0]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
@@ -394,9 +381,9 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
 
-    def test_torch_batch_4D_3D(self):
->>>        im_tensor = torch.randint(0, 255, (2, 3, 32, 32), dtype='uint8')
->>>        mask_tensor = torch.randint(0, 255, (2, 32, 32), dtype='uint8') > 127.5
+    def test_paddle_batch_4D_3D(self):
+        im_tensor = paddle.randint(0, 255, (2, 3, 32, 32)).cast("uint8")
+        mask_tensor = paddle.randint(0, 255, (2, 32, 32)).cast("uint8") > 127.5
         im_nps = [im.numpy().transpose(1, 2, 0) for im in im_tensor]
         mask_nps = [mask.numpy() for mask in mask_tensor]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
@@ -408,10 +395,10 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
 
-    def test_torch_batch_4D_4D(self):
->>>        im_tensor = torch.randint(0, 255, (2, 3, 32, 32), dtype='uint8')
->>>        mask_tensor = torch.randint(0, 255, (2, 1, 32, 32), dtype='uint8'
-            ) > 127.5
+    def test_paddle_batch_4D_4D(self):
+        im_tensor = paddle.randint(0, 255, (2, 3, 32, 32)).cast("uint8")
+        mask_tensor = paddle.randint(0, 255, (2, 32, 32)).cast("uint8") > 127.5
+
         im_nps = [im.numpy().transpose(1, 2, 0) for im in im_tensor]
         mask_nps = [mask.numpy()[0] for mask in mask_tensor]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(

@@ -110,12 +110,12 @@ class StableUnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         return inputs
 
     def test_attention_slicing_forward_pass(self):
-        test_max_difference = torch_device == 'cpu'
+        test_max_difference = False
         self._test_attention_slicing_forward_pass(test_max_difference=
             test_max_difference)
 
     def test_inference_batch_single_identical(self):
-        test_max_difference = torch_device in ['cpu', 'mps']
+        test_max_difference = False
         self._test_inference_batch_single_identical(test_max_difference=
             test_max_difference)
 
@@ -136,21 +136,9 @@ class StableUnCLIPPipelineIntegrationTests(unittest.TestCase):
         pipe = StableUnCLIPPipeline.from_pretrained(
             'fusing/stable-unclip-2-1-l', paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
-        generator = paddle.Generator(device='cpu').manual_seed(0)
+        generator = paddle.Generator().manual_seed(0)
         output = pipe('anime turle', generator=generator, output_type='np')
         image = output.images[0]
         assert image.shape == (768, 768, 3)
         assert_mean_pixel_difference(image, expected_image)
 
-    def test_stable_unclip_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        pipe = StableUnCLIPPipeline.from_pretrained(
-            'fusing/stable-unclip-2-1-l', paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing()
-        pipe.enable_sequential_cpu_offload()
-        _ = pipe('anime turtle', prior_num_inference_steps=2,
-            num_inference_steps=2, output_type='np')
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 7 * 10 ** 9

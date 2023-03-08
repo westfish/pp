@@ -68,11 +68,10 @@ class PaintByExamplePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def convert_to_pt(self, image):
         image = np.array(image.convert('RGB'))
         image = image[None].transpose(0, 3, 1, 2)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        image = paddle.to_tensor(data=image).to(dtype='float32') / 127.5 - 1.0
+        image = paddle.to_tensor(data=image).cast('float32') / 127.5 - 1.0
         return image
 
-    def get_dummy_inputs(self, device='cpu', seed=0):
+    def get_dummy_inputs(self, seed=0):
         image = floats_tensor((1, 3, 32, 32), rng=random.Random(seed))
         image = image.cpu().transpose(perm=[0, 2, 3, 1])[0]
         init_image = Image.fromarray(np.uint8(image)).convert('RGB').resize((
@@ -92,8 +91,7 @@ class PaintByExamplePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_paint_by_example_inpaint(self):
         components = self.get_dummy_components()
         pipe = PaintByExamplePipeline(**components)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        pipe = pipe.to('cpu')
+        pipe = pipe.to('cpu')
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = pipe(**inputs)
@@ -152,7 +150,7 @@ class PaintByExamplePipelineIntegrationTests(unittest.TestCase):
         pipe = PaintByExamplePipeline.from_pretrained(
             'Fantasy-Studio/Paint-by-Example')
         pipe.set_progress_bar_config(disable=None)
-        generator = paddle.seed(seed=321)
+        generator = paddle.Generator().manual_seed(seed=321)
         output = pipe(image=init_image, mask_image=mask_image,
             example_image=example_image, generator=generator,
             guidance_scale=5.0, num_inference_steps=50, output_type='np')

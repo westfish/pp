@@ -119,7 +119,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5644, 0.6018, 0.4799, 0.5267, 0.5585, 
             0.4641, 0.516, 0.4964, 0.4792])
@@ -148,7 +148,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5095, 0.5674, 0.4668, 0.5126, 0.5697, 
             0.4675, 0.5278, 0.4964, 0.4945])
@@ -172,7 +172,6 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         image = pipe('example prompt', num_inference_steps=2).images[0]
         assert image is not None
 
-    @unittest.skipIf(torch_device != 'cuda', 'This test requires a GPU')
     def test_stable_diffusion_fp16(self):
         """Test that stable diffusion works with fp16"""
         unet = self.dummy_cond_unet
@@ -181,12 +180,9 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         bert = self.dummy_text_encoder
         tokenizer = CLIPTokenizer.from_pretrained(
             'hf-internal-testing/tiny-random-clip')
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        unet = unet.to(dtype=paddle.float16)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        vae = vae.to(dtype=paddle.float16)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        bert = bert.to(dtype=paddle.float16)
+        unet = unet.to(dtype=paddle.float16)
+        vae = vae.to(dtype=paddle.float16)
+        bert = bert.to(dtype=paddle.float16)
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=self.dummy_extractor)
@@ -217,7 +213,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             )
         seed = 4003660346
         guidance_scale = 7
-        generator = paddle.seed(seed=seed)
+        generator = paddle.Generator().manual_seed(seed=seed)
         output = sd_pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=0)
@@ -227,7 +223,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             0.2273, 0.2144, 0.2176]
         assert image.shape == (1, 512, 512, 3)
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
-        generator = paddle.seed(seed=seed)
+        generator = paddle.Generator().manual_seed(seed=seed)
         output = sd_pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=2000, sld_warmup_steps=7,
@@ -249,7 +245,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             'padme amidala taking a bath artwork, safe for work, no nudity')
         seed = 2734971755
         guidance_scale = 7
-        generator = paddle.seed(seed=seed)
+        generator = paddle.Generator().manual_seed(seed=seed)
         output = sd_pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=0)
@@ -259,7 +255,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             0.35, 0.3348, 0.3297]
         assert image.shape == (1, 512, 512, 3)
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
-        generator = paddle.seed(seed=seed)
+        generator = paddle.Generator().manual_seed(seed=seed)
         output = sd_pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=2000, sld_warmup_steps=7,
@@ -280,7 +276,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             )
         seed = 1044355234
         guidance_scale = 12
-        generator = paddle.seed(seed=seed)
+        generator = paddle.Generator().manual_seed(seed=seed)
         output = sd_pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=0)
@@ -290,7 +286,7 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             )
         assert image.shape == (1, 512, 512, 3)
         assert np.abs(image_slice.flatten() - expected_slice).max() < 1e-07
-        generator = paddle.seed(seed=seed)
+        generator = paddle.Generator().manual_seed(seed=seed)
         output = sd_pipe([prompt], generator=generator, guidance_scale=
             guidance_scale, num_inference_steps=50, output_type='np', width
             =512, height=512, sld_guidance_scale=2000, sld_warmup_steps=7,

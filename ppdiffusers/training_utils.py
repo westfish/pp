@@ -79,7 +79,7 @@ class EMAModel:
     ):
         """
         Args:
-            parameters (Iterable[torch.nn.Parameter]): The parameters to track.
+            parameters (Iterable[nn.Parameter]): The parameters to track.
             decay (float): The decay factor for the exponential moving average.
             min_decay (float): The minimum decay factor for the exponential moving average.
             update_after_step (int): The number of steps to wait before starting to update the EMA weights.
@@ -87,8 +87,6 @@ class EMAModel:
             inv_gamma (float):
                 Inverse multiplicative factor of EMA warmup. Default: 1. Only used if `use_ema_warmup` is True.
             power (float): Exponential factor of EMA warmup. Default: 2/3. Only used if `use_ema_warmup` is True.
-            device (Optional[Union[str, torch.device]]): The device to store the EMA weights on. If None, the EMA
-                        weights will be stored on CPU.
 
         @crowsonkb's notes on EMA Warmup:
             If gamma=1 and power=1, implements a simple average. gamma=1, power=2/3 are good values for models you plan
@@ -226,7 +224,7 @@ class EMAModel:
         Copy current averaged parameters into given collection of parameters.
 
         Args:
-            parameters: Iterable of `torch.nn.Parameter`; the parameters to be
+            parameters: Iterable of `nn.Parameter`; the parameters to be
                 updated with the stored moving averages. If `None`, the parameters with which this
                 `ExponentialMovingAverage` was initialized will be used.
         """
@@ -257,7 +255,7 @@ class EMAModel:
         r"""
         Args:
         Save the current parameters for restoring later.
-            parameters: Iterable of `torch.nn.Parameter`; the parameters to be
+            parameters: Iterable of `nn.Parameter`; the parameters to be
                 temporarily stored.
         """
         self.temp_stored_params = [param.detach().cpu().clone() for param in parameters]
@@ -268,7 +266,7 @@ class EMAModel:
         Restore the parameters stored with the `store` method. Useful to validate the model with EMA parameters without:
         affecting the original optimization process. Store the parameters before the `copy_to()` method. After
         validation (or model saving), use this to restore the former parameters.
-            parameters: Iterable of `torch.nn.Parameter`; the parameters to be
+            parameters: Iterable of `nn.Parameter`; the parameters to be
                 updated with the stored parameters. If `None`, the parameters with which this
                 `ExponentialMovingAverage` was initialized will be used.
         """

@@ -86,7 +86,7 @@ class VersatileDiffusionDualGuidedPipelineIntegrationTests(unittest.TestCase):
             num_inference_steps=50,
             output_type="numpy",
         ).images
-        image_slice = image[(0), 253:256, 253:256, (-1)]
+        image_slice = image[(0), 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.0787, 0.0849, 0.0826, 0.0812, 0.0807, 0.0795, 0.0818, 0.0798, 0.0779])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

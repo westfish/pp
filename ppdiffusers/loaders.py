@@ -285,7 +285,7 @@ class UNet2DConditionLoadersMixin:
                 the main process to avoid race conditions.
             save_function (`Callable`):
                 The function to use to save the state dictionary. Useful on distributed training like TPUs when one
-                need to replace `torch.save` by another method. Can be configured with the environment variable
+                need to replace `paddle.save` by another method. Can be configured with the environment variable
                 `DIFFUSERS_SAVE_MODE`.
             variant (`str`, *optional*):
                 If specified, weights are saved in the format pytorch_model.<variant>.bin.

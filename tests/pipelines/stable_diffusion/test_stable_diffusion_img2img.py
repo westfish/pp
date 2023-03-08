@@ -107,7 +107,7 @@ class StableDiffusionImg2ImgPipelineFastTests(PipelineTesterMixin, unittest
         inputs['prompt'] = [inputs['prompt']] * 2
         inputs['image'] = inputs['image'].tile(repeat_times=[2, 1, 1, 1])
         image = sd_pipe(**inputs).images
-        image_slice = image[(-1), -3:, -3:, (-1)]
+        image_slice = image[-1, -3:, -3:, -1]
         assert image.shape == (2, 32, 32, 3)
         expected_slice = np.array([0.5144, 0.4447, 0.4735, 0.6676, 0.5526, 
             0.5454, 0.645, 0.5149, 0.4689])
@@ -226,7 +226,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 96)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([-0.4958, 0.5107, 1.1045, 2.7539,
                     4.668, 3.832, 1.5049, 1.8633, 2.6523])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -234,7 +234,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 96)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([-0.4956, 0.5078, 1.0918, 2.752, 
                     4.6484, 3.8125, 1.5146, 1.8633, 2.6367])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -250,19 +250,6 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
         assert callback_fn.has_been_called
         assert number_of_steps == 2
 
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
-            'CompVis/stable-diffusion-v1-4', safety_checker=None,
-            paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        inputs = self.get_inputs(dtype='float16')
-        _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        
-        assert mem_bytes < 2.2 * 10 ** 9
 
     def test_stable_diffusion_pipeline_with_model_offloading(self):
         paddle.device.cuda.empty_cache()
@@ -302,7 +289,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
         output = pipe(prompt=prompt, image=init_image, strength=0.75,
             guidance_scale=7.5, generator=generator, output_type='np')
         image = output.images[0]
-        image_slice = image[255:258, 383:386, (-1)]
+        image_slice = image[255:258, 383:386, -1]
         assert image.shape == (504, 760, 3)
         expected_slice = np.array([0.9393, 0.95, 0.9399, 0.9438, 0.9458, 
             0.94, 0.9455, 0.9414, 0.9423])

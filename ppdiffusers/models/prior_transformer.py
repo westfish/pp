@@ -138,7 +138,7 @@ class PriorTransformer(ModelMixin, ConfigMixin):
         Args:
             hidden_states (`paddle.Tensor` of shape `(batch_size, embedding_dim)`):
                 x_t, the currently predicted image embeddings.
-            timestep (`torch.long`):
+            timestep (`paddle.Tensor`):
                 Current denoising step.
             proj_embedding (`paddle.Tensor` of shape `(batch_size, embedding_dim)`):
                 Projected embedding vector the denoising process is conditioned on.

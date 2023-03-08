@@ -142,7 +142,7 @@ class StableDiffusionLatentUpscalePipelineIntegrationTests(unittest.TestCase):
         paddle.device.cuda.empty_cache()
 
     def test_latent_upscaler_fp16(self):
-        generator = paddle.seed(seed=33)
+        generator = paddle.Generator().manual_seed(seed=33)
         pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4", paddle_dtype=paddle.float16)
         pipe.to("gpu")
         upscaler = StableDiffusionLatentUpscalePipeline.from_pretrained(
@@ -166,7 +166,7 @@ class StableDiffusionLatentUpscalePipelineIntegrationTests(unittest.TestCase):
         assert np.abs((expected_image - image).max()) < 0.5
 
     def test_latent_upscaler_fp16_image(self):
-        generator = paddle.seed(seed=33)
+        generator = paddle.Generator().manual_seed(seed=33)
         upscaler = StableDiffusionLatentUpscalePipeline.from_pretrained(
             "stabilityai/sd-x2-latent-upscaler", paddle_dtype=paddle.float16
         )

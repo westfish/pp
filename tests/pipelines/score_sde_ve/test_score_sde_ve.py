@@ -40,7 +40,6 @@ class ScoreSdeVeipelineFastTests(unittest.TestCase):
         unet = self.dummy_uncond_unet
         scheduler = ScoreSdeVeScheduler()
         sde_ve = ScoreSdeVePipeline(unet=unet, scheduler=scheduler)
-        sde_ve
         sde_ve.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         image = sde_ve(num_inference_steps=2, output_type="numpy", generator=generator).images
@@ -49,7 +48,7 @@ class ScoreSdeVeipelineFastTests(unittest.TestCase):
             0
         ]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -64,7 +63,6 @@ class ScoreSdeVePipelineIntegrationTests(unittest.TestCase):
         model = UNet2DModel.from_pretrained(model_id)
         scheduler = ScoreSdeVeScheduler.from_pretrained(model_id)
         sde_ve = ScoreSdeVePipeline(unet=model, scheduler=scheduler)
-        sde_ve
         sde_ve.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         image = sde_ve(num_inference_steps=10, output_type="numpy", generator=generator).images

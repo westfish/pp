@@ -38,7 +38,7 @@ class VersatileDiffusionImageVariationPipelineIntegrationTests(unittest.TestCase
         image = pipe(
             image=image_prompt, generator=generator, guidance_scale=7.5, num_inference_steps=50, output_type="numpy"
         ).images
-        image_slice = image[(0), 253:256, 253:256, (-1)]
+        image_slice = image[(0), 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.0441, 0.0469, 0.0507, 0.0575, 0.0632, 0.065, 0.0865, 0.0909, 0.0945])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

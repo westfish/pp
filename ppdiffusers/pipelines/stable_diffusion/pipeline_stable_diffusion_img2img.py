@@ -434,7 +434,7 @@ class StableDiffusionImg2ImgPipeline(DiffusionPipeline):
     def prepare_latents(self, image, timestep, batch_size, num_images_per_prompt, dtype, generator=None):
         if not isinstance(image, (paddle.Tensor, PIL.Image.Image, list)):
             raise ValueError(
-                f"`image` has to be of type `torch.Tensor`, `PIL.Image.Image` or list but is {type(image)}"
+                f"`image` has to be of type `paddle.Tensor`, `PIL.Image.Image` or list but is {type(image)}"
             )
 
         image = image.cast(dtype)

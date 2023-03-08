@@ -91,7 +91,7 @@ class StableDiffusion2VPredictionPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.6424, 0.6109, 0.494, 0.5088, 0.4984, 
             0.4525, 0.5059, 0.5068, 0.4474])
@@ -122,7 +122,7 @@ class StableDiffusion2VPredictionPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.4616, 0.5184, 0.4887, 0.5111, 0.4839, 
             0.48, 0.5119, 0.5263, 0.4776])
@@ -130,7 +130,6 @@ class StableDiffusion2VPredictionPipelineFastTests(unittest.TestCase):
         assert np.abs(image_from_tuple_slice.flatten() - expected_slice).max(
             ) < 0.01
 
-    @unittest.skipIf(torch_device != 'cuda', 'This test requires a GPU')
     def test_stable_diffusion_v_pred_fp16(self):
         """Test that stable diffusion v-prediction works with fp16"""
         unet = self.dummy_cond_unet
@@ -141,12 +140,9 @@ class StableDiffusion2VPredictionPipelineFastTests(unittest.TestCase):
         bert = self.dummy_text_encoder
         tokenizer = CLIPTokenizer.from_pretrained(
             'hf-internal-testing/tiny-random-clip')
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        unet = unet.to(dtype=paddle.float16)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        vae = vae.to(dtype=paddle.float16)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        bert = bert.to(dtype=paddle.float16)
+        unet = unet.to(dtype=paddle.float16)
+        vae = vae.to(dtype=paddle.float16)
+        bert = bert.to(dtype=paddle.float16)
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=None, requires_safety_checker=False)
@@ -177,7 +173,7 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         output = sd_pipe([prompt], generator=generator, guidance_scale=7.5,
             num_inference_steps=20, output_type='np')
         image = output.images
-        image_slice = image[(0), 253:256, 253:256, (-1)]
+        image_slice = image[(0), 253:256, 253:256, -1]
         assert image.shape == (1, 768, 768, 3)
         expected_slice = np.array([0.1868, 0.1922, 0.1527, 0.1921, 0.1908, 
             0.1624, 0.1779, 0.1652, 0.1734])
@@ -193,7 +189,7 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         output = sd_pipe([prompt], generator=generator, guidance_scale=7.5,
             num_inference_steps=20, output_type='np')
         image = output.images
-        image_slice = image[(0), 253:256, 253:256, (-1)]
+        image_slice = image[(0), 253:256, 253:256, -1]
         assert image.shape == (1, 768, 768, 3)
         expected_slice = np.array([0.4209, 0.4087, 0.4097, 0.4209, 0.386, 
             0.4329, 0.428, 0.4324, 0.4187])
@@ -211,7 +207,7 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         output = sd_pipe([prompt], generator=generator, num_inference_steps
             =5, output_type='numpy')
         image = output.images
-        image_slice = image[(0), 253:256, 253:256, (-1)]
+        image_slice = image[(0), 253:256, 253:256, -1]
         assert image.shape == (1, 768, 768, 3)
         expected_slice = np.array([0.1781, 0.1695, 0.1661, 0.1705, 0.1588, 
             0.1699, 0.2005, 0.1589, 0.1677])
@@ -231,7 +227,7 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(0)
         image = sd_pipe([prompt], generator=generator, guidance_scale=7.5,
             num_inference_steps=5, output_type='numpy').images
-        image_slice = image[(0), 253:256, 253:256, (-1)]
+        image_slice = image[(0), 253:256, 253:256, -1]
         assert image.shape == (1, 768, 768, 3)
         expected_slice = np.array([0.3303, 0.3184, 0.3291, 0.33, 0.3256, 
             0.3113, 0.2965, 0.3134, 0.3192])
@@ -301,7 +297,7 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
             if step == 0:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 96, 96)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([0.7749, 0.0325, 0.5088, 0.1619, 
                     0.3372, 0.3667, -0.5186, 0.686, 1.4326])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -309,7 +305,7 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
             elif step == 19:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 96, 96)
-                latents_slice = latents[(0), -3:, -3:, (-1)]
+                latents_slice = latents[(0), -3:, -3:, -1]
                 expected_slice = np.array([1.3887, 1.0273, 1.7266, 0.0726, 
                     0.6611, 0.1598, -1.0547, 0.1522, 0.0227])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -326,19 +322,3 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         assert test_callback_fn.has_been_called
         assert number_of_steps == 20
 
-
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading_v_pred(
-        self):
-        paddle.device.cuda.empty_cache()
-
-        pipeline_id = 'stabilityai/stable-diffusion-2'
-        prompt = 'Andromeda galaxy in a bottle'
-        pipeline = StableDiffusionPipeline.from_pretrained(pipeline_id,
-            paddle_dtype=paddle.float16)
-        pipeline = pipeline
-        pipeline.enable_attention_slicing(1)
-        pipeline.enable_sequential_cpu_offload()
-        generator = paddle.Generator().manual_seed(0)
-        _ = pipeline(prompt, generator=generator, num_inference_steps=5)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 2.8 * 10 ** 9

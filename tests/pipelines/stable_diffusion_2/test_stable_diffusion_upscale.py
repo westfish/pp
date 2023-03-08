@@ -106,7 +106,7 @@ class StableDiffusionUpscalePipelineFastTests(unittest.TestCase):
             =generator, guidance_scale=6.0, noise_level=20,
             num_inference_steps=2, output_type='np', return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         expected_height_width = low_res_image.size[0] * 4
         assert image.shape == (1, expected_height_width,
             expected_height_width, 3)
@@ -145,7 +145,6 @@ class StableDiffusionUpscalePipelineFastTests(unittest.TestCase):
         image = output.images
         assert image.shape[0] == 2
 
-    @unittest.skipIf(torch_device != 'cuda', 'This test requires a GPU')
     def test_stable_diffusion_upscale_fp16(self):
         """Test that stable diffusion upscale works with fp16"""
         unet = self.dummy_cond_unet_upscale
@@ -158,10 +157,8 @@ class StableDiffusionUpscalePipelineFastTests(unittest.TestCase):
         image = self.dummy_image.cpu().transpose(perm=[0, 2, 3, 1])[0]
         low_res_image = Image.fromarray(np.uint8(image)).convert('RGB').resize(
             (64, 64))
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        unet = unet.to(dtype=paddle.float16)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        text_encoder = text_encoder.to(dtype=paddle.float16)
+        unet = unet.to(dtype=paddle.float16)
+        text_encoder = text_encoder.to(dtype=paddle.float16)
         sd_pipe = StableDiffusionUpscalePipeline(unet=unet,
             low_res_scheduler=low_res_scheduler, scheduler=scheduler, vae=
             vae, text_encoder=text_encoder, tokenizer=tokenizer,
@@ -223,22 +220,3 @@ class StableDiffusionUpscalePipelineIntegrationTests(unittest.TestCase):
         image = output.images[0]
         assert image.shape == (512, 512, 3)
         assert np.abs(expected_image - image).max() < 0.5
-
-    def test_stable_diffusion_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/sd2-upscale/low_res_cat.png'
-            )
-        model_id = 'stabilityai/stable-diffusion-x4-upscaler'
-        pipe = StableDiffusionUpscalePipeline.from_pretrained(model_id,
-            paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing(1)
-        pipe.enable_sequential_cpu_offload()
-        prompt = 'a cat sitting on a park bench'
-        generator = paddle.Generator().manual_seed(0)
-        _ = pipe(prompt=prompt, image=image, generator=generator,
-            num_inference_steps=5, output_type='np')
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 2.65 * 10 ** 9

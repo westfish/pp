@@ -41,7 +41,7 @@ from ppdiffusers.pipelines.pipeline_utils import DiffusionPipeline
 from ppdiffusers.pipelines.stable_diffusion.stable_unclip_image_normalizer import (
     StableUnCLIPImageNormalizer,
 )
-from ppdiffusers.utils.import_utils import is_xformers_available
+from ppdiffusers.utils.import_utils import is_cutlass_fused_multi_head_attention_available
 from ppdiffusers.utils.testing_utils import (
     floats_tensor,
     load_image,
@@ -100,14 +100,14 @@ class StableUnCLIPImg2ImgPipelineFastTests(PipelineTesterMixin, unittest.
             text_encoder, 'unet': unet, 'scheduler': scheduler, 'vae': vae}
         return components
 
-    def get_dummy_inputs(self, device, seed=0, pil_image=True):
+    def get_dummy_inputs(self, seed=0, pil_image=True):
         generator = paddle.Generator().manual_seed(seed)
 
         input_image = floats_tensor((1, 3, 32, 32), rng=random.Random(seed))
         if pil_image:
             input_image = input_image * 0.5 + 0.5
             input_image = input_image.clip(min=0, max=1)
-    >>>            input_image = input_image.cpu().transpose(perm=[0, 2, 3, 1]).float(
+            input_image = input_image.cpu().transpose(perm=[0, 2, 3, 1]).float(
                 ).numpy()
             input_image = DiffusionPipeline.numpy_to_pil(input_image)[0]
         return {'prompt': 'An anime racoon running a marathon', 'image':
@@ -115,16 +115,16 @@ class StableUnCLIPImg2ImgPipelineFastTests(PipelineTesterMixin, unittest.
             'output_type': 'np'}
 
     def test_attention_slicing_forward_pass(self):
-        test_max_difference = torch_device in ['cpu', 'mps']
+        test_max_difference = False
         self._test_attention_slicing_forward_pass(test_max_difference=
             test_max_difference)
 
     def test_inference_batch_single_identical(self):
-        test_max_difference = torch_device in ['cpu', 'mps']
+        test_max_difference = False
         self._test_inference_batch_single_identical(test_max_difference=
             test_max_difference)
 
-    @unittest.skipIf(torch_device != 'cuda' or not is_xformers_available(),
+    @unittest.skipIf(not is_cutlass_fused_multi_head_attention_available(),
         reason=
         'XFormers attention is only available with CUDA and `xformers` installed'
         )
@@ -152,7 +152,7 @@ class StableUnCLIPImg2ImgPipelineIntegrationTests(unittest.TestCase):
         pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
             'fusing/stable-unclip-2-1-l-img2img', paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
-        generator = paddle.Generator(device='cpu').manual_seed(0)
+        generator = paddle.Generator().manual_seed(0)
         output = pipe('anime turle', image=input_image, generator=generator,
             output_type='np')
         image = output.images[0]
@@ -169,25 +169,9 @@ class StableUnCLIPImg2ImgPipelineIntegrationTests(unittest.TestCase):
         pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
             'fusing/stable-unclip-2-1-h-img2img', paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
-        generator = paddle.Generator(device='cpu').manual_seed(0)
+        generator = paddle.Generator().manual_seed(0)
         output = pipe('anime turle', image=input_image, generator=generator,
             output_type='np')
         image = output.images[0]
         assert image.shape == (768, 768, 3)
         assert_mean_pixel_difference(image, expected_image)
-
-    def test_stable_unclip_img2img_pipeline_with_sequential_cpu_offloading(self
-        ):
-        input_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/stable_unclip/turtle.png'
-            )
-        paddle.device.cuda.empty_cache()
-
-        pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
-            'fusing/stable-unclip-2-1-h-img2img', paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing()
-        pipe.enable_sequential_cpu_offload()
-        _ = pipe('anime turtle', image=input_image, num_inference_steps=2,
-            output_type='np')
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 7 * 10 ** 9

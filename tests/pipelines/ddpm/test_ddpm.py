@@ -46,7 +46,7 @@ class DDPMPipelineFastTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(0)
         image_from_tuple = ddpm(generator=generator, num_inference_steps=2, output_type="numpy", return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.9956, 0.5785, 0.4675, 0.993, 0.0, 1.0, 0.001199, 0.0002648, 0.0005101])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -57,16 +57,14 @@ class DDPMPipelineFastTests(unittest.TestCase):
         scheduler = DDPMScheduler(prediction_type="sample")
         ddpm = DDPMPipeline(unet=unet, scheduler=scheduler)
         ddpm.set_progress_bar_config(disable=None)
-        if torch_device == "mps":
-            _ = ddpm(num_inference_steps=1)
         generator = paddle.Generator().manual_seed(0)
         image = ddpm(generator=generator, num_inference_steps=2, output_type="numpy").images
         generator = paddle.Generator().manual_seed(0)
         image_eps = ddpm(generator=generator, num_inference_steps=2, output_type="numpy")[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_eps_slice = image_eps[(0), -3:, -3:, (-1)]
+        image_eps_slice = image_eps[(0), -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
-        tolerance = 0.01 if torch_device != "mps" else 0.03
+        tolerance = 0.01
         assert np.abs(image_slice.flatten() - image_eps_slice.flatten()).max() < tolerance
 
 

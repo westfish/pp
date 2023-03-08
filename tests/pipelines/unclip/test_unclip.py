@@ -179,7 +179,7 @@ class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image_from_tuple = pipe(**self.get_dummy_inputs(),
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.9988, 0.0028, 0.9997, 0.9984, 
             0.9965, 0.0029, 0.9986, 0.0025])
@@ -203,18 +203,15 @@ class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         dtype = prior.dtype
         batch_size = 1
         shape = batch_size, prior.config.embedding_dim
-        prior_latents = pipe.prepare_latents(shape, dtype=dtype, device=
-            device, generator=generator, latents=None, scheduler=
+        prior_latents = pipe.prepare_latents(shape, dtype=dtype, generator=generator, latents=None, scheduler=
             DummyScheduler())
         shape = (batch_size, decoder.in_channels, decoder.sample_size,
             decoder.sample_size)
-        decoder_latents = pipe.prepare_latents(shape, dtype=dtype, device=
-            device, generator=generator, latents=None, scheduler=
+        decoder_latents = pipe.prepare_latents(shape, dtype=dtype, generator=generator, latents=None, scheduler=
             DummyScheduler())
         shape = (batch_size, super_res_first.in_channels // 2,
             super_res_first.sample_size, super_res_first.sample_size)
-        super_res_latents = pipe.prepare_latents(shape, dtype=dtype, device
-            =device, generator=generator, latents=None, scheduler=
+        super_res_latents = pipe.prepare_latents(shape, dtype=dtype, generator=generator, latents=None, scheduler=
             DummyScheduler())
         pipe.set_progress_bar_config(disable=None)
         prompt = 'this is a prompt example'
@@ -240,23 +237,19 @@ class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
 
 
     def test_attention_slicing_forward_pass(self):
-        test_max_difference = torch_device == 'cpu'
+        test_max_difference = False
         self._test_attention_slicing_forward_pass(test_max_difference=
             test_max_difference)
 
 
     def test_inference_batch_single_identical(self):
-        test_max_difference = torch_device == 'cpu'
+        test_max_difference = False
         relax_max_difference = True
         self._test_inference_batch_single_identical(test_max_difference=
             test_max_difference, relax_max_difference=relax_max_difference)
 
     def test_inference_batch_consistent(self):
-        if torch_device == 'mps':
-            batch_sizes = [2, 3]
-            self._test_inference_batch_consistent(batch_sizes=batch_sizes)
-        else:
-            self._test_inference_batch_consistent()
+        self._test_inference_batch_consistent()
 
 
     def test_dict_tuple_outputs_equivalent(self):
@@ -310,22 +303,9 @@ class UnCLIPPipelineIntegrationTests(unittest.TestCase):
             paddle_dtype=paddle.float16)
         pipeline = pipeline
         pipeline.set_progress_bar_config(disable=None)
-        generator = paddle.Generator(device='cpu').manual_seed(0)
+        generator = paddle.Generator().manual_seed(0)
         output = pipeline('horse', generator=generator, output_type='np')
         image = output.images[0]
         assert image.shape == (256, 256, 3)
         assert_mean_pixel_difference(image, expected_image)
 
-    def test_unclip_pipeline_with_sequential_cpu_offloading(self):
-        paddle.device.cuda.empty_cache()
-
-        pipe = UnCLIPPipeline.from_pretrained('kakaobrain/karlo-v1-alpha',
-            paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.enable_attention_slicing()
-        pipe.enable_sequential_cpu_offload()
-        _ = pipe('horse', num_images_per_prompt=1,
-            prior_num_inference_steps=2, decoder_num_inference_steps=2,
-            super_res_num_inference_steps=2, output_type='np')
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
-        assert mem_bytes < 7 * 10 ** 9

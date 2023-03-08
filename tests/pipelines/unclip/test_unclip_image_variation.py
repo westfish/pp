@@ -164,14 +164,14 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
             'super_res_last': super_res_last, 'decoder_scheduler':
             decoder_scheduler, 'super_res_scheduler': super_res_scheduler}
 
-    def get_dummy_inputs(self, device, seed=0, pil_image=True):
+    def get_dummy_inputs(self, seed=0, pil_image=True):
         input_image = floats_tensor((1, 3, 32, 32), rng=random.Random(seed))
         generator = paddle.Generator().manual_seed(seed)
 
         if pil_image:
             input_image = input_image * 0.5 + 0.5
             input_image = input_image.clip(min=0, max=1)
-    >>>            input_image = input_image.cpu().transpose(perm=[0, 2, 3, 1]).float(
+            input_image = input_image.cpu().transpose(perm=[0, 2, 3, 1]).float(
                 ).numpy()
             input_image = DiffusionPipeline.numpy_to_pil(input_image)[0]
         return {'image': input_image, 'generator': generator,
@@ -182,13 +182,13 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
         components = self.get_dummy_components()
         pipe = self.pipeline_class(**components)
         pipe.set_progress_bar_config(disable=None)
-        pipeline_inputs = self.get_dummy_inputs(device, pil_image=False)
+        pipeline_inputs = self.get_dummy_inputs(pil_image=False)
         output = pipe(**pipeline_inputs)
         image = output.images
-        tuple_pipeline_inputs = self.get_dummy_inputs(device, pil_image=False)
+        tuple_pipeline_inputs = self.get_dummy_inputs(pil_image=False)
         image_from_tuple = pipe(**tuple_pipeline_inputs, return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.0002, 0.9997, 0.9997, 0.9969, 
             0.0023, 0.9997, 0.9969, 0.997])
@@ -200,13 +200,13 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
         components = self.get_dummy_components()
         pipe = self.pipeline_class(**components)
         pipe.set_progress_bar_config(disable=None)
-        pipeline_inputs = self.get_dummy_inputs(device, pil_image=True)
+        pipeline_inputs = self.get_dummy_inputs(pil_image=True)
         output = pipe(**pipeline_inputs)
         image = output.images
-        tuple_pipeline_inputs = self.get_dummy_inputs(device, pil_image=True)
+        tuple_pipeline_inputs = self.get_dummy_inputs(pil_image=True)
         image_from_tuple = pipe(**tuple_pipeline_inputs, return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.0003, 0.9997, 0.9997, 0.997, 
             0.0024, 0.9997, 0.9971, 0.9971])
@@ -218,17 +218,17 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
         components = self.get_dummy_components()
         pipe = self.pipeline_class(**components)
         pipe.set_progress_bar_config(disable=None)
-        pipeline_inputs = self.get_dummy_inputs(device, pil_image=True)
+        pipeline_inputs = self.get_dummy_inputs(pil_image=True)
         pipeline_inputs['image'] = [pipeline_inputs['image'],
             pipeline_inputs['image']]
         output = pipe(**pipeline_inputs)
         image = output.images
-        tuple_pipeline_inputs = self.get_dummy_inputs(device, pil_image=True)
+        tuple_pipeline_inputs = self.get_dummy_inputs(pil_image=True)
         tuple_pipeline_inputs['image'] = [tuple_pipeline_inputs['image'],
             tuple_pipeline_inputs['image']]
         image_from_tuple = pipe(**tuple_pipeline_inputs, return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (2, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.9989, 0.0008, 0.0021, 0.996, 
             0.0018, 0.0014, 0.0002, 0.9933])
@@ -240,18 +240,18 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
         components = self.get_dummy_components()
         pipe = self.pipeline_class(**components)
         pipe.set_progress_bar_config(disable=None)
-        pipeline_inputs = self.get_dummy_inputs(device, pil_image=True)
+        pipeline_inputs = self.get_dummy_inputs(pil_image=True)
         pipeline_inputs['image'] = [pipeline_inputs['image'],
             pipeline_inputs['image']]
         output = pipe(**pipeline_inputs, num_images_per_prompt=2)
         image = output.images
-        tuple_pipeline_inputs = self.get_dummy_inputs(device, pil_image=True)
+        tuple_pipeline_inputs = self.get_dummy_inputs(pil_image=True)
         tuple_pipeline_inputs['image'] = [tuple_pipeline_inputs['image'],
             tuple_pipeline_inputs['image']]
         image_from_tuple = pipe(**tuple_pipeline_inputs,
             num_images_per_prompt=2, return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, (-1)]
+        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
         assert image.shape == (4, 64, 64, 3)
         expected_slice = np.array([0.998, 0.9997, 0.0023, 0.0029, 0.9997, 
             0.9985, 0.9997, 0.001, 0.9995])
@@ -272,18 +272,16 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
         batch_size = 1
         shape = (batch_size, pipe.decoder.in_channels, pipe.decoder.
             sample_size, pipe.decoder.sample_size)
-        decoder_latents = pipe.prepare_latents(shape, dtype=dtype, device=
-            device, generator=generator, latents=None, scheduler=
+        decoder_latents = pipe.prepare_latents(shape, dtype=dtype, generator=generator, latents=None, scheduler=
             DummyScheduler())
         shape = (batch_size, pipe.super_res_first.in_channels // 2, pipe.
             super_res_first.sample_size, pipe.super_res_first.sample_size)
-        super_res_latents = pipe.prepare_latents(shape, dtype=dtype, device
-            =device, generator=generator, latents=None, scheduler=
+        super_res_latents = pipe.prepare_latents(shape, dtype=dtype, generator=generator, latents=None, scheduler=
             DummyScheduler())
-        pipeline_inputs = self.get_dummy_inputs(device, pil_image=False)
+        pipeline_inputs = self.get_dummy_inputs(pil_image=False)
         img_out_1 = pipe(**pipeline_inputs, decoder_latents=decoder_latents,
             super_res_latents=super_res_latents).images
-        pipeline_inputs = self.get_dummy_inputs(device, pil_image=False)
+        pipeline_inputs = self.get_dummy_inputs(pil_image=False)
         image = pipeline_inputs.pop('image')
         image_embeddings = pipe.image_encoder(image).image_embeds
         img_out_2 = pipe(**pipeline_inputs, decoder_latents=decoder_latents,
@@ -293,23 +291,19 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
 
 
     def test_attention_slicing_forward_pass(self):
-        test_max_difference = torch_device == 'cpu'
+        test_max_difference = False
         self._test_attention_slicing_forward_pass(test_max_difference=
             test_max_difference)
 
 
     def test_inference_batch_single_identical(self):
-        test_max_difference = torch_device == 'cpu'
+        test_max_difference = False
         relax_max_difference = True
         self._test_inference_batch_single_identical(test_max_difference=
             test_max_difference, relax_max_difference=relax_max_difference)
 
     def test_inference_batch_consistent(self):
-        if torch_device == 'mps':
-            batch_sizes = [2, 3]
-            self._test_inference_batch_consistent(batch_sizes=batch_sizes)
-        else:
-            self._test_inference_batch_consistent()
+        self._test_inference_batch_consistent()
 
 
     def test_dict_tuple_outputs_equivalent(self):
@@ -341,11 +335,11 @@ class UnCLIPImageVariationPipelineIntegrationTests(unittest.TestCase):
             'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/unclip/karlo_v1_alpha_cat_variation_fp16.npy'
             )
         pipeline = UnCLIPImageVariationPipeline.from_pretrained(
-            'kakaobrain/karlo-v1-alpha-image-variations', paddle_dtype='float16'
+            'kakaobrain/karlo-v1-alpha-image-variations', paddle_dtype=paddle.float16
             )
         pipeline = pipeline
         pipeline.set_progress_bar_config(disable=None)
-        generator = paddle.Generator(device='cpu').manual_seed(0)
+        generator = paddle.Generator().manual_seed(0)
         output = pipeline(input_image, generator=generator, output_type='np')
         image = output.images[0]
         assert image.shape == (256, 256, 3)

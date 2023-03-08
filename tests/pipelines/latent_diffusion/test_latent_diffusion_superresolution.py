@@ -70,18 +70,14 @@ class LDMSuperResolutionPipelineFastTests(unittest.TestCase):
             0.5599, 0.4641, 0.6201, 0.515])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
-    @unittest.skipIf(torch_device != 'cuda', 'This test requires a GPU')
     def test_inference_superresolution_fp16(self):
         unet = self.dummy_uncond_unet
         scheduler = DDIMScheduler()
         vqvae = self.dummy_vq_model
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        unet = unet.to(dtype=paddle.float16)
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        vqvae = vqvae.to(dtype=paddle.float16)
+        unet = unet.to(dtype=paddle.float16)
+        vqvae = vqvae.to(dtype=paddle.float16)
         ldm = LDMSuperResolutionPipeline(unet=unet, vqvae=vqvae, scheduler=
             scheduler)
-        ldm
         ldm.set_progress_bar_config(disable=None)
         init_image = self.dummy_image
         image = ldm(init_image, num_inference_steps=2, output_type='numpy'
