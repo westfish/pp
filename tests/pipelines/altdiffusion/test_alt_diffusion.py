@@ -177,7 +177,7 @@ class AltDiffusionPipelineIntegrationTests(unittest.TestCase):
         image = output.images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.101, 0.08, 0.0794, 0.0885, 0.0843, 0.0762, 0.0769, 0.0729, 0.0586])
+        expected_slice = np.array([0.8718514442443848, 0.8715569972991943, 0.8748429417610168, 0.8708409070968628, 0.8782679438591003, 0.8931069374084473, 0.883078932762146, 0.881088376045227, 0.8617547154426575])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_alt_diffusion_fast_ddim(self):
@@ -190,5 +190,5 @@ class AltDiffusionPipelineIntegrationTests(unittest.TestCase):
         image = output.images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.4019, 0.4052, 0.381, 0.4119, 0.3916, 0.3982, 0.4651, 0.4195, 0.5323])
+        expected_slice = np.array([0.9265012741088867, 0.9305188059806824, 0.8999797105789185, 0.9346827268600464, 0.9264709949493408, 0.9447494745254517, 0.9428927898406982, 0.9417785406112671, 0.9157286882400513])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

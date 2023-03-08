@@ -98,7 +98,7 @@ class RobertaSeriesModelWithTransformation(RobertaPretrainedModel):
     base_model_prefix = "roberta"
     config_class = RobertaSeriesConfig
 
-    def __init__(self, config):
+    def __init__(self, config: RobertaSeriesConfig):
         super().__init__(config)
         self.roberta = XLMRobertaModel(config)
         # must reset _padding_idx

@@ -338,7 +338,7 @@ class SelfAttention1d(nn.Layer):
         self.group_norm = nn.GroupNorm(1, num_channels=in_channels)
         self.num_heads = n_head
         self.head_size = in_channels // n_head
-        self.scale = 1 / math.sqrt(math.sqrt(self.head_size))
+        self.scale = 1 / math.sqrt(self.head_size)
 
         self.query = nn.Linear(self.channels, self.channels)
         self.key = nn.Linear(self.channels, self.channels)

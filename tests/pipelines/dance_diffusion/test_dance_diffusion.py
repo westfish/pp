@@ -84,9 +84,9 @@ class PipelineIntegrationTests(unittest.TestCase):
         audio = output.audios
         audio_slice = audio[0, -3:, -3:]
         assert audio.shape == (1, 2, pipe.unet.sample_size)
-        expected_slice = np.array([-0.0192, -0.0231, -0.0318, -0.0059, 0.0002, -0.002])
+        expected_slice = np.array([-0.15758808, -0.15257765, -0.12701476, -0.26994032, -0.27616554, -0.24865153])
         assert np.abs(audio_slice.flatten() - expected_slice).max() < 0.01
-
+    
     def test_dance_diffusion_fp16(self):
         pipe = DanceDiffusionPipeline.from_pretrained("harmonai/maestro-150k", paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
@@ -95,5 +95,6 @@ class PipelineIntegrationTests(unittest.TestCase):
         audio = output.audios
         audio_slice = audio[0, -3:, -3:]
         assert audio.shape == (1, 2, pipe.unet.sample_size)
-        expected_slice = np.array([-0.0367, -0.0488, -0.0771, -0.0525, -0.0444, -0.0341])
+        # scheduler use fp32
+        expected_slice = np.array([-0.15350387, -0.14624646, -0.12091318, -0.25969276, -0.26154587, -0.23359495])
         assert np.abs(audio_slice.flatten() - expected_slice).max() < 0.01

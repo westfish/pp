@@ -204,7 +204,7 @@ class UNet1DModel(ModelMixin, ConfigMixin):
             [`~models.unet_1d.UNet1DOutput`] or `tuple`: [`~models.unet_1d.UNet1DOutput`] if `return_dict` is True,
             otherwise a `tuple`. When returning a tuple, the first element is the sample tensor.
         """
-
+        sample = sample.cast(self.dtype)
         # 1. time
         timesteps = timestep
         if not paddle.is_tensor(timesteps):

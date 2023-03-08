@@ -102,7 +102,8 @@ class DanceDiffusionPipeline(DiffusionPipeline):
 
         # set step values
         self.scheduler.set_timesteps(num_inference_steps)
-        self.scheduler.timesteps = self.scheduler.timesteps.cast(dtype)
+        # TODO donot cast dtype here
+        # self.scheduler.timesteps = self.scheduler.timesteps.cast(dtype)
 
         for t in self.progress_bar(self.scheduler.timesteps):
             # 1. predict noise model_output

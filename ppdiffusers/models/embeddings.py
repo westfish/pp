@@ -377,7 +377,7 @@ class CombinedTimestepLabelEmbeddings(nn.Layer):
 
     def forward(self, timestep, class_labels, hidden_dtype=None):
         timesteps_proj = self.time_proj(timestep)
-        timesteps_emb = self.timestep_embedder(timesteps_proj.to(dtype=hidden_dtype))  # (N, D)
+        timesteps_emb = self.timestep_embedder(timesteps_proj.cast(hidden_dtype))  # (N, D)
 
         class_labels = self.class_embedder(class_labels)  # (N, D)
 

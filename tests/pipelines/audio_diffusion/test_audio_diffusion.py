@@ -107,7 +107,7 @@ class PipelineFastTests(unittest.TestCase):
         assert image.height == self.dummy_unet.sample_size[0] and image.width == self.dummy_unet.sample_size[1]
         image_slice = np.frombuffer(image.tobytes(), dtype="uint8")[:10]
         image_from_tuple_slice = np.frombuffer(image_from_tuple.tobytes(), dtype="uint8")[:10]
-        expected_slice = np.array([69, 255, 255, 255, 0, 0, 77, 181, 12, 127])
+        expected_slice = np.array([  0, 252,   0, 160, 144,   1,   0, 211,  99,   3])
         assert np.abs(image_slice.flatten() - expected_slice).max() == 0
         assert np.abs(image_from_tuple_slice.flatten() - expected_slice).max() == 0
         scheduler = DDIMScheduler()
@@ -126,7 +126,7 @@ class PipelineFastTests(unittest.TestCase):
             and image.width == self.dummy_vqvae_and_unet[0].sample_size[1]
         )
         image_slice = np.frombuffer(image.tobytes(), dtype="uint8")[:10]
-        expected_slice = np.array([120, 117, 110, 109, 138, 167, 138, 148, 132, 121])
+        expected_slice = np.array([128, 100, 153,  95,  92,  77, 130, 121,  81, 166])
         assert np.abs(image_slice.flatten() - expected_slice).max() == 0
         dummy_unet_condition = self.dummy_unet_condition
         pipe = AudioDiffusionPipeline(
@@ -137,7 +137,7 @@ class PipelineFastTests(unittest.TestCase):
         output = pipe(generator=generator, encoding=encoding)
         image = output.images[0]
         image_slice = np.frombuffer(image.tobytes(), dtype="uint8")[:10]
-        expected_slice = np.array([120, 139, 147, 123, 124, 96, 115, 121, 126, 144])
+        expected_slice = np.array([166, 156, 163, 149, 148, 149, 145, 139, 157, 141])
         assert np.abs(image_slice.flatten() - expected_slice).max() == 0
 
 

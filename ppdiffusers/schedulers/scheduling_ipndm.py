@@ -104,6 +104,10 @@ class IPNDMScheduler(SchedulerMixin, ConfigMixin):
             True, otherwise a `tuple`. When returning a tuple, the first element is the sample tensor.
 
         """
+        # TODO we use float32 to compute model_output and sample due to 1e-8
+        model_output = model_output.cast("float32")
+        sample = sample.cast("float32")
+
         if self.num_inference_steps is None:
             raise ValueError(
                 "Number of inference steps is 'None', you need to run 'set_timesteps' after creating the scheduler"
