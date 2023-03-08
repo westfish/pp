@@ -85,7 +85,6 @@ class StableDiffusionInpaintPipelineFastTests(PipelineTesterMixin, unittest
     def test_stable_diffusion_inpaint(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionInpaintPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -98,7 +97,6 @@ class StableDiffusionInpaintPipelineFastTests(PipelineTesterMixin, unittest
     def test_stable_diffusion_inpaint_image_tensor(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionInpaintPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
@@ -117,7 +115,6 @@ class StableDiffusionInpaintPipelineFastTests(PipelineTesterMixin, unittest
     def test_stable_diffusion_inpaint_with_num_images_per_prompt(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionInpaintPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         images = sd_pipe(**inputs, num_images_per_prompt=2).images
@@ -136,7 +133,7 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
@@ -232,7 +229,7 @@ class StableDiffusionInpaintPipelineNightlyTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(

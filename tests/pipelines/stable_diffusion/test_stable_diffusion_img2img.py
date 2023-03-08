@@ -76,7 +76,6 @@ class StableDiffusionImg2ImgPipelineFastTests(PipelineTesterMixin, unittest
     def test_stable_diffusion_img2img_default_case(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionImg2ImgPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -89,7 +88,6 @@ class StableDiffusionImg2ImgPipelineFastTests(PipelineTesterMixin, unittest
     def test_stable_diffusion_img2img_negative_prompt(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionImg2ImgPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         negative_prompt = 'french fries'
@@ -104,7 +102,6 @@ class StableDiffusionImg2ImgPipelineFastTests(PipelineTesterMixin, unittest
     def test_stable_diffusion_img2img_multiple_init_images(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionImg2ImgPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         inputs['prompt'] = [inputs['prompt']] * 2
@@ -121,7 +118,6 @@ class StableDiffusionImg2ImgPipelineFastTests(PipelineTesterMixin, unittest
         components['scheduler'] = LMSDiscreteScheduler(beta_start=0.00085,
             beta_end=0.012, beta_schedule='scaled_linear')
         sd_pipe = StableDiffusionImg2ImgPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -134,7 +130,6 @@ class StableDiffusionImg2ImgPipelineFastTests(PipelineTesterMixin, unittest
     def test_stable_diffusion_img2img_num_images_per_prompt(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionImg2ImgPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         images = sd_pipe(**inputs).images
@@ -166,7 +161,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
@@ -223,7 +218,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
     def test_stable_diffusion_img2img_intermediate_state(self):
         number_of_steps = 0
 
->>>        def callback_fn(step: int, timestep: int, latents: torch.FloatTensor
+        def callback_fn(step: int, timestep: int, latents: paddle.Tensor
             ) ->None:
             callback_fn.has_been_called = True
             nonlocal number_of_steps
@@ -266,7 +261,8 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
         pipe.enable_sequential_cpu_offload()
         inputs = self.get_inputs(dtype='float16')
         _ = pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        assert mem_bytes < 2.2 * 10 ** 9
+        mem_bytes = paddle.device.cuda.max_memory_allocated()        
+        assert mem_bytes < 2.2 * 10 ** 9
 
     def test_stable_diffusion_pipeline_with_model_offloading(self):
         paddle.device.cuda.empty_cache()
@@ -277,7 +273,8 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
             paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
         pipe(**inputs)
-        mem_bytes = paddle.device.cuda.max_memory_allocated()        pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
+        mem_bytes = paddle.device.cuda.max_memory_allocated()        
+        pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4', safety_checker=None,
             paddle_dtype=paddle.float16)
         paddle.device.cuda.empty_cache()
@@ -285,7 +282,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
         pipe.enable_model_cpu_offload()
         pipe.set_progress_bar_config(disable=None)
         _ = pipe(**inputs)
->>>        mem_bytes_offloaded = torch.cuda.max_memory_allocated()
+        mem_bytes_offloaded = paddle.device.cuda.max_memory_allocated()
         assert mem_bytes_offloaded < mem_bytes
         for module in (pipe.text_encoder, pipe.unet, pipe.vae):
             assert module.place == 'cpu'
@@ -321,7 +318,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(

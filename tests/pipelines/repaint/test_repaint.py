@@ -59,7 +59,6 @@ class RepaintPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_repaint(self):
         components = self.get_dummy_components()
         sd_pipe = RePaintPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images

@@ -112,7 +112,6 @@ class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_stable_diffusion_ddim(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -125,7 +124,6 @@ class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components = self.get_dummy_components()
         components["scheduler"] = PNDMScheduler(skip_prk_steps=True)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -138,7 +136,6 @@ class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components = self.get_dummy_components()
         components["scheduler"] = LMSDiscreteScheduler.from_config(components["scheduler"].config)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -151,7 +148,6 @@ class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components = self.get_dummy_components()
         components["scheduler"] = EulerAncestralDiscreteScheduler.from_config(components["scheduler"].config)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -164,7 +160,6 @@ class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components = self.get_dummy_components()
         components["scheduler"] = EulerDiscreteScheduler.from_config(components["scheduler"].config)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -177,7 +172,6 @@ class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components = self.get_dummy_components()
         components["scheduler"] = LMSDiscreteScheduler.from_config(components["scheduler"].config)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         do_classifier_free_guidance = True
         negative_prompt = None

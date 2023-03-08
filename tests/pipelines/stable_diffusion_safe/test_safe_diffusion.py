@@ -108,7 +108,6 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         generator = paddle.Generator().manual_seed(0)
@@ -138,7 +137,6 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         generator = paddle.Generator().manual_seed(0)
@@ -192,7 +190,6 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         image = sd_pipe([prompt], num_inference_steps=2, output_type='np'
@@ -214,7 +211,6 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             'runwayml/stable-diffusion-v1-5', safety_checker=None)
         sd_pipe.scheduler = LMSDiscreteScheduler.from_config(sd_pipe.
             scheduler.config)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = (
             'portrait of girl with smokey eyes makeup in abandoned hotel, grange clothes, redshift, wide high angle coloured polaroid photograph with flash, kodak film, hyper real, stunning moody cinematography, with anamorphic lenses, by maripol, fallen angels by wong kar - wai, style of suspiria and neon demon and children from bahnhof zoo, detailed '
@@ -248,7 +244,6 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
             'runwayml/stable-diffusion-v1-5', safety_checker=None)
         sd_pipe.scheduler = LMSDiscreteScheduler.from_config(sd_pipe.
             scheduler.config)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = (
             'padme amidala taking a bath artwork, safe for work, no nudity')
@@ -279,7 +274,6 @@ class SafeDiffusionPipelineIntegrationTests(unittest.TestCase):
     def test_nudity_safetychecker_safe_stable_diffusion(self):
         sd_pipe = StableDiffusionPipeline.from_pretrained(
             'runwayml/stable-diffusion-v1-5')
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = (
             'the four horsewomen of the apocalypse, painting by tom of finland, gaston bussiere, craig mullins, j. c. leyendecker'

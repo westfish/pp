@@ -139,7 +139,6 @@ class StableDiffusionInpaintLegacyPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionInpaintPipelineLegacy(unet=unet, scheduler
             =scheduler, vae=vae, text_encoder=bert, tokenizer=tokenizer,
             safety_checker=None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         generator = paddle.Generator().manual_seed(0)
@@ -174,7 +173,6 @@ class StableDiffusionInpaintLegacyPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionInpaintPipelineLegacy(unet=unet, scheduler
             =scheduler, vae=vae, text_encoder=bert, tokenizer=tokenizer,
             safety_checker=None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         negative_prompt = 'french fries'
@@ -203,7 +201,6 @@ class StableDiffusionInpaintLegacyPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionInpaintPipelineLegacy(unet=unet, scheduler
             =scheduler, vae=vae, text_encoder=bert, tokenizer=tokenizer,
             safety_checker=None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         images = sd_pipe(prompt, num_inference_steps=2, output_type='np',
@@ -234,7 +231,7 @@ class StableDiffusionInpaintLegacyPipelineSlowTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
@@ -280,7 +277,7 @@ class StableDiffusionInpaintLegacyPipelineSlowTests(unittest.TestCase):
     def test_stable_diffusion_inpaint_legacy_intermediate_state(self):
         number_of_steps = 0
 
->>>        def callback_fn(step: int, timestep: int, latents: torch.FloatTensor
+        def callback_fn(step: int, timestep: int, latents: paddle.Tensor
             ) ->None:
             callback_fn.has_been_called = True
             nonlocal number_of_steps
@@ -322,7 +319,7 @@ class StableDiffusionInpaintLegacyPipelineNightlyTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(

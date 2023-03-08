@@ -81,7 +81,6 @@ class StableDiffusion2InpaintPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_inpaint(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionInpaintPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images

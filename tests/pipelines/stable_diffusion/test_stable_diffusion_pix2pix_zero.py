@@ -34,7 +34,7 @@ from ppdiffusers import (
 )
 from ppdiffusers.utils import load_numpy, slow
 from ppdiffusers.utils.testing_utils import require_paddle_gpu
-
+from ppdiffusers.utils.load_utils import smart_load
 
 def download_from_url(embedding_url, local_filepath):
     r = requests.get(embedding_url)
@@ -82,13 +82,10 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
             'https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/tgt_emb_0.pt'
             )
         for url in [src_emb_url, tgt_emb_url]:
-            """Class Method: *.split, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>            download_from_url(url, url.split('/')[-1])
-        """Class Method: *.split, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        src_embeds = torch.load(src_emb_url.split('/')[-1])
-        """Class Method: *.split, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        target_embeds = torch.load(tgt_emb_url.split('/')[-1])
-        generator = paddle.seed(seed=seed)
+            download_from_url(url, url.split('/')[-1])
+        src_embeds = smart_load(src_emb_url.split('/')[-1])
+        target_embeds = smart_load(tgt_emb_url.split('/')[-1])
+        generator = paddle.Generator().manual_seed(seed)
         inputs = {'prompt': 'A painting of a squirrel eating a burger',
             'generator': generator, 'num_inference_steps': 2,
             'guidance_scale': 6.0, 'cross_attention_guidance_amount': 0.15,
@@ -99,7 +96,6 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_pix2pix_zero_default_case(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPix2PixZeroPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -112,7 +108,6 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_pix2pix_zero_negative_prompt(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPix2PixZeroPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         negative_prompt = 'french fries'
@@ -129,7 +124,6 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
         components['scheduler'] = EulerAncestralDiscreteScheduler(beta_start
             =0.00085, beta_end=0.012, beta_schedule='scaled_linear')
         sd_pipe = StableDiffusionPix2PixZeroPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -143,7 +137,6 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
         components = self.get_dummy_components()
         components['scheduler'] = DDPMScheduler()
         sd_pipe = StableDiffusionPix2PixZeroPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -156,7 +149,6 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_pix2pix_zero_num_images_per_prompt(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPix2PixZeroPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         images = sd_pipe(**inputs).images
@@ -192,12 +184,9 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
             'https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/dog.pt'
             )
         for url in [src_emb_url, tgt_emb_url]:
-            """Class Method: *.split, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>            download_from_url(url, url.split('/')[-1])
-        """Class Method: *.split, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        src_embeds = torch.load(src_emb_url.split('/')[-1])
-        """Class Method: *.split, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        target_embeds = torch.load(tgt_emb_url.split('/')[-1])
+            download_from_url(url, url.split('/')[-1])
+        src_embeds = smart_load(src_emb_url.split('/')[-1])
+        target_embeds = smart_load(tgt_emb_url.split('/')[-1])
         inputs = {'prompt': 'turn him into a cyborg', 'generator':
             generator, 'num_inference_steps': 3, 'guidance_scale': 7.5,
             'cross_attention_guidance_amount': 0.15, 'source_embeds':

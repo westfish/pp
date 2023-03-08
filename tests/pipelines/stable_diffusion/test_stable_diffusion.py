@@ -14,7 +14,6 @@
 
 import gc
 import tempfile
-import time
 import unittest
 
 import numpy as np
@@ -82,7 +81,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_stable_diffusion_ddim(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
@@ -96,7 +94,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_stable_diffusion_lora(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
@@ -104,7 +101,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image_slice = image[0, -3:, -3:, -1]
         lora_attn_procs = create_lora_layers(sd_pipe.unet)
         sd_pipe.unet.set_attn_processor(lora_attn_procs)
-        sd_pipe = sd_pipe
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs, cross_attention_kwargs={'scale': 0.0})
         image = output.images
@@ -119,8 +115,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_stable_diffusion_prompt_embeds(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         inputs['prompt'] = 3 * [inputs['prompt']]
@@ -142,8 +136,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_stable_diffusion_negative_prompt_embeds(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         negative_prompt = 3 * ['this is a negative prompt']
@@ -169,7 +161,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_stable_diffusion_ddim_factor_8(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs, height=136, width=136)
@@ -184,7 +175,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPipeline(**components)
         sd_pipe.scheduler = PNDMScheduler(skip_prk_steps=True)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
@@ -216,7 +206,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(**components)
         sd_pipe.scheduler = LMSDiscreteScheduler.from_config(sd_pipe.
             scheduler.config)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
@@ -234,7 +223,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(**components)
         sd_pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(sd_pipe
             .scheduler.config)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
@@ -252,7 +240,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(**components)
         sd_pipe.scheduler = EulerDiscreteScheduler.from_config(sd_pipe.
             scheduler.config)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         output = sd_pipe(**inputs)
@@ -270,7 +257,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components['scheduler'] = LMSDiscreteScheduler.from_config(components
             ['scheduler'].config)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         image_count = 4
         inputs = self.get_dummy_inputs()
@@ -287,7 +273,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components = self.get_dummy_components()
         components['scheduler'] = PNDMScheduler(skip_prk_steps=True)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         negative_prompt = 'french fries'
@@ -305,7 +290,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components = self.get_dummy_components()
         components['scheduler'] = PNDMScheduler(skip_prk_steps=True)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         images = sd_pipe(prompt, num_inference_steps=2, output_type='np'
@@ -330,7 +314,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components['scheduler'] = LMSDiscreteScheduler.from_config(components
             ['scheduler'].config)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         do_classifier_free_guidance = True
         negative_prompt = None
@@ -363,7 +346,6 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         components['scheduler'] = LMSDiscreteScheduler.from_config(components
             ['scheduler'].config)
         sd_pipe = StableDiffusionPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'hey'
         output = sd_pipe(prompt, num_inference_steps=1, output_type='np')
@@ -390,12 +372,11 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
-        """Class Method: *.to, not convert, please check whether it is torch.Tensor.*/Optimizer.*/nn.Module.*, and convert manually"""
->>>        latents = paddle.to_tensor(latents).cast(dtype)
+        latents = paddle.to_tensor(latents).cast(dtype)
         inputs = {'prompt': 'a photograph of an astronaut riding a horse',
             'latents': latents, 'generator': generator,
             'num_inference_steps': 3, 'guidance_scale': 7.5, 'output_type':
@@ -405,7 +386,6 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
     def test_stable_diffusion_1_1_pndm(self):
         sd_pipe = StableDiffusionPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-1')
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
@@ -418,7 +398,6 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
     def test_stable_diffusion_1_4_pndm(self):
         sd_pipe = StableDiffusionPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4')
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
@@ -432,7 +411,6 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         sd_pipe = StableDiffusionPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4', safety_checker=None)
         sd_pipe.scheduler = DDIMScheduler.from_config(sd_pipe.scheduler.config)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
@@ -447,7 +425,6 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
             'CompVis/stable-diffusion-v1-4', safety_checker=None)
         sd_pipe.scheduler = LMSDiscreteScheduler.from_config(sd_pipe.
             scheduler.config)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
@@ -462,7 +439,6 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
             'CompVis/stable-diffusion-v1-4', safety_checker=None)
         sd_pipe.scheduler = DPMSolverMultistepScheduler.from_config(sd_pipe
             .scheduler.config)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
@@ -515,7 +491,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs(dtype='float16')
         image_fp16 = pipe(**inputs).images
->>>        with torch.autocast(torch_device):
+        with paddle.amp.auto_cast(True, level="O2"):
             inputs = self.get_inputs()
             image_autocast = pipe(**inputs).images
         diff = np.abs(image_fp16.flatten() - image_autocast.flatten())
@@ -524,7 +500,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
     def test_stable_diffusion_intermediate_state(self):
         number_of_steps = 0
 
->>>        def callback_fn(step: int, timestep: int, latents: torch.FloatTensor
+        def callback_fn(step: int, timestep: int, latents: paddle.Tensor
             ) ->None:
             callback_fn.has_been_called = True
             nonlocal number_of_steps

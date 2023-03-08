@@ -108,7 +108,6 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         generator = paddle.Generator().manual_seed(0)
@@ -138,7 +137,6 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         generator = paddle.Generator().manual_seed(0)
@@ -192,7 +190,6 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         sd_pipe = StableDiffusionPipeline(unet=unet, scheduler=scheduler,
             vae=vae, text_encoder=bert, tokenizer=tokenizer, safety_checker
             =None, feature_extractor=self.dummy_extractor)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         image = sd_pipe([prompt], num_inference_steps=2, output_type='np'

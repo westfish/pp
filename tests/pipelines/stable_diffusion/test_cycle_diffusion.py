@@ -153,7 +153,7 @@ class CycleDiffusionPipelineIntegrationTests(unittest.TestCase):
         model_id = "CompVis/stable-diffusion-v1-4"
         scheduler = DDIMScheduler.from_pretrained(model_id, subfolder="scheduler")
         pipe = CycleDiffusionPipeline.from_pretrained(
-            model_id, scheduler=scheduler, safety_checker=None, paddle_dtype="float16", revision="fp16"
+            model_id, scheduler=scheduler, safety_checker=None, paddle_dtype=paddle.float16, revision="fp16"
         )
         pipe.set_progress_bar_config(disable=None)
         pipe.enable_attention_slicing()

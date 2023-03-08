@@ -94,7 +94,6 @@ class StableDiffusionUpscalePipelineFastTests(unittest.TestCase):
             low_res_scheduler=low_res_scheduler, scheduler=scheduler, vae=
             vae, text_encoder=text_encoder, tokenizer=tokenizer,
             max_noise_level=350)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         generator = paddle.Generator().manual_seed(0)
@@ -132,7 +131,6 @@ class StableDiffusionUpscalePipelineFastTests(unittest.TestCase):
             low_res_scheduler=low_res_scheduler, scheduler=scheduler, vae=
             vae, text_encoder=text_encoder, tokenizer=tokenizer,
             max_noise_level=350)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         output = sd_pipe(2 * [prompt], image=2 * [low_res_image],
@@ -168,7 +166,6 @@ class StableDiffusionUpscalePipelineFastTests(unittest.TestCase):
             low_res_scheduler=low_res_scheduler, scheduler=scheduler, vae=
             vae, text_encoder=text_encoder, tokenizer=tokenizer,
             max_noise_level=350)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         prompt = 'A painting of a squirrel eating a burger'
         generator = paddle.Generator().manual_seed(0)

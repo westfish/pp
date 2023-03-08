@@ -73,7 +73,6 @@ class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_panorama_default_case(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPanoramaPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -86,7 +85,6 @@ class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_panorama_negative_prompt(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPanoramaPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         negative_prompt = 'french fries'
@@ -103,7 +101,6 @@ class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
         components['scheduler'] = EulerAncestralDiscreteScheduler(beta_start
             =0.00085, beta_end=0.012, beta_schedule='scaled_linear')
         sd_pipe = StableDiffusionPanoramaPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -117,7 +114,6 @@ class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
         components = self.get_dummy_components()
         components['scheduler'] = PNDMScheduler()
         sd_pipe = StableDiffusionPanoramaPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         with self.assertRaises(ValueError):
@@ -126,7 +122,6 @@ class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_panorama_num_images_per_prompt(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionPanoramaPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         images = sd_pipe(**inputs).images
@@ -200,7 +195,7 @@ class StableDiffusionPanoramaSlowTests(unittest.TestCase):
     def test_stable_diffusion_panorama_intermediate_state(self):
         number_of_steps = 0
 
->>>        def callback_fn(step: int, timestep: int, latents: torch.FloatTensor
+        def callback_fn(step: int, timestep: int, latents: paddle.Tensor
             ) ->None:
             callback_fn.has_been_called = True
             nonlocal number_of_steps

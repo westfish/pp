@@ -339,8 +339,7 @@ class CustomPipelineTests(unittest.TestCase):
     def test_load_pipeline_from_git(self):
         clip_model_id = 'laion/CLIP-ViT-B-32-laion2B-s34B-b79K'
         feature_extractor = CLIPFeatureExtractor.from_pretrained(clip_model_id)
-        clip_model = CLIPModel.from_pretrained(clip_model_id, paddle_dtype=
-            'float16')
+        clip_model = CLIPModel.from_pretrained(clip_model_id, paddle_dtype=paddle.float16)
         pipeline = DiffusionPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4', custom_pipeline=
             'clip_guided_stable_diffusion', clip_model=clip_model,

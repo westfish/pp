@@ -81,7 +81,6 @@ class StableDiffusionImageVariationPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_img_variation_default_case(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionImageVariationPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         image = sd_pipe(**inputs).images
@@ -94,7 +93,6 @@ class StableDiffusionImageVariationPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_img_variation_multiple_images(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionImageVariationPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         inputs['image'] = 2 * [inputs['image']]
@@ -109,7 +107,6 @@ class StableDiffusionImageVariationPipelineFastTests(PipelineTesterMixin,
     def test_stable_diffusion_img_variation_num_images_per_prompt(self):
         components = self.get_dummy_components()
         sd_pipe = StableDiffusionImageVariationPipeline(**components)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
         images = sd_pipe(**inputs).images
@@ -157,7 +154,6 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
     def test_stable_diffusion_img_variation_pipeline_default(self):
         sd_pipe = StableDiffusionImageVariationPipeline.from_pretrained(
             'lambdalabs/sd-image-variations-ppdiffusers', safety_checker=None)
-        sd_pipe = sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
@@ -226,7 +222,7 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
-    def get_inputs(self, device, generator_device='cpu', dtype='float32',
+    def get_inputs(self, dtype='float32',
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
