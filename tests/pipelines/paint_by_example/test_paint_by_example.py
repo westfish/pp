@@ -109,7 +109,7 @@ class PaintByExamplePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         mask_image = image.clip(min=0, max=1) / 2
         pipe = PaintByExamplePipeline(**self.get_dummy_components())
         pipe.set_progress_bar_config(disable=None)
-        output = pipe(image=image, mask_image=mask_image[:, (0)], **inputs)
+        output = pipe(image=image, mask_image=mask_image[:, 0], **inputs)
         out_1 = output.images
         image = image.cpu().transpose(perm=[0, 2, 3, 1])[0]
         mask_image = mask_image.cpu().transpose(perm=[0, 2, 3, 1])[0]

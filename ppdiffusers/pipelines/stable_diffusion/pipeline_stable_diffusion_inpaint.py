@@ -98,8 +98,7 @@ def prepare_mask_and_masked_image(image, mask):
             raise ValueError("Mask should be in [0, 1] range")
 
         # Binarize mask
-        mask[mask < 0.5] = 0
-        mask[mask >= 0.5] = 1
+        mask = paddle.where(mask < 0.5, 0., 1.) 
 
         # Image as float32
         image = image.cast(paddle.float32)

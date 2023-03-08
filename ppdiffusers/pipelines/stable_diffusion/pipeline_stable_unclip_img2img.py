@@ -304,7 +304,7 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
         generator,
         image_embeds,
     ):
-        dtype = next(self.image_encoder.parameters()).dtype
+        dtype = self.image_encoder.dtype
 
         if isinstance(image, PIL.Image.Image):
             # the image embedding should repeated so it matches the total batch size of the prompt
