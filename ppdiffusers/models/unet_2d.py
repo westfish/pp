@@ -276,6 +276,8 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         # but time_embedding might actually be running in fp16. so we need to cast here.
         # there might be better ways to encapsulate this.
         t_emb = t_emb.cast(self.dtype)
+        # TODO junnyu, add this to support pure fp16
+        sample = sample.cast(self.dtype)
         emb = self.time_embedding(t_emb)
 
         if self.class_embedding is not None:
