@@ -27,7 +27,7 @@ from paddlenlp.transformers import (
     CLIPTextModel,
     CLIPTokenizer,
     DPTConfig,
-    DPTFeatureExtractor,
+    DPTImageProcessor,
     DPTForDepthEstimation,
 )
 from ppdiffusers import (
@@ -113,7 +113,7 @@ class StableDiffusionDepth2ImgPipelineFastTests(PipelineTesterMixin, unittest.Te
             backbone_featmap_shape=[1, 384, 24, 24],
         )
         depth_estimator = DPTForDepthEstimation(depth_estimator_config)
-        feature_extractor = DPTFeatureExtractor.from_pretrained(
+        feature_extractor = DPTImageProcessor.from_pretrained(
             "hf-internal-testing/tiny-random-DPTForDepthEstimation"
         )
         components = {
