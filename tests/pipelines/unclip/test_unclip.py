@@ -179,7 +179,7 @@ class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image_from_tuple = pipe(**self.get_dummy_inputs(),
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
+        image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.9997, 0.9988, 0.0028, 0.9997, 0.9984, 
             0.9965, 0.0029, 0.9986, 0.0025])
@@ -274,7 +274,7 @@ class UnCLIPPipelineCPUIntegrationTests(unittest.TestCase):
 
     def test_unclip_karlo_cpu_fp32(self):
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/unclip/karlo_v1_alpha_horse_cpu.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/unclip/karlo_v1_alpha_horse_cpu.npy'
             )
         pipeline = UnCLIPPipeline.from_pretrained('kakaobrain/karlo-v1-alpha')
         pipeline.set_progress_bar_config(disable=None)
@@ -297,7 +297,7 @@ class UnCLIPPipelineIntegrationTests(unittest.TestCase):
 
     def test_unclip_karlo(self):
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/unclip/karlo_v1_alpha_horse_fp16.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/unclip/karlo_v1_alpha_horse_fp16.npy'
             )
         pipeline = UnCLIPPipeline.from_pretrained('kakaobrain/karlo-v1-alpha',
             paddle_dtype=paddle.float16)

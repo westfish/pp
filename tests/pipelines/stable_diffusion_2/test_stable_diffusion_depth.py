@@ -292,7 +292,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
     def get_inputs(self, device="cpu", dtype="float32", seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/depth2img/two_cats.png"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/depth2img/two_cats.png"
         )
         inputs = {
             "prompt": "two tigers",
@@ -313,7 +313,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, -1].flatten()
+        image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 480, 640, 3)
         expected_slice = np.array([0.9057, 0.9365, 0.9258, 0.8937, 0.8555, 0.8541, 0.826, 0.7747, 0.7421])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
@@ -327,7 +327,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, -1].flatten()
+        image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 480, 640, 3)
         expected_slice = np.array([0.6363, 0.6274, 0.6309, 0.637, 0.6226, 0.6286, 0.6213, 0.6453, 0.6306])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
@@ -341,7 +341,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, -1].flatten()
+        image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 480, 640, 3)
         expected_slice = np.array([0.6424, 0.6524, 0.6249, 0.6041, 0.6634, 0.642, 0.6522, 0.6555, 0.6436])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
@@ -356,7 +356,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 60, 80)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array(
                     [-0.7168, -1.5137, -0.1418, -2.9219, -2.7266, -2.4414, -2.1035, -3.0078, -1.7051]
                 )
@@ -364,7 +364,7 @@ class StableDiffusionDepth2ImgPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 60, 80)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array(
                     [-0.7109, -1.5068, -0.1403, -2.916, -2.7207, -2.4414, -2.1035, -3.0059, -1.709]
                 )
@@ -393,7 +393,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
     def get_inputs(self, device="cpu", dtype="float32", seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/depth2img/two_cats.png"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/depth2img/two_cats.png"
         )
         inputs = {
             "prompt": "two tigers",

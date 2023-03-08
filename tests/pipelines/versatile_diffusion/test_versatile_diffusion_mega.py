@@ -39,7 +39,7 @@ class VersatileDiffusionMegaPipelineIntegrationTests(unittest.TestCase):
         pipe = VersatileDiffusionPipeline.from_pretrained("shi-labs/versatile-diffusion", paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
         prompt_image = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/versatile_diffusion/benz.jpg"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/versatile_diffusion/benz.jpg"
         )
         generator = paddle.Generator().manual_seed(0)
         image = pipe.dual_guided(
@@ -72,7 +72,7 @@ class VersatileDiffusionMegaPipelineIntegrationTests(unittest.TestCase):
         pipe.set_progress_bar_config(disable=None)
         prompt = "cyberpunk 2077"
         init_image = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/versatile_diffusion/benz.jpg"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/versatile_diffusion/benz.jpg"
         )
         generator = paddle.Generator().manual_seed(0)
         image = pipe.dual_guided(
@@ -84,7 +84,7 @@ class VersatileDiffusionMegaPipelineIntegrationTests(unittest.TestCase):
             num_inference_steps=50,
             output_type="numpy",
         ).images
-        image_slice = image[(0), 253:256, 253:256, -1]
+        image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.1448, 0.1619, 0.1741, 0.1086, 0.1147, 0.1128, 0.1199, 0.1165, 0.1001])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.1
@@ -93,12 +93,12 @@ class VersatileDiffusionMegaPipelineIntegrationTests(unittest.TestCase):
         image = pipe.text_to_image(
             prompt=prompt, generator=generator, guidance_scale=7.5, num_inference_steps=50, output_type="numpy"
         ).images
-        image_slice = image[(0), 253:256, 253:256, -1]
+        image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.3367, 0.3169, 0.2656, 0.387, 0.479, 0.3796, 0.4009, 0.4878, 0.4778])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.1
         image = pipe.image_variation(init_image, generator=generator, output_type="numpy").images
-        image_slice = image[(0), 253:256, 253:256, -1]
+        image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.3076, 0.3123, 0.3284, 0.3782, 0.377, 0.3894, 0.4297, 0.4331, 0.4456])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.1

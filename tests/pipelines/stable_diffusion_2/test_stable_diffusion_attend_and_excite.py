@@ -151,6 +151,6 @@ class StableDiffusionAttendAndExcitePipelineIntegrationTests(unittest.TestCase):
             max_iter_to_alter=25,
         ).images[0]
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/attend-and-excite/elephant_glasses.npy"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/attend-and-excite/elephant_glasses.npy"
         )
         assert np.abs((expected_image - image).max()) < 0.5

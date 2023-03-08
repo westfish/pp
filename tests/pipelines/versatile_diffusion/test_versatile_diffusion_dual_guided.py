@@ -40,7 +40,7 @@ class VersatileDiffusionDualGuidedPipelineIntegrationTests(unittest.TestCase):
         pipe.remove_unused_weights()
         pipe.set_progress_bar_config(disable=None)
         second_prompt = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/versatile_diffusion/benz.jpg"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/versatile_diffusion/benz.jpg"
         )
         generator = paddle.Generator().manual_seed(0)
         image = pipe(
@@ -74,7 +74,7 @@ class VersatileDiffusionDualGuidedPipelineIntegrationTests(unittest.TestCase):
         pipe.set_progress_bar_config(disable=None)
         first_prompt = "cyberpunk 2077"
         second_prompt = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/versatile_diffusion/benz.jpg"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/versatile_diffusion/benz.jpg"
         )
         generator = paddle.Generator().manual_seed(0)
         image = pipe(
@@ -86,7 +86,7 @@ class VersatileDiffusionDualGuidedPipelineIntegrationTests(unittest.TestCase):
             num_inference_steps=50,
             output_type="numpy",
         ).images
-        image_slice = image[(0), 253:256, 253:256, -1]
+        image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.0787, 0.0849, 0.0826, 0.0812, 0.0807, 0.0795, 0.0818, 0.0798, 0.0779])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

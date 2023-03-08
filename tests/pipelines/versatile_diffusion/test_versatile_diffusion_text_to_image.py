@@ -62,7 +62,7 @@ class VersatileDiffusionTextToImagePipelineIntegrationTests(unittest.TestCase):
         image = pipe(
             prompt=prompt, generator=generator, guidance_scale=7.5, num_inference_steps=50, output_type="numpy"
         ).images
-        image_slice = image[(0), 253:256, 253:256, -1]
+        image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.3493, 0.3757, 0.4093, 0.4495, 0.4233, 0.4102, 0.4507, 0.4756, 0.4787])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

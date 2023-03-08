@@ -174,7 +174,7 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([-0.1621, 0.2837, -0.7979, -
                     0.1221, -1.3057, 0.7681, -2.1191, 0.0464, 1.6309])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -182,7 +182,7 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([0.6299, 1.75, 1.1992, -2.1582, -
                     1.8994, 0.7334, -0.709, 1.0137, 1.5273])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(

@@ -95,7 +95,7 @@ class DiTPipelineIntegrationTests(unittest.TestCase):
         images = pipe(ids, generator=generator, num_inference_steps=40, output_type="np").images
         for word, image in zip(words, images):
             expected_image = load_numpy(
-                f"https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/dit/{word}.npy"
+                f"https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/dit/{word}.npy"
             )
             assert np.abs((expected_image - image).max()) < 0.001
 
@@ -110,6 +110,6 @@ class DiTPipelineIntegrationTests(unittest.TestCase):
         images = pipe(ids, generator=generator, num_inference_steps=25, output_type="np").images
         for word, image in zip(words, images):
             expected_image = load_numpy(
-                f"https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/dit/{word}_fp16.npy"
+                f"https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/dit/{word}_fp16.npy"
             )
             assert np.abs((expected_image - image).max()) < 0.75

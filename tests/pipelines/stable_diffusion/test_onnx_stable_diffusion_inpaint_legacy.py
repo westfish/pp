@@ -46,13 +46,13 @@
 
 #     def test_inference(self):
 #         init_image = load_image(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo.png"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo.png"
 #         )
 #         mask_image = load_image(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo_mask.png"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo_mask.png"
 #         )
 #         expected_image = load_numpy(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/in_paint/red_cat_sitting_on_a_park_bench_onnx.npy"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/in_paint/red_cat_sitting_on_a_park_bench_onnx.npy"
 #         )
 #         pipe = OnnxStableDiffusionInpaintPipelineLegacy.from_pretrained(
 #             "CompVis/stable-diffusion-v1-4",

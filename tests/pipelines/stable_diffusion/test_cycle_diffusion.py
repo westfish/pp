@@ -113,7 +113,7 @@ class CycleDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = pipe(**inputs)
         images = output.images
-        image_slice = images[(0), -3:, -3:, -1]
+        image_slice = images[0, -3:, -3:, -1]
         assert images.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.4459, 0.4943, 0.4544, 0.6643, 0.5474, 0.4327, 0.5701, 0.5959, 0.5179])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -128,7 +128,7 @@ class CycleDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = pipe(**inputs)
         images = output.images
-        image_slice = images[(0), -3:, -3:, -1]
+        image_slice = images[0, -3:, -3:, -1]
         assert images.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.3506, 0.4543, 0.446, 0.4575, 0.5195, 0.4155, 0.5273, 0.518, 0.4116])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -144,10 +144,10 @@ class CycleDiffusionPipelineIntegrationTests(unittest.TestCase):
 
     def test_cycle_diffusion_pipeline_fp16(self):
         init_image = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/cycle-diffusion/black_colored_car.png"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/cycle-diffusion/black_colored_car.png"
         )
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/cycle-diffusion/blue_colored_car_fp16.npy"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/cycle-diffusion/blue_colored_car_fp16.npy"
         )
         init_image = init_image.resize((512, 512))
         model_id = "CompVis/stable-diffusion-v1-4"
@@ -177,10 +177,10 @@ class CycleDiffusionPipelineIntegrationTests(unittest.TestCase):
 
     def test_cycle_diffusion_pipeline(self):
         init_image = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/cycle-diffusion/black_colored_car.png"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/cycle-diffusion/black_colored_car.png"
         )
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/cycle-diffusion/blue_colored_car.npy"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/cycle-diffusion/blue_colored_car.npy"
         )
         init_image = init_image.resize((512, 512))
         model_id = "CompVis/stable-diffusion-v1-4"

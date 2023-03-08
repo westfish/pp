@@ -144,10 +144,10 @@ class StableUnCLIPImg2ImgPipelineIntegrationTests(unittest.TestCase):
 
     def test_stable_unclip_l_img2img(self):
         input_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/stable_unclip/turtle.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/turtle.png'
             )
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_img2img_anime_turtle_fp16.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_img2img_anime_turtle_fp16.npy'
             )
         pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
             'fusing/stable-unclip-2-1-l-img2img', paddle_dtype=paddle.float16)
@@ -161,10 +161,10 @@ class StableUnCLIPImg2ImgPipelineIntegrationTests(unittest.TestCase):
 
     def test_stable_unclip_h_img2img(self):
         input_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/stable_unclip/turtle.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/turtle.png'
             )
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_h_img2img_anime_turtle_fp16.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_h_img2img_anime_turtle_fp16.npy'
             )
         pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
             'fusing/stable-unclip-2-1-h-img2img', paddle_dtype=paddle.float16)

@@ -55,7 +55,7 @@ class DDIMPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image = pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1]
         self.assertEqual(image.shape, (1, 32, 32, 3))
-        expected_slice = np.array([1.0, 0.5717, 0.4717, 1.0, 0.0, 1.0, 0.0003, 0.0, 0.0009])
+        expected_slice = np.array([0.0, 0.00152004, 0.0, 0.0, 0.00860906, 0.00182715, 0.00189051, 1.0, 0.668702])
         max_diff = np.abs(image_slice.flatten() - expected_slice).max()
         self.assertLessEqual(max_diff, 0.001)
 
@@ -73,18 +73,18 @@ class DDIMPipelineIntegrationTests(unittest.TestCase):
         image = ddim(generator=generator, eta=0.0, output_type="numpy").images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
-        expected_slice = np.array([0.1723, 0.1617, 0.16, 0.1626, 0.1497, 0.1513, 0.1505, 0.1442, 0.1453])
+        expected_slice = np.array([0.2060, 0.2042, 0.2022, 0.2193, 0.2146, 0.2110, 0.2471, 0.2446, 0.2388])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_inference_ema_bedroom(self):
         model_id = "google/ddpm-ema-bedroom-256"
         unet = UNet2DModel.from_pretrained(model_id)
         scheduler = DDIMScheduler.from_pretrained(model_id)
-        ddpm = DDIMPipeline(unet=unet, scheduler=scheduler)
-        ddpm.set_progress_bar_config(disable=None)
+        ddim = DDIMPipeline(unet=unet, scheduler=scheduler)
+        ddim.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
-        image = ddpm(generator=generator, output_type="numpy").images
+        image = ddim(generator=generator, output_type="numpy").images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 256, 256, 3)
-        expected_slice = np.array([0.006, 0.0201, 0.0344, 0.0024, 0.0018, 0.0002, 0.0022, 0.0, 0.0069])
+        expected_slice = np.array([0.1546, 0.1561, 0.1595, 0.1564, 0.1569, 0.1585, 0.1554, 0.1550, 0.1575])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

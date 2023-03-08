@@ -91,7 +91,7 @@ class LDMSuperResolutionPipelineIntegrationTests(unittest.TestCase):
 
     def test_inference_superresolution(self):
         init_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/vq_diffusion/teddy_bear_pool.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/vq_diffusion/teddy_bear_pool.png'
             )
         init_image = init_image.resize((64, 64), resample=PIL_INTERPOLATION
             ['lanczos'])

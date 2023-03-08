@@ -119,7 +119,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         inputs['prompt'] = 3 * [inputs['prompt']]
         output = sd_pipe(**inputs)
-        image_slice_1 = output.images[(0), -3:, -3:, -1]
+        image_slice_1 = output.images[0, -3:, -3:, -1]
         inputs = self.get_dummy_inputs()
         prompt = 3 * [inputs.pop('prompt')]
         text_inputs = sd_pipe.tokenizer(prompt, padding='max_length',
@@ -129,7 +129,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         prompt_embeds = sd_pipe.text_encoder(text_inputs)[0]
         inputs['prompt_embeds'] = prompt_embeds
         output = sd_pipe(**inputs)
-        image_slice_2 = output.images[(0), -3:, -3:, -1]
+        image_slice_2 = output.images[0, -3:, -3:, -1]
         assert np.abs(image_slice_1.flatten() - image_slice_2.flatten()).max(
             ) < 0.0001
 
@@ -142,7 +142,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs['negative_prompt'] = negative_prompt
         inputs['prompt'] = 3 * [inputs['prompt']]
         output = sd_pipe(**inputs)
-        image_slice_1 = output.images[(0), -3:, -3:, -1]
+        image_slice_1 = output.images[0, -3:, -3:, -1]
         inputs = self.get_dummy_inputs()
         prompt = 3 * [inputs.pop('prompt')]
         embeds = []
@@ -154,7 +154,7 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
             embeds.append(sd_pipe.text_encoder(text_inputs)[0])
         inputs['prompt_embeds'], inputs['negative_prompt_embeds'] = embeds
         output = sd_pipe(**inputs)
-        image_slice_2 = output.images[(0), -3:, -3:, -1]
+        image_slice_2 = output.images[0, -3:, -3:, -1]
         assert np.abs(image_slice_1.flatten() - image_slice_2.flatten()).max(
             ) < 0.0001
 
@@ -508,7 +508,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([-0.5693, -0.3018, -0.9746, 
                     0.0518, -0.877, 0.7559, -1.7402, 0.1022, 1.1582])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -516,7 +516,7 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([-0.1958, -0.2993, -1.0166, -
                     0.5005, -0.481, 0.6162, -0.9492, 0.6621, 1.4492])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(

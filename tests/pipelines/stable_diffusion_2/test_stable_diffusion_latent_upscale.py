@@ -161,7 +161,7 @@ class StableDiffusionLatentUpscalePipelineIntegrationTests(unittest.TestCase):
             output_type="np",
         ).images[0]
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/latent-upscaler/astronaut_1024.npy"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/latent-upscaler/astronaut_1024.npy"
         )
         assert np.abs((expected_image - image).max()) < 0.5
 
@@ -174,7 +174,7 @@ class StableDiffusionLatentUpscalePipelineIntegrationTests(unittest.TestCase):
 
         prompt = "the temple of fire by Ross Tran and Gerardo Dottori, oil on canvas"
         low_res_img = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/latent-upscaler/fire_temple_512.png"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/latent-upscaler/fire_temple_512.png"
         )
         image = upscaler(
             prompt=prompt,
@@ -185,6 +185,6 @@ class StableDiffusionLatentUpscalePipelineIntegrationTests(unittest.TestCase):
             output_type="np",
         ).images[0]
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/latent-upscaler/fire_temple_1024.npy"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/latent-upscaler/fire_temple_1024.npy"
         )
         assert np.abs((expected_image - image).max()) < 0.05

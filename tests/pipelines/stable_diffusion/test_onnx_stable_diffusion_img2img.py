@@ -140,7 +140,7 @@
 
 #     def test_inference_default_pndm(self):
 #         init_image = load_image(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"
 #         )
 #         init_image = init_image.resize((768, 512))
 #         pipe = OnnxStableDiffusionImg2ImgPipeline.from_pretrained(
@@ -164,14 +164,14 @@
 #             output_type="np",
 #         )
 #         images = output.images
-#         image_slice = images[(0), 255:258, 383:386, -1]
+#         image_slice = images[0, 255:258, 383:386, -1]
 #         assert images.shape == (1, 512, 768, 3)
 #         expected_slice = np.array([0.4909, 0.5059, 0.5372, 0.4623, 0.4876, 0.5049, 0.482, 0.4956, 0.5019])
 #         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.02
 
 #     def test_inference_k_lms(self):
 #         init_image = load_image(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"
 #         )
 #         init_image = init_image.resize((768, 512))
 #         lms_scheduler = LMSDiscreteScheduler.from_pretrained(
@@ -199,7 +199,7 @@
 #             output_type="np",
 #         )
 #         images = output.images
-#         image_slice = images[(0), 255:258, 383:386, -1]
+#         image_slice = images[0, 255:258, 383:386, -1]
 #         assert images.shape == (1, 512, 768, 3)
 #         expected_slice = np.array([0.8043, 0.926, 0.9581, 0.8119, 0.8954, 0.913, 0.7209, 0.7463, 0.7431])
 #         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.02

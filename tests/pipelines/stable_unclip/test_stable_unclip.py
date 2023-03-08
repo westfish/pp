@@ -131,7 +131,7 @@ class StableUnCLIPPipelineIntegrationTests(unittest.TestCase):
 
     def test_stable_unclip(self):
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_anime_turtle_fp16.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_anime_turtle_fp16.npy'
             )
         pipe = StableUnCLIPPipeline.from_pretrained(
             'fusing/stable-unclip-2-1-l', paddle_dtype=paddle.float16)

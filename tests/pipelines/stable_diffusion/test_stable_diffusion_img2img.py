@@ -226,7 +226,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 96)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([-0.4958, 0.5107, 1.1045, 2.7539,
                     4.668, 3.832, 1.5049, 1.8633, 2.6523])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -234,7 +234,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 96)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([-0.4956, 0.5078, 1.0918, 2.752, 
                     4.6484, 3.8125, 1.5146, 1.8633, 2.6367])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -276,7 +276,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
 
     def test_stable_diffusion_img2img_pipeline_multiple_of_8(self):
         init_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/img2img/sketch-mountains-input.jpg'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/img2img/sketch-mountains-input.jpg'
             )
         init_image = init_image.resize((760, 504))
         model_id = 'CompVis/stable-diffusion-v1-4'

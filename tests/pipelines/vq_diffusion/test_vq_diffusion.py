@@ -130,7 +130,7 @@ class VQDiffusionPipelineFastTests(unittest.TestCase):
             [prompt], generator=generator, output_type="np", return_dict=False, num_inference_steps=2
         )[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
+        image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 24, 24, 3)
         expected_slice = np.array([0.6583, 0.641, 0.5325, 0.5635, 0.5563, 0.4234, 0.6008, 0.5491, 0.488])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -163,7 +163,7 @@ class VQDiffusionPipelineFastTests(unittest.TestCase):
             [prompt], generator=generator, output_type="np", return_dict=False, num_inference_steps=2
         )[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
+        image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 24, 24, 3)
         expected_slice = np.array([0.6647, 0.6531, 0.5303, 0.5891, 0.5726, 0.4439, 0.6304, 0.5564, 0.4912])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
@@ -180,7 +180,7 @@ class VQDiffusionPipelineIntegrationTests(unittest.TestCase):
 
     def test_vq_diffusion_classifier_free_sampling(self):
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/vq_diffusion/teddy_bear_pool_classifier_free_sampling.npy"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/vq_diffusion/teddy_bear_pool_classifier_free_sampling.npy"
         )
         pipeline = VQDiffusionPipeline.from_pretrained("microsoft/vq-diffusion-ithq")
         pipeline = pipeline

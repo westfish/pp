@@ -78,13 +78,13 @@ class RepaintPipelineNightlyTests(unittest.TestCase):
 
     def test_celebahq(self):
         original_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/repaint/celeba_hq_256.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/repaint/celeba_hq_256.png'
             )
         mask_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/repaint/mask_256.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/repaint/mask_256.png'
             )
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/repaint/celeba_hq_256_result.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/repaint/celeba_hq_256_result.npy'
             )
         model_id = 'google/ddpm-ema-celebahq-256'
         unet = UNet2DModel.from_pretrained(model_id)

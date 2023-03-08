@@ -34,8 +34,8 @@ class EmbeddingsTests(unittest.TestCase):
         embedding_dim = 256
         timesteps = paddle.arange(start=16)
         t1 = get_timestep_embedding(timesteps, embedding_dim)
-        assert (t1[(0), : embedding_dim // 2] - 0).abs().sum() < 1e-05
-        assert (t1[(0), embedding_dim // 2 :] - 1).abs().sum() < 1e-05
+        assert (t1[0, : embedding_dim // 2] - 0).abs().sum() < 1e-05
+        assert (t1[0, embedding_dim // 2 :] - 1).abs().sum() < 1e-05
         assert (t1[:, -1] - 1).abs().sum() < 1e-05
         grad_mean = np.abs(np.gradient(t1, axis=-1)).mean(axis=1)
         prev_grad = 0.0
@@ -391,7 +391,7 @@ class Transformer2DModelTests(unittest.TestCase):
         with paddle.no_grad():
             attention_scores = spatial_transformer_block(sample).sample
         assert attention_scores.shape == [1, num_embed - 1, 32]
-        output_slice = attention_scores[(0), -2:, -3:]
+        output_slice = attention_scores[0, -2:, -3:]
         expected_slice = paddle.to_tensor([-1.7648, -1.0241, -2.0985, -1.8035, -1.6404, -1.2098])
         assert paddle.allclose(output_slice.flatten(), expected_slice, atol=0.001)
 

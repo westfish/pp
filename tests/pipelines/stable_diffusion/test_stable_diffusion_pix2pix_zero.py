@@ -235,7 +235,7 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([0.1345, 0.268, 0.1539, 0.0726, 
                     0.0959, 0.2261, -0.2673, 0.0277, -0.2062])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -243,7 +243,7 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([0.1393, 0.2637, 0.1617, 0.0724, 
                     0.0987, 0.2271, -0.2666, 0.0299, -0.2104])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -292,7 +292,7 @@ class InversionPipelineSlowTests(unittest.TestCase):
         output = pipe.invert(caption, image=raw_image, generator=generator,
             num_inference_steps=10)
         inv_latents = output[0]
-        image_slice = inv_latents[(0), -3:, -3:, -1].flatten()
+        image_slice = inv_latents[0, -3:, -3:, -1].flatten()
         assert inv_latents.shape == (1, 4, 64, 64)
         expected_slice = np.array([0.8877, 0.0587, 0.77, -1.6035, -0.5962, 
             0.4827, -0.6265, 1.0498, -0.8599])
@@ -305,7 +305,7 @@ class InversionPipelineSlowTests(unittest.TestCase):
         raw_image = Image.open(requests.get(img_url, stream=True).raw).convert(
             'RGB').resize((512, 512))
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/pix2pix/dog.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/dog.npy'
             )
         pipe = StableDiffusionPix2PixZeroPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4', safety_checker=None,

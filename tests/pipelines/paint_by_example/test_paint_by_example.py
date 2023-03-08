@@ -139,13 +139,13 @@ class PaintByExamplePipelineIntegrationTests(unittest.TestCase):
 
     def test_paint_by_example(self):
         init_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/paint_by_example/dog_in_bucket.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/paint_by_example/dog_in_bucket.png'
             )
         mask_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/paint_by_example/mask.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/paint_by_example/mask.png'
             )
         example_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/paint_by_example/panda.jpg'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/paint_by_example/panda.jpg'
             )
         pipe = PaintByExamplePipeline.from_pretrained(
             'Fantasy-Studio/Paint-by-Example')

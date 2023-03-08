@@ -32,13 +32,13 @@ class VersatileDiffusionImageVariationPipelineIntegrationTests(unittest.TestCase
         pipe = VersatileDiffusionImageVariationPipeline.from_pretrained("shi-labs/versatile-diffusion")
         pipe.set_progress_bar_config(disable=None)
         image_prompt = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/versatile_diffusion/benz.jpg"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/versatile_diffusion/benz.jpg"
         )
         generator = paddle.Generator().manual_seed(0)
         image = pipe(
             image=image_prompt, generator=generator, guidance_scale=7.5, num_inference_steps=50, output_type="numpy"
         ).images
-        image_slice = image[(0), 253:256, 253:256, -1]
+        image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.0441, 0.0469, 0.0507, 0.0575, 0.0632, 0.065, 0.0865, 0.0909, 0.0945])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

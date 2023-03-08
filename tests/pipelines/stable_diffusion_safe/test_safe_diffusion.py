@@ -119,7 +119,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
+        image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5644, 0.6018, 0.4799, 0.5267, 0.5585, 
             0.4641, 0.516, 0.4964, 0.4792])
@@ -148,7 +148,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
+        image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array([0.5095, 0.5674, 0.4668, 0.5126, 0.5697, 
             0.4675, 0.5278, 0.4964, 0.4945])

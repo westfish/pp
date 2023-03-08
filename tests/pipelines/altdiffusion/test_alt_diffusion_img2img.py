@@ -146,7 +146,7 @@ class AltDiffusionImg2ImgPipelineFastTests(unittest.TestCase):
             return_dict=False,
         )[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
+        image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.4115, 0.387, 0.4089, 0.4807, 0.4668, 0.4144, 0.4151, 0.4721, 0.4569])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.005
@@ -183,7 +183,7 @@ class AltDiffusionImg2ImgPipelineFastTests(unittest.TestCase):
 
     def test_stable_diffusion_img2img_pipeline_multiple_of_8(self):
         init_image = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"
         )
         init_image = init_image.resize((760, 504))
         model_id = "BAAI/AltDiffusion"
@@ -212,11 +212,11 @@ class AltDiffusionImg2ImgPipelineIntegrationTests(unittest.TestCase):
 
     def test_stable_diffusion_img2img_pipeline_default(self):
         init_image = load_image(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/img2img/sketch-mountains-input.jpg"
         )
         init_image = init_image.resize((768, 512))
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/img2img/fantasy_landscape_alt.npy"
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/img2img/fantasy_landscape_alt.npy"
         )
         model_id = "BAAI/AltDiffusion"
         pipe = AltDiffusionImg2ImgPipeline.from_pretrained(model_id, safety_checker=None)

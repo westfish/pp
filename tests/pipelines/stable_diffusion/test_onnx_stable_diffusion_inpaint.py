@@ -51,10 +51,10 @@
 
 #     def test_inference_default_pndm(self):
 #         init_image = load_image(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo.png"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo.png"
 #         )
 #         mask_image = load_image(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo_mask.png"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo_mask.png"
 #         )
 #         pipe = OnnxStableDiffusionInpaintPipeline.from_pretrained(
 #             "runwayml/stable-diffusion-inpainting",
@@ -77,17 +77,17 @@
 #             output_type="np",
 #         )
 #         images = output.images
-#         image_slice = images[(0), 255:258, 255:258, -1]
+#         image_slice = images[0, 255:258, 255:258, -1]
 #         assert images.shape == (1, 512, 512, 3)
 #         expected_slice = np.array([0.2514, 0.3007, 0.3517, 0.179, 0.2382, 0.3167, 0.1944, 0.2273, 0.2464])
 #         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
 #     def test_inference_k_lms(self):
 #         init_image = load_image(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo.png"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo.png"
 #         )
 #         mask_image = load_image(
-#             "https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo_mask.png"
+#             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/in_paint/overture-creations-5sI6fQgYIuo_mask.png"
 #         )
 #         lms_scheduler = LMSDiscreteScheduler.from_pretrained(
 #             "runwayml/stable-diffusion-inpainting", subfolder="scheduler", revision="onnx"
@@ -114,7 +114,7 @@
 #             output_type="np",
 #         )
 #         images = output.images
-#         image_slice = images[(0), 255:258, 255:258, -1]
+#         image_slice = images[0, 255:258, 255:258, -1]
 #         assert images.shape == (1, 512, 512, 3)
 #         expected_slice = np.array([0.0086, 0.0077, 0.0083, 0.0093, 0.0107, 0.0139, 0.0094, 0.0097, 0.0125])
 #         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001

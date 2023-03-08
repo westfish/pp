@@ -62,7 +62,7 @@ class DanceDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         output = pipe(**inputs)
         audio = output.audios
-        audio_slice = audio[(0), -3:, -3:]
+        audio_slice = audio[0, -3:, -3:]
         assert audio.shape == (1, 2, components["unet"].sample_size)
         expected_slice = np.array([-0.7265, 1.0, -0.8388, 0.1175, 0.9498, -1.0])
         assert np.abs(audio_slice.flatten() - expected_slice).max() < 0.01
@@ -82,7 +82,7 @@ class PipelineIntegrationTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(0)
         output = pipe(generator=generator, num_inference_steps=100, audio_length_in_s=4.096)
         audio = output.audios
-        audio_slice = audio[(0), -3:, -3:]
+        audio_slice = audio[0, -3:, -3:]
         assert audio.shape == (1, 2, pipe.unet.sample_size)
         expected_slice = np.array([-0.0192, -0.0231, -0.0318, -0.0059, 0.0002, -0.002])
         assert np.abs(audio_slice.flatten() - expected_slice).max() < 0.01
@@ -93,7 +93,7 @@ class PipelineIntegrationTests(unittest.TestCase):
         generator = paddle.Generator().manual_seed(0)
         output = pipe(generator=generator, num_inference_steps=100, audio_length_in_s=4.096)
         audio = output.audios
-        audio_slice = audio[(0), -3:, -3:]
+        audio_slice = audio[0, -3:, -3:]
         assert audio.shape == (1, 2, pipe.unet.sample_size)
         expected_slice = np.array([-0.0367, -0.0488, -0.0771, -0.0525, -0.0444, -0.0341])
         assert np.abs(audio_slice.flatten() - expected_slice).max() < 0.01

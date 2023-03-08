@@ -151,7 +151,7 @@ class StableDiffusionInpaintLegacyPipelineFastTests(unittest.TestCase):
             guidance_scale=6.0, num_inference_steps=2, output_type='np',
             image=init_image, mask_image=mask_image, return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
+        image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
         expected_slice = np.array([0.4941, 0.5396, 0.4689, 0.6338, 0.5392, 
             0.4094, 0.5477, 0.5904, 0.5165])
@@ -253,7 +253,7 @@ class StableDiffusionInpaintLegacyPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, -1].flatten()
+        image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.5665, 0.6117, 0.643, 0.4057, 0.4594, 
             0.5658, 0.1596, 0.3106, 0.4305])
@@ -268,7 +268,7 @@ class StableDiffusionInpaintLegacyPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs()
         image = pipe(**inputs).images
-        image_slice = image[(0), 253:256, 253:256, -1].flatten()
+        image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
         expected_slice = np.array([0.4534, 0.4467, 0.4329, 0.4329, 0.4339, 
             0.422, 0.4244, 0.4332, 0.4426])
@@ -285,7 +285,7 @@ class StableDiffusionInpaintLegacyPipelineSlowTests(unittest.TestCase):
             if step == 1:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([0.5977, 1.5449, 1.0586, -0.325, 
                     0.7383, -0.0862, 0.4631, -0.2571, -1.1289])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
@@ -293,7 +293,7 @@ class StableDiffusionInpaintLegacyPipelineSlowTests(unittest.TestCase):
             elif step == 2:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 64, 64)
-                latents_slice = latents[(0), -3:, -3:, -1]
+                latents_slice = latents[0, -3:, -3:, -1]
                 expected_slice = np.array([0.519, 1.1621, 0.6885, 0.2424, 
                     0.3337, -0.1617, 0.6914, -0.1957, -0.5474])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(

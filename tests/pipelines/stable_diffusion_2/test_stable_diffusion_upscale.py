@@ -106,7 +106,7 @@ class StableDiffusionUpscalePipelineFastTests(unittest.TestCase):
             =generator, guidance_scale=6.0, noise_level=20,
             num_inference_steps=2, output_type='np', return_dict=False)[0]
         image_slice = image[0, -3:, -3:, -1]
-        image_from_tuple_slice = image_from_tuple[(0), -3:, -3:, -1]
+        image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         expected_height_width = low_res_image.size[0] * 4
         assert image.shape == (1, expected_height_width,
             expected_height_width, 3)
@@ -184,10 +184,10 @@ class StableDiffusionUpscalePipelineIntegrationTests(unittest.TestCase):
 
     def test_stable_diffusion_upscale_pipeline(self):
         image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/sd2-upscale/low_res_cat.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-upscale/low_res_cat.png'
             )
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/sd2-upscale/upsampled_cat.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-upscale/upsampled_cat.npy'
             )
         model_id = 'stabilityai/stable-diffusion-x4-upscaler'
         pipe = StableDiffusionUpscalePipeline.from_pretrained(model_id)
@@ -203,10 +203,10 @@ class StableDiffusionUpscalePipelineIntegrationTests(unittest.TestCase):
 
     def test_stable_diffusion_upscale_pipeline_fp16(self):
         image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/sd2-upscale/low_res_cat.png'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-upscale/low_res_cat.png'
             )
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/ppdiffusers-images/resolve/main/sd2-upscale/upsampled_cat_fp16.npy'
+            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-upscale/upsampled_cat_fp16.npy'
             )
         model_id = 'stabilityai/stable-diffusion-x4-upscaler'
         pipe = StableDiffusionUpscalePipeline.from_pretrained(model_id,
