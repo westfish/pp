@@ -145,7 +145,7 @@ class LDMTextToImagePipelineNightlyTests(unittest.TestCase):
         inputs = self.get_inputs()
         image = pipe(**inputs).images[0]
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/ldm_text2img/ldm_large_256_ddim.npy'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/ldm_text2img/ldm_large_256_ddim.npy'
             )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001

@@ -414,7 +414,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         inputs = self.get_inputs()
         image = pipe(**inputs).images[0]
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_depth2img/stable_diffusion_2_0_pndm.npy"
+            "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_depth2img/stable_diffusion_2_0_pndm.npy"
         )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001
@@ -426,7 +426,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         inputs = self.get_inputs()
         image = pipe(**inputs).images[0]
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_depth2img/stable_diffusion_2_0_ddim.npy"
+            "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_depth2img/stable_diffusion_2_0_ddim.npy"
         )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001
@@ -438,7 +438,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         inputs = self.get_inputs()
         image = pipe(**inputs).images[0]
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_depth2img/stable_diffusion_2_0_lms.npy"
+            "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_depth2img/stable_diffusion_2_0_lms.npy"
         )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001
@@ -451,7 +451,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         inputs["num_inference_steps"] = 30
         image = pipe(**inputs).images[0]
         expected_image = load_numpy(
-            "https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_depth2img/stable_diffusion_2_0_dpm_multi.npy"
+            "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_depth2img/stable_diffusion_2_0_dpm_multi.npy"
         )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001
