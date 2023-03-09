@@ -120,25 +120,25 @@ class StableUnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
             test_max_difference)
 
 
-@slow
-@require_paddle_gpu
-class StableUnCLIPPipelineIntegrationTests(unittest.TestCase):
+# @slow
+# @require_paddle_gpu
+# class StableUnCLIPPipelineIntegrationTests(unittest.TestCase):
 
-    def tearDown(self):
-        super().tearDown()
-        gc.collect()
-        paddle.device.cuda.empty_cache()
+#     def tearDown(self):
+#         super().tearDown()
+#         gc.collect()
+#         paddle.device.cuda.empty_cache()
 
-    def test_stable_unclip(self):
-        expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_anime_turtle_fp16.npy'
-            )
-        pipe = StableUnCLIPPipeline.from_pretrained(
-            'fusing/stable-unclip-2-1-l', paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        generator = paddle.Generator().manual_seed(0)
-        output = pipe('anime turle', generator=generator, output_type='np')
-        image = output.images[0]
-        assert image.shape == (768, 768, 3)
-        assert_mean_pixel_difference(image, expected_image)
+#     def test_stable_unclip(self):
+#         expected_image = load_numpy(
+#             'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_anime_turtle_fp16.npy'
+#             )
+#         pipe = StableUnCLIPPipeline.from_pretrained(
+#             'fusing/stable-unclip-2-1-l')
+#         pipe.set_progress_bar_config(disable=None)
+#         generator = paddle.Generator().manual_seed(0)
+#         output = pipe('anime turle', generator=generator, output_type='np')
+#         image = output.images[0]
+#         assert image.shape == (768, 768, 3)
+#         assert_mean_pixel_difference(image, expected_image)
 

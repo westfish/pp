@@ -129,6 +129,7 @@ class UnCLIPPipeline(DiffusionPipeline):
                 padding="max_length",
                 max_length=self.tokenizer.model_max_length,
                 truncation=True,
+                return_attention_mask=True,
                 return_tensors="pd",
             )
             text_input_ids = text_inputs.input_ids
@@ -186,6 +187,7 @@ class UnCLIPPipeline(DiffusionPipeline):
                 uncond_tokens,
                 padding="max_length",
                 max_length=self.tokenizer.model_max_length,
+                return_attention_mask=True,
                 truncation=True,
                 return_tensors="pd",
             )
@@ -303,7 +305,7 @@ class UnCLIPPipeline(DiffusionPipeline):
                 raise ValueError(f"`prompt` has to be of type `str` or `list` but is {type(prompt)}")
         else:
             batch_size = text_model_output[0].shape[0]
-
+ 
         batch_size = batch_size * num_images_per_prompt
 
         do_classifier_free_guidance = prior_guidance_scale > 1.0 or decoder_guidance_scale > 1.0
@@ -357,7 +359,8 @@ class UnCLIPPipeline(DiffusionPipeline):
                 generator=generator,
                 prev_timestep=prev_timestep,
             ).prev_sample
-
+   
+        
         prior_latents = self.prior.post_process_latents(prior_latents)
 
         image_embeddings = prior_latents
@@ -365,7 +368,6 @@ class UnCLIPPipeline(DiffusionPipeline):
         # done prior
 
         # decoder
-
         text_encoder_hidden_states, additive_clip_time_embeddings = self.text_proj(
             image_embeddings=image_embeddings,
             prompt_embeds=prompt_embeds,
@@ -391,7 +393,7 @@ class UnCLIPPipeline(DiffusionPipeline):
             decoder_latents,
             self.decoder_scheduler,
         )
-
+        
         for i, t in enumerate(self.progress_bar(decoder_timesteps_tensor)):
             # expand the latents if we are doing classifier free guidance
             latent_model_input = (
@@ -491,7 +493,7 @@ class UnCLIPPipeline(DiffusionPipeline):
 
         image = image * 0.5 + 0.5
         image = image.clip(0, 1)
-        image = image.transpose([0, 2, 3, 1]).cast("float32").numpy()
+        image = image.transpose([0, 2, 3, 1]).cast("float").numpy()
 
         if output_type == "pil":
             image = self.numpy_to_pil(image)

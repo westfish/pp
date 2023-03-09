@@ -107,6 +107,21 @@ if is_paddle_available():
     paddle.cat = paddle.concat
     paddle.Tensor.softmax = nn.functional.softmax
 
+    raw_repeat_interleave = paddle.repeat_interleave
+    def repeat_interleave(x, repeats, axis=None, name=None):
+        fp16 = False
+        if x.dtype == paddle.float16:
+            x = x.cast(paddle.float32)
+            fp16 = True
+        
+        out = raw_repeat_interleave(x, repeats=repeats, axis=axis, name=name)
+        
+        if fp16:
+            out = out.cast(paddle.float16)
+        return out
+    paddle.repeat_interleave = repeat_interleave
+    paddle.Tensor.repeat_interleave = repeat_interleave
+
     def size_pt(self, i=None):
         if i is None:
             return self.shape

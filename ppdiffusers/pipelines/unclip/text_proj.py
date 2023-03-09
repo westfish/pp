@@ -55,6 +55,9 @@ class UnCLIPTextProjModel(ModelMixin, ConfigMixin):
         self.text_encoder_hidden_states_norm = nn.LayerNorm(cross_attention_dim)
 
     def forward(self, *, image_embeddings, prompt_embeds, text_encoder_hidden_states, do_classifier_free_guidance):
+        
+        image_embeddings = image_embeddings.cast(self.dtype)
+        
         if do_classifier_free_guidance:
             # Add the classifier free guidance embeddings to the image embeddings
             image_embeddings_batch_size = image_embeddings.shape[0]
@@ -83,6 +86,6 @@ class UnCLIPTextProjModel(ModelMixin, ConfigMixin):
         text_encoder_hidden_states = self.encoder_hidden_states_proj(text_encoder_hidden_states)
         text_encoder_hidden_states = self.text_encoder_hidden_states_norm(text_encoder_hidden_states)
         text_encoder_hidden_states = text_encoder_hidden_states.transpose([0, 2, 1])
-        text_encoder_hidden_states = paddle.concat([clip_extra_context_tokens, text_encoder_hidden_states], dim=2)
+        text_encoder_hidden_states = paddle.concat([clip_extra_context_tokens, text_encoder_hidden_states], axis=2)
 
         return text_encoder_hidden_states, additive_clip_time_embeddings

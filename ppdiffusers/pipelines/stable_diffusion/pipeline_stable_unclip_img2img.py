@@ -304,7 +304,8 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
         generator,
         image_embeds,
     ):
-        dtype = next(self.image_encoder.parameters()).dtype
+        # dtype = next(self.image_encoder.parameters()).dtype
+        dtype = self.image_encoder.parameters()[0].dtype
 
         if isinstance(image, PIL.Image.Image):
             # the image embedding should repeated so it matches the total batch size of the prompt
@@ -324,7 +325,7 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
 
             image = image.cast(dtype)
             image_embeds = self.image_encoder(image).image_embeds
-
+        # breakpoint()
         image_embeds = self.noise_image_embeddings(
             image_embeds=image_embeds,
             noise_level=noise_level,
@@ -496,8 +497,7 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
         """
         if noise is None:
             noise = randn_tensor(image_embeds.shape, generator=generator, dtype=image_embeds.dtype)
-
-        noise_level = paddle.to_tensor([noise_level] * image_embeds.shape[0])
+        noise_level = paddle.to_tensor([noise_level] * image_embeds.shape[0]).reshape([image_embeds.shape[0]])
 
         image_embeds = self.image_normalizer.scale(image_embeds)
 
@@ -513,7 +513,6 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
         # but we might actually be running in fp16. so we need to cast here.
         # there might be better ways to encapsulate this.
         noise_level = noise_level.cast(image_embeds.dtype)
-
         image_embeds = paddle.concat((image_embeds, noise_level), 1)
 
         return image_embeds
@@ -652,7 +651,7 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
         # of the Imagen paper: https://arxiv.org/pdf/2205.11487.pdf . `guidance_scale = 1`
         # corresponds to doing no classifier free guidance.
         do_classifier_free_guidance = guidance_scale > 1.0
-
+        # breakpoint()
         # 3. Encode input prompt
         prompt_embeds = self._encode_prompt(
             prompt=prompt,
@@ -664,7 +663,7 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
         )
 
         # 4. Encoder input image
-        noise_level = paddle.to_tensor([noise_level])
+        noise_level = paddle.to_tensor(noise_level)
         image_embeds = self._encode_image(
             image=image,
             batch_size=batch_size,
@@ -674,11 +673,11 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
             generator=generator,
             image_embeds=image_embeds,
         )
-
+        
         # 5. Prepare timesteps
         self.scheduler.set_timesteps(num_inference_steps)
         timesteps = self.scheduler.timesteps
-
+        
         # 6. Prepare latent variables
         num_channels_latents = self.unet.in_channels
         latents = self.prepare_latents(

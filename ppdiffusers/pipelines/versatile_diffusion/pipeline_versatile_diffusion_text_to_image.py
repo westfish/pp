@@ -108,7 +108,7 @@ class VersatileDiffusionTextToImagePipeline(DiffusionPipeline):
     def remove_unused_weights(self):
         self.register_modules(text_unet=None)
 
-    def _encode_text_prompt(self, prompt, num_images_per_prompt, do_classifier_free_guidance, negative_prompt):
+    def _encode_prompt(self, prompt, num_images_per_prompt, do_classifier_free_guidance, negative_prompt):
         r"""
         Encodes the prompt into text encoder hidden states.
 
@@ -140,7 +140,7 @@ class VersatileDiffusionTextToImagePipeline(DiffusionPipeline):
             return_tensors="pd",
         )
         text_input_ids = text_inputs.input_ids
-        untruncated_ids = self.tokenizer(prompt, padding="longest", return_tensors="pd").input_ids
+        untruncated_ids = self.tokenizer(prompt, padding="max_length", return_tensors="pd").input_ids
 
         if not paddle.equal_all(text_input_ids, untruncated_ids):
             removed_text = self.tokenizer.batch_decode(untruncated_ids[:, self.tokenizer.model_max_length - 1 : -1])

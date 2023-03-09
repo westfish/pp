@@ -128,6 +128,7 @@ class UnCLIPImageVariationPipeline(DiffusionPipeline):
             prompt,
             padding="max_length",
             max_length=self.tokenizer.model_max_length,
+            return_attention_mask=True,
             return_tensors="pd",
         )
         text_input_ids = text_inputs.input_ids
@@ -166,6 +167,7 @@ class UnCLIPImageVariationPipeline(DiffusionPipeline):
                 uncond_tokens,
                 padding="max_length",
                 max_length=max_length,
+                return_attention_mask=True,
                 truncation=True,
                 return_tensors="pd",
             )
@@ -205,7 +207,7 @@ class UnCLIPImageVariationPipeline(DiffusionPipeline):
         return prompt_embeds, text_encoder_hidden_states, text_mask
 
     def _encode_image(self, image, num_images_per_prompt, image_embeddings: Optional[paddle.Tensor] = None):
-        dtype = next(self.image_encoder.parameters()).dtype
+        dtype = self.image_encoder.parameters()[0].dtype
 
         if image_embeddings is None:
             if not isinstance(image, paddle.Tensor):
@@ -425,7 +427,7 @@ class UnCLIPImageVariationPipeline(DiffusionPipeline):
 
         image = image * 0.5 + 0.5
         image = image.clip(0, 1)
-        image = image.transpose([0, 2, 3, 1]).cast("float32").numpy()
+        image = image.transpose([0, 2, 3, 1]).cast("float").numpy()
 
         if output_type == "pil":
             image = self.numpy_to_pil(image)
