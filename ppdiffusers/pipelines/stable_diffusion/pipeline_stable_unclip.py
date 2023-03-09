@@ -208,7 +208,7 @@ class StableUnCLIPPipeline(DiffusionPipeline):
         prior_text_encoder_hidden_states = prior_text_encoder_hidden_states.repeat_interleave(
             num_images_per_prompt, axis=0
         )
-        # breakpoint()
+        
         text_mask = text_mask.repeat_interleave(num_images_per_prompt, axis=0)
 
         if do_classifier_free_guidance:
@@ -810,7 +810,7 @@ class StableUnCLIPPipeline(DiffusionPipeline):
         for i, t in enumerate(self.progress_bar(timesteps)):
             latent_model_input = paddle.concat([latents] * 2) if do_classifier_free_guidance else latents
             latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
-            # breakpoint()
+  
             # predict the noise residual
             noise_pred = self.unet(
                 latent_model_input,
@@ -830,7 +830,7 @@ class StableUnCLIPPipeline(DiffusionPipeline):
 
             if callback is not None and i % callback_steps == 0:
                 callback(i, t, latents)
-        # breakpoint() 
+
         # 14. Post-processing
         image = self.decode_latents(latents)
 

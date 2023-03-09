@@ -324,7 +324,7 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
 
             image = image.cast(dtype)
             image_embeds = self.image_encoder(image).image_embeds
-        # breakpoint()
+
         image_embeds = self.noise_image_embeddings(
             image_embeds=image_embeds,
             noise_level=noise_level,
@@ -650,7 +650,7 @@ class StableUnCLIPImg2ImgPipeline(DiffusionPipeline):
         # of the Imagen paper: https://arxiv.org/pdf/2205.11487.pdf . `guidance_scale = 1`
         # corresponds to doing no classifier free guidance.
         do_classifier_free_guidance = guidance_scale > 1.0
-        # breakpoint()
+
         # 3. Encode input prompt
         prompt_embeds = self._encode_prompt(
             prompt=prompt,
