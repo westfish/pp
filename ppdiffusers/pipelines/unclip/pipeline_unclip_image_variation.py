@@ -428,7 +428,7 @@ class UnCLIPImageVariationPipeline(DiffusionPipeline):
 
         image = image * 0.5 + 0.5
         image = image.clip(0, 1)
-        image = image.transpose([0, 2, 3, 1]).cast("float").numpy()
+        image = image.transpose([0, 2, 3, 1]).cast("float32").numpy()
 
         if output_type == "pil":
             image = self.numpy_to_pil(image)
