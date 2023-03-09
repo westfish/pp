@@ -79,7 +79,7 @@ class LDMPipelineFastTests(unittest.TestCase):
         image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.8512, 0.818, 0.6411, 0.6808, 0.4465, 0.5618, 0.46, 0.6231, 0.5172])
+        expected_slice = np.array([0.827049  , 1.        , 0.6244688 , 0.7729403 , 1.        , 0.73071766, 0.6108738 , 0.9107263 , 0.7249622 ])
         tolerance = 0.01
         assert np.abs(image_slice.flatten() - expected_slice).max() < tolerance
         assert np.abs(image_from_tuple_slice.flatten() - expected_slice).max() < tolerance

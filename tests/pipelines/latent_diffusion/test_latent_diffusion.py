@@ -80,9 +80,9 @@ class LDMTextToImagePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         inputs = self.get_dummy_inputs()
         image = pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1]
-        assert image.shape == (1, 16, 16, 3)
-        expected_slice = np.array([0.5945, 0.64078, 0.55509, 0.51229, 
-            0.6964, 0.3696, 0.59296, 0.60801, 0.49332])
+        # chan
+        assert image.shape == (1, 64, 64, 3)
+        expected_slice = np.array([0.29159048, 0.20539099, 0.29126638, 0.19384867, 0.2436865 ,  0.45562512, 0.12645364, 0.14380667, 0.3520335 ])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
 

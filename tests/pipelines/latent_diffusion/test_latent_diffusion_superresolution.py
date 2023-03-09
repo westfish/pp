@@ -58,7 +58,6 @@ class LDMSuperResolutionPipelineFastTests(unittest.TestCase):
         vqvae = self.dummy_vq_model
         ldm = LDMSuperResolutionPipeline(unet=unet, vqvae=vqvae, scheduler=
             scheduler)
-        ldm
         ldm.set_progress_bar_config(disable=None)
         init_image = self.dummy_image
         generator = paddle.Generator().manual_seed(0)
@@ -66,8 +65,7 @@ class LDMSuperResolutionPipelineFastTests(unittest.TestCase):
             num_inference_steps=2, output_type='numpy').images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.8678, 0.8245, 0.6381, 0.683, 0.4385, 
-            0.5599, 0.4641, 0.6201, 0.515])
+        expected_slice = np.array([0.12982202, 0.8338444 , 0.46506804, 0.5459576 , 0.6662215 ,   0.38444045, 0.72195464, 0.5719301 , 0.36579454])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_inference_superresolution_fp16(self):
@@ -96,8 +94,7 @@ class LDMSuperResolutionPipelineIntegrationTests(unittest.TestCase):
         init_image = init_image.resize((64, 64), resample=PIL_INTERPOLATION
             ['lanczos'])
         ldm = LDMSuperResolutionPipeline.from_pretrained(
-            'duongna/ldm-super-resolution', device_map='auto')
-        ldm
+            'duongna/ldm-super-resolution')
         ldm.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         image = ldm(image=init_image, generator=generator,

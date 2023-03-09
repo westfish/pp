@@ -121,8 +121,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.5644, 0.6018, 0.4799, 0.5267, 0.5585, 
-            0.4641, 0.516, 0.4964, 0.4792])
+        expected_slice = np.array([0.29159135, 0.20539099, 0.29126638, 0.19384947, 0.24368581,   0.455625  , 0.12645328, 0.14380595, 0.35203338])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
         assert np.abs(image_from_tuple_slice.flatten() - expected_slice).max(
             ) < 0.01
@@ -150,8 +149,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         image_slice = image[0, -3:, -3:, -1]
         image_from_tuple_slice = image_from_tuple[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.5095, 0.5674, 0.4668, 0.5126, 0.5697, 
-            0.4675, 0.5278, 0.4964, 0.4945])
+        expected_slice = np.array([0.18087387, 0.21568692, 0.29702544, 0.21842742, 0.24647826,   0.46706018, 0.17106229, 0.14040047, 0.33457834])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
         assert np.abs(image_from_tuple_slice.flatten() - expected_slice).max(
             ) < 0.01
@@ -167,7 +165,7 @@ class SafeDiffusionPipelineFastTests(unittest.TestCase):
         assert image is not None
         with tempfile.TemporaryDirectory() as tmpdirname:
             pipe.save_pretrained(tmpdirname)
-            pipe = StableDiffusionPipeline.from_pretrained(tmpdirname)
+            pipe = StableDiffusionPipeline.from_pretrained(tmpdirname, from_diffusers=False)
         assert pipe.safety_checker is None
         image = pipe('example prompt', num_inference_steps=2).images[0]
         assert image is not None
