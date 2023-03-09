@@ -115,6 +115,21 @@ if is_paddle_available():
     paddle.Tensor.size = size_pt
     paddle.Tensor.contiguous = lambda x: x
 
+    raw_repeat_interleave = paddle.repeat_interleave
+    def repeat_interleave(x, repeats, axis=None, name=None):
+        fp16 = False
+        if x.dtype == paddle.float16:
+            x = x.cast(paddle.float32)
+            fp16 = True
+        
+        out = raw_repeat_interleave(x, repeats=repeats, axis=axis, name=name)
+        
+        if fp16:
+            out = out.cast(paddle.float16)
+        return out
+    paddle.repeat_interleave = repeat_interleave
+    paddle.Tensor.repeat_interleave = repeat_interleave
+    
     # must return self!
     @patch_to(nn.Layer)
     def eval(self):
