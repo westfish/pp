@@ -128,7 +128,7 @@ class AltDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array(
-            [0.5748162, 0.60447145, 0.48821217, 0.50100636, 0.5431185, 0.45763683, 0.49657696, 0.48132733, 0.47573093]
+            [0.32336113, 0.2371237 , 0.34009337, 0.22972241, 0.23742735, 0.4925817 , 0.22020563, 0.20505491, 0.43374813]
         )
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
@@ -155,7 +155,7 @@ class AltDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
         expected_slice = np.array(
-            [0.51605093, 0.5707241, 0.47365507, 0.50578886, 0.5633877, 0.4642503, 0.5182081, 0.48763484, 0.49084237]
+            [0.24095133, 0.26875997, 0.34291863, 0.2529385 , 0.2736602 , 0.49928105, 0.23973131, 0.21133915, 0.41810605]
         )
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 

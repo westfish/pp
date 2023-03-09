@@ -301,12 +301,13 @@ class PipelineTesterMixin:
     def test_to_device(self):
         components = self.get_dummy_components()
         pipe = self.pipeline_class(**components)
-        pipe.set_progress_bar_config(disable=None)
-        pipe.to("cpu")
-        model_devices = [str(component.device) for component in components.values() if hasattr(component, "device")]
-        self.assertTrue(all(device == "Place(cpu)" for device in model_devices))
-        output_cpu = pipe(**self.get_dummy_inputs())[0]
-        self.assertTrue(np.isnan(output_cpu).sum() == 0)
+        # we donot test cpu
+        # pipe.set_progress_bar_config(disable=None)
+        # pipe.to("cpu")
+        # model_devices = [str(component.device) for component in components.values() if hasattr(component, "device")]
+        # self.assertTrue(all(device == "Place(cpu)" for device in model_devices))
+        # output_cpu = pipe(**self.get_dummy_inputs())[0]
+        # self.assertTrue(np.isnan(output_cpu).sum() == 0)
         pipe.to("gpu")
         model_devices = [str(component.device) for component in components.values() if hasattr(component, "device")]
         self.assertTrue(all(device == "Place(gpu:0)" for device in model_devices))

@@ -123,6 +123,7 @@ class DualTransformer2DModel(nn.Layer):
             [`~models.transformer_2d.Transformer2DModelOutput`] if `return_dict` is True, otherwise a `tuple`. When
             returning a tuple, the first element is the sample tensor.
         """
+        hidden_states = hidden_states.cast(self.dtype)
         input_states = hidden_states
 
         encoded_states = []

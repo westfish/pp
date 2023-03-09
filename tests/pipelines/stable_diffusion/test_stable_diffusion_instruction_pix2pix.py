@@ -173,7 +173,7 @@ class StableDiffusionInstructPix2PixPipelineSlowTests(unittest.TestCase):
     def get_inputs(self, seed=0):
         generator = paddle.Generator().manual_seed(seed=seed)
         image = load_image(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_pix2pix/example.jpg'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_pix2pix/example.jpg'
             )
         inputs = {'prompt': 'turn him into a cyborg', 'image': image,
             'generator': generator, 'num_inference_steps': 3,

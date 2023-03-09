@@ -142,7 +142,7 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_imgvar/input_image_vermeer.png'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_imgvar/input_image_vermeer.png'
             )
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
         latents = paddle.to_tensor(latents).cast(dtype)
@@ -212,7 +212,7 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_imgvar/input_image_vermeer.png'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_imgvar/input_image_vermeer.png'
             )
         latents = np.random.RandomState(seed).standard_normal((1, 4, 64, 64))
         latents = paddle.to_tensor(latents).cast(dtype)
@@ -229,7 +229,7 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images[0]
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_imgvar/lambdalabs_variations_pndm.npy'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_imgvar/lambdalabs_variations_pndm.npy'
             )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001
@@ -245,7 +245,7 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
         inputs['num_inference_steps'] = 25
         image = sd_pipe(**inputs).images[0]
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_imgvar/lambdalabs_variations_dpm_multi.npy'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_imgvar/lambdalabs_variations_dpm_multi.npy'
             )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001

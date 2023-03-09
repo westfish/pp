@@ -382,7 +382,8 @@ class StableDiffusionLatentUpscalePipeline(DiffusionPipeline):
         noise_level = paddle.concat([noise_level] * image.shape[0])
         inv_noise_level = (noise_level**2 + 1) ** (-0.5)
 
-        image_cond = F.interpolate(image, scale_factor=2, mode="nearest") * inv_noise_level[:, None, None, None]
+        # TODO F.interpolate donot support float16 
+        image_cond = F.interpolate(image.cast("float32"), scale_factor=2, mode="nearest") * inv_noise_level[:, None, None, None]
         image_cond = image_cond.cast(text_embeddings.dtype)
 
         noise_level_embed = paddle.concat(
