@@ -126,11 +126,6 @@ class StableDiffusionDepth2ImgPipelineFastTests(PipelineTesterMixin, unittest.Te
             "feature_extractor": feature_extractor,
         }
         return components
-
-    def test_to_device(self):
-        # TODO check this
-        pass
-    
     
     def test_save_load_float16(self):
         # TODO check this
