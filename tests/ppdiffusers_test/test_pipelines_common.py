@@ -96,7 +96,6 @@ class PipelineTesterMixin:
         output = pipe(**inputs)[0]
         with tempfile.TemporaryDirectory() as tmpdir:
             pipe.save_pretrained(tmpdir)
-            breakpoint()
             pipe_loaded = self.pipeline_class.from_pretrained(tmpdir, from_diffusers=False)
             pipe_loaded.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()

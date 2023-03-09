@@ -651,7 +651,7 @@ class SemanticStableDiffusionPipeline(DiffusionPipeline):
                         noise_guidance_edit_tmp = noise_guidance_edit_tmp
                         noise_guidance = noise_guidance + noise_guidance_edit_tmp
 
-                        self.sem_guidance[i] = noise_guidance_edit_tmp.detach().cpu()
+                        self.sem_guidance[i] = noise_guidance_edit_tmp.detach()
 
                         del noise_guidance_edit_tmp
                         del concept_weights_tmp
