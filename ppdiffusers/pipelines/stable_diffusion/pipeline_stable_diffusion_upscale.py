@@ -537,7 +537,7 @@ class StableDiffusionUpscalePipeline(DiffusionPipeline):
 
         # 10. Post-processing
         # make sure the VAE is in float32 mode, as it overflows in float16
-        self.vae.cast(paddle.float32)
+        self.vae.to(dtype=paddle.float32)
         image = self.decode_latents(latents.cast("float32"))
 
         # 11. Convert to PIL

@@ -382,7 +382,7 @@ class KDownsample2D(nn.Layer):
     def __init__(self, pad_mode="reflect"):
         super().__init__()
         self.pad_mode = pad_mode
-        kernel_1d = pad_mode.to_tensor([[1 / 8, 3 / 8, 3 / 8, 1 / 8]])
+        kernel_1d = paddle.to_tensor([[1 / 8, 3 / 8, 3 / 8, 1 / 8]])
         self.pad = kernel_1d.shape[1] // 2 - 1
         self.register_buffer("kernel", paddle.matmul(kernel_1d, kernel_1d, transpose_x=True), persistable=False)
 
@@ -409,7 +409,7 @@ class KUpsample2D(nn.Layer):
         indices = paddle.arange(x.shape[1])
         # TODO verify this method
         weight[indices, indices] = self.kernel.cast(weight.dtype)
-        return F.conv_transpose2d(x, weight, stride=2, padding=self.pad * 2 + 1)
+        return F.conv2d_transpose(x, weight, stride=2, padding=self.pad * 2 + 1)
 
 
 class ResnetBlock2D(nn.Layer):
@@ -564,7 +564,7 @@ class ResnetBlock2D(nn.Layer):
 
         hidden_states = self.conv1(hidden_states)
 
-        if temb is not None:
+        if self.time_emb_proj is not None:
             if not self.pre_temb_non_linearity:
                 temb = self.time_emb_proj(self.nonlinearity(temb))[:, :, None, None]
             else:
