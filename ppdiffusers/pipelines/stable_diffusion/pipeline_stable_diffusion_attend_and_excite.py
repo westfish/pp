@@ -100,7 +100,7 @@ class AttentionStore:
             for item in attention_maps[location]:
                 cross_maps = item.reshape([-1, self.attn_res, self.attn_res, item.shape[-1]])
                 out.append(cross_maps)
-        out = paddle.concat(out, dim=0)
+        out = paddle.concat(out, axis=0)
         out = out.sum(0) / out.shape[0]
         return out
 
@@ -564,7 +564,7 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
             latents = latents.clone().detach()
             latents.stop_gradient = False
             self.unet(latents, t, encoder_hidden_states=text_embeddings).sample
-            self.unet.clear_grad()
+            self.unet.clear_gradients()
 
             # Get max activation value for each subject token
             max_attention_per_index = self._aggregate_and_get_max_attention_per_token(
@@ -588,7 +588,7 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
         latents.stop_gradient = False
 
         _ = self.unet(latents, t, encoder_hidden_states=text_embeddings).sample
-        self.unet.clear_grad()
+        self.unet.clear_gradients()
 
         # Get max activation value for each subject token
         max_attention_per_index = self._aggregate_and_get_max_attention_per_token(
@@ -826,7 +826,7 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
                             encoder_hidden_states=text_embedding,
                             cross_attention_kwargs=cross_attention_kwargs,
                         ).sample
-                        self.unet.clear_grad()
+                        self.unet.clear_gradients()
 
                         # Get max activation value for each subject token
                         max_attention_per_index = self._aggregate_and_get_max_attention_per_token(
@@ -859,7 +859,7 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
 
                         updated_latents.append(latent)
 
-                    latents = paddle.concat(updated_latents, dim=0)
+                    latents = paddle.concat(updated_latents, axis=0)
 
                 # expand the latents if we are doing classifier free guidance
                 latent_model_input = paddle.concat([latents] * 2) if do_classifier_free_guidance else latents

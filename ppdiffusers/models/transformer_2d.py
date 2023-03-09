@@ -243,6 +243,7 @@ class Transformer2DModel(ModelMixin, ConfigMixin):
             [`~models.transformer_2d.Transformer2DModelOutput`] if `return_dict` is True, otherwise a `tuple`. When
             returning a tuple, the first element is the sample tensor.
         """
+        hidden_states = hidden_states.cast(self.dtype)
         # 1. Input
         if self.is_input_continuous:
             _, _, height, width = hidden_states.shape

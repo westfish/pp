@@ -29,9 +29,12 @@ logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 class PaintByExampleImageEncoder(CLIPPretrainedModel):
     config_class = CLIPVisionConfig
 
-    def __init__(self, config: CLIPVisionConfig):
+    def __init__(self, config: CLIPVisionConfig, proj_size=None):
         super().__init__(config)
-        self.projection_dim = config.projection_dim
+        if proj_size is not None:
+            self.projection_dim = proj_size
+        else:
+            self.projection_dim = config.projection_dim
 
         self.model = CLIPVisionModel(config)
         self.mapper = PaintByExampleMapper(config)

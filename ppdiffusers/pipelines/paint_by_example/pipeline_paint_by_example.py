@@ -98,8 +98,7 @@ def prepare_mask_and_masked_image(image, mask):
         mask = 1 - mask
 
         # Binarize mask
-        mask[mask < 0.5] = 0
-        mask[mask >= 0.5] = 1
+        mask = paddle.where(mask < 0.5, 0., 1.) 
 
         # Image as float32
         image = image.cast(paddle.float32)
@@ -316,7 +315,7 @@ class PaintByExamplePipeline(DiffusionPipeline):
         return mask, masked_image_latents
 
     def _encode_image(self, image, num_images_per_prompt, do_classifier_free_guidance):
-        dtype = next(self.image_encoder.parameters()).dtype
+        dtype = self.image_encoder.dtype
 
         if not isinstance(image, paddle.Tensor):
             image = self.feature_extractor(images=image, return_tensors="pd").pixel_values

@@ -809,6 +809,7 @@ class DiffusionPipeline(ConfigMixin):
                 library_name = "ppdiffusers"
             if library_name == "transformers":
                 library_name = "paddlenlp.transformers"
+            class_name = class_name.replace("Flax", "")
 
             is_pipeline_module = hasattr(pipelines, library_name)
             loaded_sub_model = None

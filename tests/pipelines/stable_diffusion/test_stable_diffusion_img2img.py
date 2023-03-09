@@ -165,7 +165,7 @@ class StableDiffusionImg2ImgPipelineSlowTests(unittest.TestCase):
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_img2img/sketch-mountains-input.png'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_img2img/sketch-mountains-input.png'
             )
         inputs = {'prompt':
             'a fantasy landscape, concept art, high resolution', 'image':
@@ -309,7 +309,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         seed=0):
         generator = paddle.Generator().manual_seed(seed)
         init_image = load_image(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_img2img/sketch-mountains-input.png'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_img2img/sketch-mountains-input.png'
             )
         inputs = {'prompt':
             'a fantasy landscape, concept art, high resolution', 'image':
@@ -325,7 +325,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images[0]
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_img2img/stable_diffusion_1_5_pndm.npy'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_img2img/stable_diffusion_1_5_pndm.npy'
             )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001
@@ -339,7 +339,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images[0]
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_img2img/stable_diffusion_1_5_ddim.npy'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_img2img/stable_diffusion_1_5_ddim.npy'
             )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001
@@ -354,7 +354,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images[0]
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_img2img/stable_diffusion_1_5_lms.npy'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_img2img/stable_diffusion_1_5_lms.npy'
             )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001
@@ -370,7 +370,7 @@ class StableDiffusionImg2ImgPipelineNightlyTests(unittest.TestCase):
         inputs['num_inference_steps'] = 30
         image = sd_pipe(**inputs).images[0]
         expected_image = load_numpy(
-            'https://huggingface.co/datasets/ppdiffusers/test-arrays/resolve/main/stable_diffusion_img2img/stable_diffusion_1_5_dpm.npy'
+            'https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_img2img/stable_diffusion_1_5_dpm.npy'
             )
         max_diff = np.abs(expected_image - image).max()
         assert max_diff < 0.001

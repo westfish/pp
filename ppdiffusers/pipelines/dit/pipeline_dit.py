@@ -162,7 +162,9 @@ class DiTPipeline(DiffusionPipeline):
             # perform guidance
             if guidance_scale > 1:
                 eps, rest = noise_pred[:, :latent_channels], noise_pred[:, latent_channels:]
-                cond_eps, uncond_eps = paddle.split(eps, len(eps) // 2, axis=0)
+                bs = eps.shape[0]
+                # TODO torch.split vs paddle.split
+                cond_eps, uncond_eps = paddle.split(eps, [bs // 2, bs - bs // 2], axis=0)
 
                 half_eps = uncond_eps + guidance_scale * (cond_eps - uncond_eps)
                 eps = paddle.concat([half_eps, half_eps], axis=0)
@@ -171,7 +173,8 @@ class DiTPipeline(DiffusionPipeline):
 
             # learned sigma
             if self.transformer.config.out_channels // 2 == latent_channels:
-                model_output, _ = paddle.split(noise_pred, latent_channels, axis=1)
+                # TODO torch.split vs paddle.split
+                model_output, _ = paddle.split(noise_pred, [latent_channels, noise_pred.shape[1]-latent_channels], axis=1)
             else:
                 model_output = noise_pred
 

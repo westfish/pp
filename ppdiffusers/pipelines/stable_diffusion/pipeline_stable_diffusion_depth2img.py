@@ -417,10 +417,11 @@ class StableDiffusionDepth2ImgPipeline(DiffusionPipeline):
         if depth_map is None:
             pixel_values = self.feature_extractor(images=image, return_tensors="pd").pixel_values
             # The DPT-Hybrid model uses batch-norm layers which are not compatible with fp16.
-            # TODO junnyu, we donot use fp16.
-            depth_map = self.depth_estimator(pixel_values).predicted_depth
+            # TODO DPTModel `expand_as`` donot supoort float16
+            with paddle.amp.auto_cast(True, level="O2"):
+                depth_map = self.depth_estimator(pixel_values).predicted_depth.cast("float32")
         else:
-            depth_map = depth_map.cast(dtype)
+            depth_map = depth_map.cast("float32")
 
         depth_map = paddle.nn.functional.interpolate(
             depth_map.unsqueeze(1),
@@ -428,10 +429,11 @@ class StableDiffusionDepth2ImgPipeline(DiffusionPipeline):
             mode="bicubic",
             align_corners=False,
         )
-
+        # amin / amax donot support float16
         depth_min = paddle.amin(depth_map, axis=[1, 2, 3], keepdim=True)
         depth_max = paddle.amax(depth_map, axis=[1, 2, 3], keepdim=True)
         depth_map = 2.0 * (depth_map - depth_min) / (depth_max - depth_min) - 1.0
+        # maybe cast to float16
         depth_map = depth_map.cast(dtype)
 
         # duplicate mask and masked_image_latents for each generation per prompt, using mps friendly method
