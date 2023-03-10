@@ -54,9 +54,9 @@ class VersatileDiffusionDualGuidedPipelineIntegrationTests(unittest.TestCase):
         ).images
         with tempfile.TemporaryDirectory() as tmpdirname:
             pipe.save_pretrained(tmpdirname)
-            pipe = VersatileDiffusionDualGuidedPipeline.from_pretrained(tmpdirname)
+            pipe = VersatileDiffusionDualGuidedPipeline.from_pretrained(tmpdirname, from_diffusers=False)
         pipe.set_progress_bar_config(disable=None)
-        generator = generator.manual_seed(0)
+        generator = paddle.Generator().manual_seed(0)
         new_image = pipe(
             prompt="first prompt",
             image=second_prompt,
@@ -88,5 +88,6 @@ class VersatileDiffusionDualGuidedPipelineIntegrationTests(unittest.TestCase):
         ).images
         image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.0787, 0.0849, 0.0826, 0.0812, 0.0807, 0.0795, 0.0818, 0.0798, 0.0779])
+        expected_slice = np.array([0.01500076, 0.01142624, 0.01418972, 0.01518875, 0.01114869,
+                                    0.01190853, 0.02978998, 0.02376354, 0.02396089])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

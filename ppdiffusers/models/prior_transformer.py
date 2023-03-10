@@ -155,6 +155,7 @@ class PriorTransformer(ModelMixin, ConfigMixin):
             [`~models.prior_transformer.PriorTransformerOutput`] if `return_dict` is True, otherwise a `tuple`. When
             returning a tuple, the first element is the sample tensor.
         """
+        hidden_states = hidden_states.cast(self.dtype)
         batch_size = hidden_states.shape[0]
 
         timesteps = timestep

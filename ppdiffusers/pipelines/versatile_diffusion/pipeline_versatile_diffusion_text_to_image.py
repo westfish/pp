@@ -108,7 +108,7 @@ class VersatileDiffusionTextToImagePipeline(DiffusionPipeline):
     def remove_unused_weights(self):
         self.register_modules(text_unet=None)
 
-    def _encode_text_prompt(self, prompt, num_images_per_prompt, do_classifier_free_guidance, negative_prompt):
+    def _encode_prompt(self, prompt, num_images_per_prompt, do_classifier_free_guidance, negative_prompt):
         r"""
         Encodes the prompt into text encoder hidden states.
 

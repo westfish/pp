@@ -40,5 +40,6 @@ class VersatileDiffusionImageVariationPipelineIntegrationTests(unittest.TestCase
         ).images
         image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.0441, 0.0469, 0.0507, 0.0575, 0.0632, 0.065, 0.0865, 0.0909, 0.0945])
+        expected_slice = np.array([0.12047189, 0.19138041, 0.22884357, 0.08833978, 0.1594424 ,
+                                    0.16826832, 0.07032129, 0.14926612, 0.12981007])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01

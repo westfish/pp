@@ -150,12 +150,13 @@ class StableUnCLIPImg2ImgPipelineIntegrationTests(unittest.TestCase):
             'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_img2img_anime_turtle_fp16.npy'
             )
         pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
-            'fusing/stable-unclip-2-1-l-img2img', paddle_dtype=paddle.float16)
+            'fusing/stable-unclip-2-1-l-img2img')
         pipe.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         output = pipe('anime turle', image=input_image, generator=generator,
             output_type='np')
         image = output.images[0]
+        breakpoint()
         assert image.shape == (768, 768, 3)
         assert_mean_pixel_difference(image, expected_image)
 
@@ -167,7 +168,7 @@ class StableUnCLIPImg2ImgPipelineIntegrationTests(unittest.TestCase):
             'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_h_img2img_anime_turtle_fp16.npy'
             )
         pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
-            'fusing/stable-unclip-2-1-h-img2img', paddle_dtype=paddle.float16)
+            'fusing/stable-unclip-2-1-h-img2img')
         pipe.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         output = pipe('anime turle', image=input_image, generator=generator,

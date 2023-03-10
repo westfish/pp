@@ -173,11 +173,12 @@ class StableUnCLIPPipeline(DiffusionPipeline):
                 prompt,
                 padding="max_length",
                 max_length=self.prior_tokenizer.model_max_length,
+                return_attention_mask=True,
                 truncation=True,
                 return_tensors="pd",
             )
             text_input_ids = text_inputs.input_ids
-            text_mask = text_inputs.attention_mask.bool()
+            text_mask = text_inputs.attention_mask
 
             untruncated_ids = self.prior_tokenizer(prompt, padding="longest", return_tensors="pd").input_ids
 
@@ -207,6 +208,7 @@ class StableUnCLIPPipeline(DiffusionPipeline):
         prior_text_encoder_hidden_states = prior_text_encoder_hidden_states.repeat_interleave(
             num_images_per_prompt, axis=0
         )
+        
         text_mask = text_mask.repeat_interleave(num_images_per_prompt, axis=0)
 
         if do_classifier_free_guidance:
@@ -216,10 +218,11 @@ class StableUnCLIPPipeline(DiffusionPipeline):
                 uncond_tokens,
                 padding="max_length",
                 max_length=self.prior_tokenizer.model_max_length,
+                return_attention_mask=True,
                 truncation=True,
                 return_tensors="pd",
             )
-            uncond_text_mask = uncond_input.attention_mask.bool()
+            uncond_text_mask = uncond_input.attention_mask
             negative_prompt_embeds_prior_text_encoder_output = self.prior_text_encoder(uncond_input.input_ids)
 
             negative_prompt_embeds = negative_prompt_embeds_prior_text_encoder_output.text_embeds
@@ -759,7 +762,7 @@ class StableUnCLIPPipeline(DiffusionPipeline):
         # of the Imagen paper: https://arxiv.org/pdf/2205.11487.pdf . `guidance_scale = 1`
         # corresponds to doing no classifier free guidance.
         do_classifier_free_guidance = guidance_scale > 1.0
-
+        
         # 8. Encode input prompt
         prompt_embeds = self._encode_prompt(
             prompt=prompt,
@@ -807,7 +810,7 @@ class StableUnCLIPPipeline(DiffusionPipeline):
         for i, t in enumerate(self.progress_bar(timesteps)):
             latent_model_input = paddle.concat([latents] * 2) if do_classifier_free_guidance else latents
             latent_model_input = self.scheduler.scale_model_input(latent_model_input, t)
-
+  
             # predict the noise residual
             noise_pred = self.unet(
                 latent_model_input,

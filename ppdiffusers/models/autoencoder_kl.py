@@ -176,7 +176,7 @@ class AutoencoderKL(ModelMixin, ConfigMixin):
             return_dict (`bool`, *optional*, defaults to `True`):
                 Whether or not to return a [`DecoderOutput`] instead of a plain tuple.
         """
-        x = sample
+        x = sample.cast(self.dtype)
         posterior = self.encode(x).latent_dist
         if sample_posterior:
             z = posterior.sample(generator=generator)
