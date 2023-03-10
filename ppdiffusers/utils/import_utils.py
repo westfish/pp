@@ -45,7 +45,8 @@ STR_OPERATION_TO_FUNC = {">": op.gt, ">=": op.ge, "==": op.eq, "!=": op.ne, "<="
 _paddle_version = "N/A"
 if USE_PADDLE in ENV_VARS_TRUE_AND_AUTO_VALUES:
     _paddle_available = importlib.util.find_spec("paddle") is not None
-    _cutlass_fused_multi_head_attention_available = True
+    _cutlass_fused_multi_head_attention_available = False
+    _flash_attention_available = False
     if _paddle_available:
         try:
             import paddle
@@ -54,15 +55,27 @@ if USE_PADDLE in ENV_VARS_TRUE_AND_AUTO_VALUES:
             logger.info(f"Paddle version {_paddle_version} available.")
         except importlib_metadata.PackageNotFoundError:
             _paddle_available = False
+        
+        # check cutlass_fused_multi_head_attention
         try:
             from paddle.incubate.nn.functional import cutlass_fused_multi_head_attention
-
+            _cutlass_fused_multi_head_attention_available = True
             cutlass_fused_multi_head_attention
         except ImportError:
             _cutlass_fused_multi_head_attention_available = False
+            
+        # check flash_attention
+        try:
+            from paddle.nn.functional.flash_attention import flash_attention
+            _flash_attention_available = True
+            flash_attention
+        except ImportError:
+            _flash_attention_available = False
 else:
     logger.info("Disabling Paddle because USE_PADDLE is set")
     _paddle_available = False
+    _cutlass_fused_multi_head_attention_available = False
+    _flash_attention_available = False
 
 _torch_version = "N/A"
 _torch_available = importlib.util.find_spec("torch") is not None
@@ -199,6 +212,8 @@ def is_fastdeploy_available():
 def is_cutlass_fused_multi_head_attention_available():
     return _cutlass_fused_multi_head_attention_available
 
+def is_flash_attention_available():
+    return _flash_attention_available
 
 def is_torch_available():
     return _torch_available

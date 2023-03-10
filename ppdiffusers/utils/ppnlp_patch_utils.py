@@ -75,7 +75,23 @@ def patch_to(cls, as_prop=False, cls_method=False):
 if is_paddle_available():
     import paddle
     import paddle.nn as nn
-
+    
+    group_norm_raw_forward = nn.GroupNorm.forward
+    @patch_to(nn.GroupNorm)
+    def forward(self, input):
+        if self.training:
+            return group_norm_raw_forward(self, input)
+        bfp16 = False
+        if input.dtype == paddle.bfloat16:
+            self.weight._to(dtype=paddle.float16)
+            self.bias._to(dtype=paddle.float16)
+            input = input.cast(paddle.float16)
+            bfp16 = True
+        out = group_norm_raw_forward(self, input)
+        if bfp16:
+            out = out.cast(paddle.bfloat16)
+        return out
+        
     paddle.long = paddle.int64
     paddle.int = paddle.int32
     paddle.double = paddle.float64
@@ -138,7 +154,26 @@ if is_paddle_available():
         return out
     paddle.max = max
     paddle.Tensor.max = max
+
+
+    # patch gather_nd support bfloat16
+    raw_gather_nd = paddle.gather_nd
+    def gather_nd(x, index, name=None):
+        bfp16 = False
+        if x.dtype == paddle.bfloat16:
+            x = x.cast(paddle.float16)
+            bfp16 = True
         
+        out = raw_gather_nd(x, index=index, name=name)
+        
+        if bfp16:
+            out = out.cast(paddle.bfloat16)
+        return out
+    paddle.gather_nd = gather_nd
+    paddle.Tensor.gather_nd = gather_nd
+
+
+
     def size_pt(self, i=None):
         if i is None:
             return self.shape
@@ -262,18 +297,9 @@ if is_paddle_available() and is_paddlenlp_available():
     from paddlenlp import __version__
     from paddlenlp.transformers import PretrainedConfig, PretrainedModel
 
-    @patch_to(PretrainedModel, as_prop=True)
+    @patch_to(nn.Layer, as_prop=True)
     def dtype(parameter: nn.Layer) -> paddle.dtype:
-        last_dtype = None
-        for _, t in parameter.named_parameters():
-            last_dtype = t.dtype
-            if hasattr(t, "is_floating_point"):
-                if t.is_floating_point():
-                    return t.dtype
-            else:
-                if t.dtype in [paddle.float16, paddle.float32, paddle.float64, paddle.bfloat16]:
-                    return t.dtype
-        return last_dtype
+        return parameter._dtype
 
     @patch_to(PretrainedModel, as_prop=True)
     def device(self):

@@ -252,6 +252,9 @@ class UNet2DModel(ModelMixin, ConfigMixin):
             [`~models.unet_2d.UNet2DOutput`] or `tuple`: [`~models.unet_2d.UNet2DOutput`] if `return_dict` is True,
             otherwise a `tuple`. When returning a tuple, the first element is the sample tensor.
         """
+        # TODO junnyu, add this to support pure fp16
+        sample = sample.cast(self.dtype)
+
         # 0. center input if necessary
         if self.config.center_input_sample:
             sample = 2 * sample - 1.0
@@ -276,17 +279,19 @@ class UNet2DModel(ModelMixin, ConfigMixin):
         # but time_embedding might actually be running in fp16. so we need to cast here.
         # there might be better ways to encapsulate this.
         t_emb = t_emb.cast(self.dtype)
-        # TODO junnyu, add this to support pure fp16
-        sample = sample.cast(self.dtype)
         emb = self.time_embedding(t_emb)
 
         if self.class_embedding is not None:
             if class_labels is None:
                 raise ValueError("class_labels should be provided when doing class conditioning")
 
+            class_labels = class_labels.cast(self.dtype)
+
             if self.config.class_embed_type == "timestep":
                 class_labels = self.time_proj(class_labels)
 
+            if isinstance(self.class_embedding, nn.Embedding):
+                class_labels = class_labels.cast(paddle.int64)
             class_emb = self.class_embedding(class_labels).cast(self.dtype)
             emb = emb + class_emb
 
