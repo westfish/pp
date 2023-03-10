@@ -335,7 +335,7 @@ class StableDiffusion2PipelineNightlyTests(unittest.TestCase):
             "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_2_text2img/stable_diffusion_2_0_base_ddim.npy"
         )
         max_diff = np.abs(expected_image - image).max()
-        assert max_diff < 0.1
+        assert max_diff < 0.01
 
     def test_stable_diffusion_2_1_default_pndm(self):
         sd_pipe = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1-base")
@@ -346,7 +346,7 @@ class StableDiffusion2PipelineNightlyTests(unittest.TestCase):
             "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_2_text2img/stable_diffusion_2_1_base_pndm.npy"
         )
         max_diff = np.abs(expected_image - image).max()
-        assert max_diff < 0.1
+        assert max_diff < 0.01
 
     def test_stable_diffusion_ddim(self): # not pass
         sd_pipe = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1-base")
@@ -358,7 +358,7 @@ class StableDiffusion2PipelineNightlyTests(unittest.TestCase):
             "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_2_text2img/stable_diffusion_2_1_base_ddim.npy"
         )
         max_diff = np.abs(expected_image - image).max()
-        assert max_diff < 0.1
+        assert max_diff < 0.01
 
     def test_stable_diffusion_lms(self):
         sd_pipe = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1-base")
@@ -370,7 +370,7 @@ class StableDiffusion2PipelineNightlyTests(unittest.TestCase):
             "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_2_text2img/stable_diffusion_2_1_base_lms.npy"
         )
         max_diff = np.abs(expected_image - image).max()
-        assert max_diff < 0.1
+        assert max_diff < 0.01
 
     def test_stable_diffusion_euler(self):
         sd_pipe = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1-base")
@@ -382,7 +382,7 @@ class StableDiffusion2PipelineNightlyTests(unittest.TestCase):
             "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_2_text2img/stable_diffusion_2_1_base_euler.npy"
         )
         max_diff = np.abs(expected_image - image).max()
-        assert max_diff < 0.1
+        assert max_diff < 0.01
 
     def test_stable_diffusion_dpm(self): # not pass
         sd_pipe = StableDiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1-base")
@@ -395,4 +395,4 @@ class StableDiffusion2PipelineNightlyTests(unittest.TestCase):
             "https://huggingface.co/datasets/diffusers/test-arrays/resolve/main/stable_diffusion_2_text2img/stable_diffusion_2_1_base_dpm_multi.npy"
         )
         max_diff = np.abs(expected_image - image).max()
-        assert max_diff < 0.1
+        assert max_diff < 0.01
