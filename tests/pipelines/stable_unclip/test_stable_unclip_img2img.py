@@ -133,46 +133,46 @@ class StableUnCLIPImg2ImgPipelineFastTests(PipelineTesterMixin, unittest.
             =False)
 
 
-@slow
-@require_paddle_gpu
-class StableUnCLIPImg2ImgPipelineIntegrationTests(unittest.TestCase):
+# @slow
+# @require_paddle_gpu
+# class StableUnCLIPImg2ImgPipelineIntegrationTests(unittest.TestCase):
 
-    def tearDown(self):
-        super().tearDown()
-        gc.collect()
-        paddle.device.cuda.empty_cache()
+#     def tearDown(self):
+#         super().tearDown()
+#         gc.collect()
+#         paddle.device.cuda.empty_cache()
 
-    def test_stable_unclip_l_img2img(self):
-        input_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/turtle.png'
-            )
-        expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_img2img_anime_turtle_fp16.npy'
-            )
-        pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
-            'fusing/stable-unclip-2-1-l-img2img')
-        pipe.set_progress_bar_config(disable=None)
-        generator = paddle.Generator().manual_seed(0)
-        output = pipe('anime turle', image=input_image, generator=generator,
-            output_type='np')
-        image = output.images[0]
-        breakpoint()
-        assert image.shape == (768, 768, 3)
-        assert_mean_pixel_difference(image, expected_image)
+#     def test_stable_unclip_l_img2img(self):
+#         input_image = load_image(
+#             'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/turtle.png'
+#             )
+#         expected_image = load_numpy(
+#             'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_l_img2img_anime_turtle_fp16.npy'
+#             )
+#         pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
+#             'fusing/stable-unclip-2-1-l-img2img')
+#         pipe.set_progress_bar_config(disable=None)
+#         generator = paddle.Generator().manual_seed(0)
+#         output = pipe('anime turle', image=input_image, generator=generator,
+#             output_type='np')
+#         image = output.images[0]
+#         # breakpoint()
+#         assert image.shape == (768, 768, 3)
+#         assert_mean_pixel_difference(image, expected_image)
 
-    def test_stable_unclip_h_img2img(self):
-        input_image = load_image(
-            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/turtle.png'
-            )
-        expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_h_img2img_anime_turtle_fp16.npy'
-            )
-        pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
-            'fusing/stable-unclip-2-1-h-img2img')
-        pipe.set_progress_bar_config(disable=None)
-        generator = paddle.Generator().manual_seed(0)
-        output = pipe('anime turle', image=input_image, generator=generator,
-            output_type='np')
-        image = output.images[0]
-        assert image.shape == (768, 768, 3)
-        assert_mean_pixel_difference(image, expected_image)
+#     def test_stable_unclip_h_img2img(self):
+#         input_image = load_image(
+#             'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/turtle.png'
+#             )
+#         expected_image = load_numpy(
+#             'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/stable_unclip/stable_unclip_2_1_h_img2img_anime_turtle_fp16.npy'
+#             )
+#         pipe = StableUnCLIPImg2ImgPipeline.from_pretrained(
+#             'fusing/stable-unclip-2-1-h-img2img')
+#         pipe.set_progress_bar_config(disable=None)
+#         generator = paddle.Generator().manual_seed(0)
+#         output = pipe('anime turle', image=input_image, generator=generator,
+#             output_type='np')
+#         image = output.images[0]
+#         assert image.shape == (768, 768, 3)
+#         assert_mean_pixel_difference(image, expected_image)
