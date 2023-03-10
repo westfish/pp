@@ -115,7 +115,7 @@ class KarrasVePipeline(DiffusionPipeline):
                     step_output["derivative"],
                 )
             sample = step_output.prev_sample
-
+        
         sample = (sample / 2 + 0.5).clip(0, 1)
         image = sample.transpose([0, 2, 3, 1]).numpy()
         if output_type == "pil":

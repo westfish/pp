@@ -27,6 +27,8 @@ from ...schedulers import KarrasDiffusionSchedulers
 from ...utils import logging, randn_tensor
 from . import SemanticStableDiffusionPipelineOutput
 
+from .custom_quantile import quantile
+
 logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
 EXAMPLE_DOC_STRING = """
     Examples:
@@ -530,11 +532,11 @@ class SemanticStableDiffusionPipeline(DiffusionPipeline):
 
                 if self.uncond_estimates is None:
                     self.uncond_estimates = paddle.zeros((num_inference_steps + 1, *noise_pred_uncond.shape))
-                self.uncond_estimates[i] = noise_pred_uncond.detach().cpu()
+                self.uncond_estimates[i] = noise_pred_uncond.detach()
 
                 if self.text_estimates is None:
                     self.text_estimates = paddle.zeros((num_inference_steps + 1, *noise_pred_text.shape))
-                self.text_estimates[i] = noise_pred_text.detach().cpu()
+                self.text_estimates[i] = noise_pred_text.detach()
 
                 if self.edit_estimates is None and enable_edit_guidance:
                     self.edit_estimates = paddle.zeros(
@@ -605,16 +607,16 @@ class SemanticStableDiffusionPipeline(DiffusionPipeline):
 
                         noise_guidance_edit_tmp = noise_guidance_edit_tmp * edit_guidance_scale_c
 
-                        # torch.quantile function expects float32
+                        # quantile function expects float32
                         if noise_guidance_edit_tmp.dtype == paddle.float32:
-                            tmp = paddle.quantile(
+                            tmp = quantile(
                                 paddle.abs(noise_guidance_edit_tmp).flatten(2),
                                 edit_threshold_c,
                                 axis=2,
                                 keepdim=False,
                             )
                         else:
-                            tmp = paddle.quantile(
+                            tmp = quantile(
                                 paddle.abs(noise_guidance_edit_tmp).flatten(2).cast(paddle.float32),
                                 edit_threshold_c,
                                 axis=2,
@@ -649,7 +651,7 @@ class SemanticStableDiffusionPipeline(DiffusionPipeline):
                         noise_guidance_edit_tmp = noise_guidance_edit_tmp
                         noise_guidance = noise_guidance + noise_guidance_edit_tmp
 
-                        self.sem_guidance[i] = noise_guidance_edit_tmp.detach().cpu()
+                        self.sem_guidance[i] = noise_guidance_edit_tmp.detach()
 
                         del noise_guidance_edit_tmp
                         del concept_weights_tmp
@@ -669,7 +671,7 @@ class SemanticStableDiffusionPipeline(DiffusionPipeline):
 
                     if warmup_inds.shape[0] == len(noise_pred_edit_concepts):
                         noise_guidance = noise_guidance + noise_guidance_edit
-                        self.sem_guidance[i] = noise_guidance_edit.detach().cpu()
+                        self.sem_guidance[i] = noise_guidance_edit.detach()
 
                 if sem_guidance is not None:
                     edit_guidance = sem_guidance[i]
