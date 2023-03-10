@@ -344,14 +344,14 @@ class PipelineTesterMixin:
         pipe = self.pipeline_class(**components)
         pipe.set_progress_bar_config(disable=None)
         inputs = self.get_dummy_inputs()
-        output_without_offload = pipe(**inputs)[0]
+        output_without_xformers = pipe(**inputs)[0]
         pipe.enable_xformers_memory_efficient_attention()
         inputs = self.get_dummy_inputs()
-        output_with_offload = pipe(**inputs)[0]
+        output_with_xformers = pipe(**inputs)[0]
         if test_max_difference:
-            max_diff = np.abs(output_with_offload - output_without_offload).max()
+            max_diff = np.abs(output_with_xformers - output_without_xformers).max()
             self.assertLess(max_diff, 0.0001, "XFormers attention should not affect the inference results")
-        assert_mean_pixel_difference(output_with_offload[0], output_without_offload[0])
+        assert_mean_pixel_difference(output_with_xformers[0], output_without_xformers[0])
 
     def test_progress_bar(self):
         components = self.get_dummy_components()

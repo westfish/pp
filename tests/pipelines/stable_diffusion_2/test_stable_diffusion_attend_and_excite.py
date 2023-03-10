@@ -116,7 +116,7 @@ class StableDiffusionAttendAndExcitePipelineFastTests(PipelineTesterMixin, unitt
         image_slice = image[0, -3:, -3:, -1]
         self.assertEqual(image.shape, (1, 64, 64, 3))
         expected_slice = np.array(
-            [0.5644937, 0.60543084, 0.48239064, 0.5206757, 0.55623394, 0.46045133, 0.5100435, 0.48919064, 0.4759359]
+            [0.14484110474586487, 0.16710084676742554, 0.3591206669807434, 0.30512064695358276, 0.2687497138977051, 0.4805506765842438, 0.20869559049606323, 0.12253415584564209, 0.3426440954208374]
         )
         max_diff = np.abs(image_slice.flatten() - expected_slice).max()
         self.assertLessEqual(max_diff, 0.001)

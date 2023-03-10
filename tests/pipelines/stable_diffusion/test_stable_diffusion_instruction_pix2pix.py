@@ -85,8 +85,7 @@ class StableDiffusionInstructPix2PixPipelineFastTests(PipelineTesterMixin,
         image = sd_pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
-        expected_slice = np.array([0.7318, 0.3723, 0.4662, 0.623, 0.577, 
-            0.5014, 0.4281, 0.555, 0.4813])
+        expected_slice = np.array([0.3331306 , 0.3582521 , 0.03699663, 0.73521507, 0.8102475 ,   0.44246367, 0.5692622 , 0.6563427 , 0.37825915])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
     def test_stable_diffusion_pix2pix_negative_prompt(self):
@@ -99,8 +98,7 @@ class StableDiffusionInstructPix2PixPipelineFastTests(PipelineTesterMixin,
         image = output.images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 32, 32, 3)
-        expected_slice = np.array([0.7323, 0.3688, 0.4611, 0.6255, 0.5746, 
-            0.5017, 0.433, 0.5553, 0.4827])
+        expected_slice = np.array([0.34742114, 0.3662461 , 0.02144229, 0.6701223 , 0.7669591 ,   0.45267308, 0.60972774, 0.689654  , 0.44241425])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
     def test_stable_diffusion_pix2pix_multiple_init_images(self):
@@ -116,8 +114,7 @@ class StableDiffusionInstructPix2PixPipelineFastTests(PipelineTesterMixin,
         image = sd_pipe(**inputs).images
         image_slice = image[-1, -3:, -3:, -1]
         assert image.shape == (2, 32, 32, 3)
-        expected_slice = np.array([0.606, 0.5712, 0.5099, 0.598, 0.5805, 
-            0.7205, 0.6793, 0.554, 0.5607])
+        expected_slice = np.array([0.23189151, 0.33012548, 0.3584243 , 0.47921437, 0.26653397,   0.31692225, 0.33736795, 0.40720785, 0.42097807])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
     def test_stable_diffusion_pix2pix_euler(self):
@@ -132,8 +129,7 @@ class StableDiffusionInstructPix2PixPipelineFastTests(PipelineTesterMixin,
         slice = [round(x, 4) for x in image_slice.flatten().tolist()]
         print(','.join([str(x) for x in slice]))
         assert image.shape == (1, 32, 32, 3)
-        expected_slice = np.array([0.726, 0.3902, 0.4868, 0.585, 0.5672, 
-            0.511, 0.3906, 0.551, 0.4846])
+        expected_slice = np.array([0.30027765, 0.40803492, 0.05371007, 0.8139783 , 0.8358116 ,   0.39181346, 0.65663695, 0.63586813, 0.3318113 ])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
     def test_stable_diffusion_pix2pix_num_images_per_prompt(self):

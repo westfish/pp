@@ -107,6 +107,7 @@ if is_paddle_available():
     paddle.cat = paddle.concat
     paddle.Tensor.softmax = nn.functional.softmax
 
+    # patch repeat_interleave
     raw_repeat_interleave = paddle.repeat_interleave
     def repeat_interleave(x, repeats, axis=None, name=None):
         fp16 = False
@@ -122,6 +123,22 @@ if is_paddle_available():
     paddle.repeat_interleave = repeat_interleave
     paddle.Tensor.repeat_interleave = repeat_interleave
 
+    # patch max
+    raw_max = paddle.max
+    def max(x, axis=None, keepdim=False, name=None):
+        fp16 = False
+        if x.dtype == paddle.float16:
+            x = x.cast(paddle.float32)
+            fp16 = True
+        
+        out = raw_max(x, axis=axis, keepdim=keepdim, name=name)
+        
+        if fp16:
+            out = out.cast(paddle.float16)
+        return out
+    paddle.max = max
+    paddle.Tensor.max = max
+        
     def size_pt(self, i=None):
         if i is None:
             return self.shape
