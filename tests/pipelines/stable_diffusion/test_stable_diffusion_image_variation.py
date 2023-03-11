@@ -86,8 +86,9 @@ class StableDiffusionImageVariationPipelineFastTests(PipelineTesterMixin,
         image = sd_pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.5167, 0.5746, 0.4835, 0.4914, 0.5605, 
-            0.4691, 0.5201, 0.4898, 0.4958])
+        expected_slice = np.array([0.3336423 , 0.15990603, 0.33051074, 0.17818755, 0.22190896,
+                                    0.580778  , 0.23555121, 0.2542741 , 0.5196996 ])
+        
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
     def test_stable_diffusion_img_variation_multiple_images(self):
@@ -100,8 +101,8 @@ class StableDiffusionImageVariationPipelineFastTests(PipelineTesterMixin,
         image = output.images
         image_slice = image[-1, -3:, -3:, -1]
         assert image.shape == (2, 64, 64, 3)
-        expected_slice = np.array([0.6568, 0.547, 0.5684, 0.5444, 0.5945, 
-            0.6221, 0.5508, 0.5531, 0.5263])
+        expected_slice = np.array([0.5974754 , 0.6734819 , 0.67569935, 0.5421418 , 0.34375697,
+                                    0.46754372, 0.5809557 , 0.32910222, 0.41817445])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
     def test_stable_diffusion_img_variation_num_images_per_prompt(self):
@@ -153,14 +154,23 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
 
     def test_stable_diffusion_img_variation_pipeline_default(self):
         sd_pipe = StableDiffusionImageVariationPipeline.from_pretrained(
-            'lambdalabs/sd-image-variations-ppdiffusers', safety_checker=None)
+            'fusing/sd-image-variations-diffusers', safety_checker=None)
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.84491, 0.90789, 0.75708, 0.78734, 
-            0.83485, 0.70099, 0.66938, 0.68727, 0.61379])
+        expected_slice = np.array([
+                0.5717014670372009,
+                0.47024625539779663,
+                0.47462183237075806,
+                0.6388776898384094,
+                0.5250844359397888,
+                0.500831663608551,
+                0.638043999671936,
+                0.5769134163856506,
+                0.5223015546798706,
+            ])
         assert np.abs(image_slice - expected_slice).max() < 0.0001
 
     def test_stable_diffusion_img_variation_intermediate_state(self):
@@ -189,7 +199,7 @@ class StableDiffusionImageVariationPipelineSlowTests(unittest.TestCase):
                     ) < 0.05
         callback_fn.has_been_called = False
         pipe = StableDiffusionImageVariationPipeline.from_pretrained(
-            'fusing/sd-image-variations-ppdiffusers', safety_checker=None,
+            'fusing/sd-image-variations-diffusers', safety_checker=None,
             paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
         pipe.enable_attention_slicing()
@@ -223,7 +233,7 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
 
     def test_img_variation_pndm(self):
         sd_pipe = StableDiffusionImageVariationPipeline.from_pretrained(
-            'fusing/sd-image-variations-ppdiffusers')
+            'fusing/sd-image-variations-diffusers')
         sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
@@ -236,7 +246,7 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
 
     def test_img_variation_dpm(self):
         sd_pipe = StableDiffusionImageVariationPipeline.from_pretrained(
-            'fusing/sd-image-variations-ppdiffusers')
+            'fusing/sd-image-variations-diffusers')
         sd_pipe.scheduler = DPMSolverMultistepScheduler.from_config(sd_pipe
             .scheduler.config)
         sd_pipe

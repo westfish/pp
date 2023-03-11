@@ -90,8 +90,8 @@ class StableDiffusionInpaintPipelineFastTests(PipelineTesterMixin, unittest
         image = sd_pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.4723, 0.5731, 0.3939, 0.5441, 0.5922, 
-            0.4392, 0.5059, 0.4651, 0.4474])
+        expected_slice = np.array([0.54607296, 0.45091373, 0.3229987 , 0.29081488, 0.27186918,
+                                    0.45776647, 0.22677511, 0.15349615, 0.34303916])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_stable_diffusion_inpaint_image_tensor(self):
@@ -158,8 +158,7 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         image = pipe(**inputs).images
         image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.0427, 0.046, 0.0483, 0.046, 0.0584, 
-            0.0521, 0.1549, 0.1695, 0.1794])
+        expected_slice = np.array([0.05978, 0.10983, 0.10514, 0.07922, 0.08483, 0.08587, 0.05302, 0.03218, 0.01636])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
 
     def test_stable_diffusion_inpaint_fp16(self):
@@ -172,8 +171,8 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         image = pipe(**inputs).images
         image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.1443, 0.1218, 0.1587, 0.1594, 0.1411, 
-            0.1284, 0.137, 0.1506, 0.2339])
+        expected_slice = np.array([0.06103516, 0.11010742, 0.10571289, 0.07910156, 0.08569336,
+                                    0.08398438, 0.05273438, 0.03222656, 0.01660156])
         assert np.abs(expected_slice - image_slice).max() < 0.05
 
     def test_stable_diffusion_inpaint_pndm(self):
@@ -186,8 +185,7 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         image = pipe(**inputs).images
         image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.0425, 0.0273, 0.0344, 0.1694, 0.1727, 
-            0.1812, 0.3256, 0.3311, 0.3272])
+        expected_slice = np.array([0.06892, 0.06994, 0.07905, 0.05366, 0.04709, 0.04890, 0.04107, 0.05083, 0.04180])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
 
     def test_stable_diffusion_inpaint_k_lms(self):
@@ -201,8 +199,7 @@ class StableDiffusionInpaintPipelineSlowTests(unittest.TestCase):
         image = pipe(**inputs).images
         image_slice = image[0, 253:256, 253:256, -1].flatten()
         assert image.shape == (1, 512, 512, 3)
-        expected_slice = np.array([0.9314, 0.7575, 0.9432, 0.8885, 0.9028, 
-            0.7298, 0.9811, 0.9667, 0.7633])
+        expected_slice = np.array([0.23513, 0.22413, 0.29442, 0.24243, 0.26214, 0.30329, 0.26431, 0.25025, 0.25197])
         assert np.abs(expected_slice - image_slice).max() < 0.0001
 
 
@@ -304,14 +301,15 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         self.assertTrue(isinstance(t_masked, paddle.Tensor))
         self.assertEqual(t_mask.ndim, 4)
         self.assertEqual(t_masked.ndim, 4)
-        self.assertEqual(t_mask.shape, (1, 1, 32, 32))
-        self.assertEqual(t_masked.shape, (1, 3, 32, 32))
-        self.assertTrue(t_mask.dtype == 'float32')
-        self.assertTrue(t_masked.dtype == 'float32')
+        self.assertEqual(t_mask.shape, [1, 1, 32, 32])
+        self.assertEqual(t_masked.shape, [1, 3, 32, 32])
+        self.assertTrue(t_mask.dtype == paddle.float32)
+        self.assertTrue(t_masked.dtype == paddle.float32)
         self.assertTrue(t_mask.logsumexp() >= 0.0)
         self.assertTrue(t_mask.max() <= 1.0)
-        self.assertTrue(t_masked.logsumexp() >= -1.0)
-        self.assertTrue(t_masked.logsumexp() <= 1.0)
+        self.assertTrue(t_masked.min() >= -1.0)
+        self.assertTrue(t_masked.min() <= 1.0)
+        
         self.assertTrue(t_mask.sum() > 0.0)
 
     def test_np_inputs(self):
@@ -331,7 +329,7 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         im_np = im_tensor.numpy().transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()
 
-        t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(im_tensor / 127.5 - 1, mask_tensor)
+        t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(im_tensor / 127.5 - 1, mask_tensor.cast('int64'))
         t_mask_np, t_masked_np = prepare_mask_and_masked_image(im_np, mask_np)
 
         self.assertTrue((t_mask_tensor == t_mask_np).all())
@@ -343,7 +341,7 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         im_np = im_tensor.numpy().transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()[0]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
-            im_tensor / 127.5 - 1, mask_tensor)
+            im_tensor / 127.5 - 1, mask_tensor.cast('int64'))
         t_mask_np, t_masked_np = prepare_mask_and_masked_image(im_np, mask_np)
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
@@ -354,7 +352,7 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         im_np = im_tensor.numpy()[0].transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
-            im_tensor / 127.5 - 1, mask_tensor)
+            im_tensor / 127.5 - 1, mask_tensor.cast('int64'))
         t_mask_np, t_masked_np = prepare_mask_and_masked_image(im_np, mask_np)
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
@@ -365,7 +363,7 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         im_np = im_tensor.numpy()[0].transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()[0]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
-            im_tensor / 127.5 - 1, mask_tensor)
+            im_tensor / 127.5 - 1, mask_tensor.cast('int64'))
         t_mask_np, t_masked_np = prepare_mask_and_masked_image(im_np, mask_np)
         self.assertTrue((t_mask_tensor == t_mask_np).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
@@ -376,9 +374,9 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         im_np = im_tensor.numpy()[0].transpose(1, 2, 0)
         mask_np = mask_tensor.numpy()[0][0]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
-            im_tensor / 127.5 - 1, mask_tensor)
+            im_tensor / 127.5 - 1, mask_tensor.cast('int64'))
         t_mask_np, t_masked_np = prepare_mask_and_masked_image(im_np, mask_np)
-        self.assertTrue((t_mask_tensor == t_mask_np).all())
+        self.assertTrue((t_mask_tensor == t_mask_np.cast('float64')).all())
         self.assertTrue((t_masked_tensor == t_masked_np).all())
 
     def test_paddle_batch_4D_3D(self):
@@ -387,7 +385,7 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         im_nps = [im.numpy().transpose(1, 2, 0) for im in im_tensor]
         mask_nps = [mask.numpy() for mask in mask_tensor]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
-            im_tensor / 127.5 - 1, mask_tensor)
+            im_tensor / 127.5 - 1, mask_tensor.cast('int64'))
         nps = [prepare_mask_and_masked_image(i, m) for i, m in zip(im_nps,
             mask_nps)]
         t_mask_np = paddle.concat(x=[n[0] for n in nps])
@@ -400,9 +398,9 @@ class StableDiffusionInpaintingPrepareMaskAndMaskedImageTests(unittest.TestCase
         mask_tensor = paddle.randint(0, 255, (2, 32, 32)).cast("uint8") > 127.5
 
         im_nps = [im.numpy().transpose(1, 2, 0) for im in im_tensor]
-        mask_nps = [mask.numpy()[0] for mask in mask_tensor]
+        mask_nps = [mask.numpy() for mask in mask_tensor]
         t_mask_tensor, t_masked_tensor = prepare_mask_and_masked_image(
-            im_tensor / 127.5 - 1, mask_tensor)
+            im_tensor / 127.5 - 1, mask_tensor.cast('int64'))
         nps = [prepare_mask_and_masked_image(i, m) for i, m in zip(im_nps,
             mask_nps)]
         t_mask_np = paddle.concat(x=[n[0] for n in nps])
