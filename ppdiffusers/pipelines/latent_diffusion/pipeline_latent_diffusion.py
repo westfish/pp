@@ -108,6 +108,9 @@ class LDMTextToImagePipeline(DiffusionPipeline):
             new_config = dict(scheduler.config)
             new_config["clip_sample"] = False
             scheduler._internal_dict = FrozenDict(new_config)
+            
+        if tokenizer.model_max_length > 77:
+            tokenizer.model_max_length = 77
         self.register_modules(vqvae=vqvae, bert=bert, tokenizer=tokenizer, unet=unet, scheduler=scheduler)
         self.vae_scale_factor = 8  # 2 ** (len(self.vqvae.config.block_out_channels) - 1)
 

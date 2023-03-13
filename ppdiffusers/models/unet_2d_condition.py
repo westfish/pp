@@ -527,7 +527,7 @@ class UNet2DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoadersMixin)
             returning a tuple, the first element is the sample tensor.
         """
         # TODO junnyu, add this to support pure fp16
-        sample = sample.cast(self.conv_out.weight.dtype)
+        sample = sample.cast(self.dtype)
  
         # By default samples have to be AT least a multiple of the overall upsampling factor.
         # The overall upsampling factor is equal to 2 ** (# num of upsampling layears).
@@ -570,7 +570,7 @@ class UNet2DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoadersMixin)
         # timesteps does not contain any weights and will always return f32 tensors
         # but time_embedding might actually be running in fp16. so we need to cast here.
         # there might be better ways to encapsulate this.
-        t_emb = t_emb.cast(self.conv_out.weight.dtype)
+        t_emb = t_emb.cast(self.dtype)
 
 
         emb = self.time_embedding(t_emb, timestep_cond)
@@ -580,14 +580,14 @@ class UNet2DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoadersMixin)
                 raise ValueError("class_labels should be provided when num_class_embeds > 0")
 
             # maybe cast it to float16
-            class_labels = class_labels.cast(self.conv_out.weight.dtype)
+            class_labels = class_labels.cast(self.dtype)
             if self.config.class_embed_type == "timestep":
                 class_labels = self.time_proj(class_labels)
 
             # maybe cast it to int64
             if isinstance(self.class_embedding, nn.Embedding):
                 class_labels = class_labels.cast(paddle.int64)
-            class_emb = self.class_embedding(class_labels).cast(self.conv_out.weight.dtype)            
+            class_emb = self.class_embedding(class_labels).cast(self.dtype)            
             emb = emb + class_emb
 
         # 2. pre-process

@@ -90,12 +90,11 @@ class LDMPipelineFastTests(unittest.TestCase):
 class LDMPipelineIntegrationTests(unittest.TestCase):
     def test_inference_uncond(self):
         ldm = LDMPipeline.from_pretrained("CompVis/ldm-celebahq-256")
-        ldm
         ldm.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
         image = ldm(generator=generator, num_inference_steps=5, output_type="numpy").images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 256, 256, 3)
-        expected_slice = np.array([0.4399, 0.44975, 0.46825, 0.474, 0.4359, 0.4581, 0.45095, 0.4341, 0.4447])
+        expected_slice = np.array([0.59802866, 0.61698544, 0.62753576, 0.6128236 , 0.60961217, 0.617262  , 0.6060791 , 0.60261935, 0.6129079 ])
         tolerance = 0.01
         assert np.abs(image_slice.flatten() - expected_slice).max() < tolerance

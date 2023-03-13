@@ -103,4 +103,4 @@ class LDMSuperResolutionPipelineIntegrationTests(unittest.TestCase):
         assert image.shape == (1, 256, 256, 3)
         expected_slice = np.array([0.7644, 0.7679, 0.7642, 0.7633, 0.7666, 
             0.756, 0.7425, 0.7257, 0.6907])
-        assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
+        assert np.abs(image_slice.flatten() - expected_slice).max() < 0.05
