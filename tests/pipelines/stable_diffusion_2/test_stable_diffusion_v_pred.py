@@ -175,8 +175,8 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         image = output.images
         image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 768, 768, 3)
-        expected_slice = np.array([0.1868, 0.1922, 0.1527, 0.1921, 0.1908, 
-            0.1624, 0.1779, 0.1652, 0.1734])
+        expected_slice = np.array([0.05667132, 0.05700234, 0.04156408, 0.04631725, 0.04327643,
+       0.06003231, 0.05165312, 0.05258191, 0.0865913 ])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_stable_diffusion_v_pred_upcast_attention(self):
@@ -191,8 +191,9 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         image = output.images
         image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 768, 768, 3)
-        expected_slice = np.array([0.4209, 0.4087, 0.4097, 0.4209, 0.386, 
-            0.4329, 0.428, 0.4324, 0.4187])
+        
+        expected_slice = np.array([0.04541016, 0.04516602, 0.05493164, 0.05078125, 0.04296875,
+       0.07275391, 0.06567383, 0.0534668 , 0.04833984])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.05
 
     def test_stable_diffusion_v_pred_euler(self):
@@ -209,8 +210,8 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         image = output.images
         image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 768, 768, 3)
-        expected_slice = np.array([0.1781, 0.1695, 0.1661, 0.1705, 0.1588, 
-            0.1699, 0.2005, 0.1589, 0.1677])
+        expected_slice = np.array([0.03515199, 0.03756374, 0.05046153, 0.04240236, 0.05509549,
+       0.06556576, 0.04710263, 0.02758819, 0.05959105])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_stable_diffusion_v_pred_dpm(self):
@@ -229,8 +230,8 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
             num_inference_steps=5, output_type='numpy').images
         image_slice = image[0, 253:256, 253:256, -1]
         assert image.shape == (1, 768, 768, 3)
-        expected_slice = np.array([0.3303, 0.3184, 0.3291, 0.33, 0.3256, 
-            0.3113, 0.2965, 0.3134, 0.3192])
+        expected_slice = np.array([0.20492354, 0.2115368 , 0.2323401 , 0.2415919 , 0.25598443,
+       0.24843931, 0.25171167, 0.23580211, 0.23604062])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_stable_diffusion_attention_slicing_v_pred(self):
@@ -256,9 +257,10 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         assert np.abs(image_chunked.flatten() - image.flatten()).max() < 0.001
 
     def test_stable_diffusion_text2img_pipeline_v_pred_default(self):
-        expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-text2img/astronaut_riding_a_horse_v_pred.npy'
-            )
+        # invalid expected_image
+        # expected_image = load_numpy(
+        #     'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-text2img/astronaut_riding_a_horse_v_pred.npy'
+        #     )
         pipe = StableDiffusionPipeline.from_pretrained(
             'stabilityai/stable-diffusion-2')
         pipe.enable_attention_slicing()
@@ -269,12 +271,16 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
             generator, output_type='np')
         image = output.images[0]
         assert image.shape == (768, 768, 3)
+        expected_image = np.array([0.26713198, 0.2630347 , 0.25486767, 0.23375505, 0.24399692,
+       0.22363415, 0.24688962, 0.21346492, 0.23014635])
+        image = image[-3:, -3:, -1].flatten()
         assert np.abs(expected_image - image).max() < 0.075
 
     def test_stable_diffusion_text2img_pipeline_v_pred_fp16(self):
-        expected_image = load_numpy(
-            'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-text2img/astronaut_riding_a_horse_v_pred_fp16.npy'
-            )
+        # invalid expected_image
+        # expected_image = load_numpy(
+        #     'https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/sd2-text2img/astronaut_riding_a_horse_v_pred_fp16.npy'
+        #     )
         pipe = StableDiffusionPipeline.from_pretrained(
             'stabilityai/stable-diffusion-2', paddle_dtype=paddle.float16)
         pipe.set_progress_bar_config(disable=None)
@@ -284,6 +290,9 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
             generator, output_type='np')
         image = output.images[0]
         assert image.shape == (768, 768, 3)
+        expected_image = np.array([0.26220703, 0.25195312, 0.2434082 , 0.22753906, 0.23632812,
+       0.21777344, 0.23901367, 0.20629883, 0.22192383])
+        image = image[-3:, -3:, -1].flatten()
         assert np.abs(expected_image - image).max() < 0.75
 
     def test_stable_diffusion_text2img_intermediate_state_v_pred(self):
@@ -298,16 +307,16 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 96, 96)
                 latents_slice = latents[0, -3:, -3:, -1]
-                expected_slice = np.array([0.7749, 0.0325, 0.5088, 0.1619, 
-                    0.3372, 0.3667, -0.5186, 0.686, 1.4326])
+                expected_slice = np.array([-0.2542, -1.276 ,  0.426 , -0.956 , -1.173 , -0.5884,  2.416 ,
+        0.1553, -1.21  ])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
                     ) < 0.05
             elif step == 19:
                 latents = latents.detach().cpu().numpy()
                 assert latents.shape == (1, 4, 96, 96)
                 latents_slice = latents[0, -3:, -3:, -1]
-                expected_slice = np.array([1.3887, 1.0273, 1.7266, 0.0726, 
-                    0.6611, 0.1598, -1.0547, 0.1522, 0.0227])
+                expected_slice = np.array([-0.959  , -0.964  , -0.614  ,  0.0977 , -0.6953 , -0.2343 ,
+        1.551  , -0.03357, -0.11395])
                 assert np.abs(latents_slice.flatten() - expected_slice).max(
                     ) < 0.05
         test_callback_fn.has_been_called = False

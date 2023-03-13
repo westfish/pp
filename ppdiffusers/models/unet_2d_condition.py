@@ -587,7 +587,7 @@ class UNet2DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoadersMixin)
             # maybe cast it to int64
             if isinstance(self.class_embedding, nn.Embedding):
                 class_labels = class_labels.cast(paddle.int64)
-            class_emb = self.class_embedding(class_labels).cast(self.conv_out.weight.dtype)
+            class_emb = self.class_embedding(class_labels).cast(self.conv_out.weight.dtype)            
             emb = emb + class_emb
 
         # 2. pre-process
@@ -652,7 +652,6 @@ class UNet2DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoadersMixin)
                     res_hidden_states_tuple=res_samples,
                     upsample_size=upsample_size,
                 )
-        
         # 6. post-process
         if self.conv_norm_out:
             sample = self.conv_norm_out(sample)

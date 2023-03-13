@@ -437,7 +437,6 @@ class StableDiffusionUpscalePipeline(DiffusionPipeline):
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
         """
-
         # 1. Check inputs
         self.check_inputs(prompt, image, noise_level, callback_steps)
 
@@ -534,7 +533,6 @@ class StableDiffusionUpscalePipeline(DiffusionPipeline):
                     progress_bar.update()
                     if callback is not None and i % callback_steps == 0:
                         callback(i, t, latents)
-
         # 10. Post-processing
         # make sure the VAE is in float32 mode, as it overflows in float16
         self.vae.to(dtype=paddle.float32)
