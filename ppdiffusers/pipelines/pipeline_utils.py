@@ -22,7 +22,7 @@ import tempfile
 import warnings
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import PIL
@@ -315,6 +315,10 @@ class DiffusionPipeline(ConfigMixin):
             save_method_accept_to_diffusers = "to_diffusers" in save_method_signature.parameters
 
             save_kwargs = {}
+            # maybe we donot have torch so we use safe_serialization
+            if to_diffusers:
+                safe_serialization = True
+
             if save_method_accept_safe:
                 save_kwargs["safe_serialization"] = safe_serialization
             if save_method_accept_variant:
@@ -1039,7 +1043,7 @@ class DiffusionPipeline(ConfigMixin):
     def set_progress_bar_config(self, **kwargs):
         self._progress_bar_config = kwargs
 
-    def enable_xformers_memory_efficient_attention(self, attention_op: Optional[Callable] = None):
+    def enable_xformers_memory_efficient_attention(self, attention_op: Optional[str] = None):
         r"""
         Enable memory efficient attention as implemented in xformers.
 
@@ -1062,7 +1066,7 @@ class DiffusionPipeline(ConfigMixin):
         >>> from ppdiffusers import DiffusionPipeline
 
         >>> pipe = DiffusionPipeline.from_pretrained("stabilityai/stable-diffusion-2-1", paddle_dtype=paddle.float16)
-        >>> pipe.enable_xformers_memory_efficient_attention()
+        >>> pipe.enable_xformers_memory_efficient_attention("cutlass_attention")
         ```
         """
         self.set_use_memory_efficient_attention_xformers(True, attention_op)
@@ -1074,7 +1078,7 @@ class DiffusionPipeline(ConfigMixin):
         self.set_use_memory_efficient_attention_xformers(False)
 
     def set_use_memory_efficient_attention_xformers(
-        self, valid: bool, attention_op: Optional[Callable] = None
+        self, valid: bool, attention_op: Optional[str] = None
     ) -> None:
         # Recursively walk through all the children.
         # Any children which exposes the set_use_memory_efficient_attention_xformers method

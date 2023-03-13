@@ -65,16 +65,7 @@ def get_parameter_device(parameter: nn.Layer):
 
 
 def get_parameter_dtype(parameter: nn.Layer) -> paddle.dtype:
-    last_dtype = None
-    for _, t in parameter.named_parameters():
-        last_dtype = t.dtype
-        if hasattr(t, "is_floating_point"):
-            if t.is_floating_point():
-                return t.dtype
-        else:
-            if t.dtype in [paddle.float16, paddle.float32, paddle.float64, paddle.bfloat16]:
-                return t.dtype
-    return last_dtype
+    return parameter._dtype
 
 
 def convert_state_dict(state_dict, framework="torch"):
@@ -150,7 +141,7 @@ class ModelMixin(nn.Layer):
             self.apply(partial(self._set_gradient_checkpointing, value=False))
 
     def set_use_memory_efficient_attention_xformers(
-        self, valid: bool, attention_op: Optional[Callable] = None
+        self, valid: bool, attention_op: Optional[str] = None
     ) -> None:
         # Recursively walk through all the children.
         # Any children which exposes the set_use_memory_efficient_attention_xformers method
@@ -166,7 +157,7 @@ class ModelMixin(nn.Layer):
             if isinstance(module, nn.Layer):
                 fn_recursive_set_mem_eff(module)
 
-    def enable_xformers_memory_efficient_attention(self, attention_op: Optional[Callable] = None):
+    def enable_xformers_memory_efficient_attention(self, attention_op: Optional[str] = None):
         r"""
         Enable memory efficient attention as implemented in xformers.
 
@@ -265,7 +256,7 @@ class ModelMixin(nn.Layer):
                     weights_name = _add_variant(TORCH_SAFETENSORS_WEIGHTS_NAME, variant)
                 else:
                     if not is_torch_available():
-                        raise ImportError("`to_diffusers` requires the `torch library: `pip install torch`.")
+                        raise ImportError("`to_diffusers=True` with `safe_serialization=False` requires the `torch library: `pip install torch`.")
                     save_function = torch.save
                     weights_name = _add_variant(TORCH_WEIGHTS_NAME, variant)
                     state_dict = convert_state_dict(state_dict, framework="torch")

@@ -14,6 +14,8 @@
 
 import inspect
 import math
+
+
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import paddle
@@ -44,7 +46,9 @@ EXAMPLE_DOC_STRING = """
         >>> image = pipe(prompt, sag_scale=0.75).images[0]
         ```
 """
-
+#  math.isqrt need python >=3.8
+if not hasattr(math, "isqrt"):
+    math.isqrt = lambda x: int(math.sqrt(x))
 
 # processes and stores attention probabilities
 class CrossAttnStoreProcessor:
@@ -74,8 +78,10 @@ class CrossAttnStoreProcessor:
         key = attn.head_to_batch_dim(key)
         value = attn.head_to_batch_dim(value)
 
-        self.attention_probs = attn.get_attention_scores(query, key, attention_mask)
-        hidden_states = paddle.matmul(self.attention_probs, value)
+        attention_probs = attn.get_attention_scores(query, key, attention_mask)
+        # we need to flatten this (0, 1)
+        self.attention_probs = attention_probs.flatten(0, 1)
+        hidden_states = paddle.matmul(attention_probs, value)
         hidden_states = attn.batch_to_head_dim(hidden_states)
 
         # linear proj
@@ -698,8 +704,7 @@ class StableDiffusionSAGPipeline(DiffusionPipeline):
 # Gaussian blur
 def gaussian_blur_2d(img, kernel_size, sigma):
     ksize_half = (kernel_size - 1) * 0.5
-
-    x = paddle.linspace(-ksize_half, ksize_half, steps=kernel_size)
+    x = paddle.linspace(-ksize_half, ksize_half, num=kernel_size)
 
     pdf = paddle.exp(-0.5 * (x / sigma).pow(2))
 
@@ -707,7 +712,7 @@ def gaussian_blur_2d(img, kernel_size, sigma):
     x_kernel = x_kernel.cast(img.dtype)
 
     kernel2d = paddle.matmul(x_kernel[:, None], x_kernel[None, :])
-    kernel2d = kernel2d.expand(img.shape[-3], 1, kernel2d.shape[0], kernel2d.shape[1])
+    kernel2d = kernel2d.expand([img.shape[-3], 1, kernel2d.shape[0], kernel2d.shape[1]])
 
     padding = [kernel_size // 2, kernel_size // 2, kernel_size // 2, kernel_size // 2]
 

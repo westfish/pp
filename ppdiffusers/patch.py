@@ -103,7 +103,10 @@ if is_paddle_available() and is_paddlenlp_available():
             name_mapping_dict.update({".vision_model.": "."})
 
         donot_transpose = ["embeddings", "norm", "concept_embeds", "special_care_embeds"]
+        
+        paddle_torch_name_mapping = {}
         for name, value in state_dict.items():
+            torch_name = name
             # step1: ignore position_ids
             if any(i in name for i in ignore_value):
                 continue
@@ -120,7 +123,10 @@ if is_paddle_available() and is_paddlenlp_available():
             if "vision_model" in name and cls in [StableDiffusionSafetyChecker, SafeStableDiffusionSafetyChecker]:
                 name = "clip." + name
             new_model_state[name] = value
+            
+            paddle_torch_name_mapping[name] = torch_name
 
+        cls.paddle_torch_name_mapping = paddle_torch_name_mapping
         if cls in [PaintByExampleImageEncoder]:
             # convert mapper
             mappersd = convert_pytorch_state_dict_to_paddle(state_dict, pd_model, sub_layer="mapper.")
@@ -156,7 +162,10 @@ if is_paddle_available() and is_paddlenlp_available():
         }
         ignore_value = ["position_ids"]
         donot_transpose = ["embeddings", "norm"]
+        paddle_torch_name_mapping = {}
+
         for name, value in state_dict.items():
+            torch_name = name
             # step1: ignore position_ids
             if any(i in name for i in ignore_value):
                 continue
@@ -167,6 +176,9 @@ if is_paddle_available() and is_paddlenlp_available():
             for hf_name, ppnlp_name in name_mapping_dict.items():
                 name = name.replace(hf_name, ppnlp_name)
             new_model_state[name] = value
+            paddle_torch_name_mapping[name] = torch_name
+
+        cls.paddle_torch_name_mapping = paddle_torch_name_mapping
 
         return new_model_state
 
@@ -185,7 +197,9 @@ if is_paddle_available() and is_paddlenlp_available():
         ignore_value = ["to_logits"]
         donot_transpose = ["embed_tokens", "embed_positions", "norm"]
         new_model_state = {}
+        paddle_torch_name_mapping = {}
         for name, value in state_dict.items():
+            torch_name = name
             # step1: ignore to_logits
             if any(i in name for i in ignore_value):
                 continue
@@ -196,6 +210,10 @@ if is_paddle_available() and is_paddlenlp_available():
             for hf_name, ppnlp_name in transformers2ppnlp.items():
                 name = name.replace(hf_name, ppnlp_name)
             new_model_state[name] = value
+            paddle_torch_name_mapping[name] = torch_name
+
+        cls.paddle_torch_name_mapping = paddle_torch_name_mapping
+        
         return new_model_state
 
     # TODO implement LDMBertModel with PretrainedConfig

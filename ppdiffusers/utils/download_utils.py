@@ -156,7 +156,9 @@ ALLOW_PATTERNS_MAPPING = {
     ],
     "others": [
         "model_state.pdparams",
+        "model_config.json",
         "config.json",
+        "model_config.json",
         "scheduler_config.json",
         "preprocessor_config.json",
         "pipeline.py",

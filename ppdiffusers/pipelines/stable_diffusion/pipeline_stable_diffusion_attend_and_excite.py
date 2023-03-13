@@ -147,7 +147,9 @@ class AttendExciteCrossAttnProcessor:
 
         # only need to store attention maps during the Attend and Excite process
         if not attention_probs.stop_gradient:
-            self.attnstore(attention_probs, is_cross, self.place_in_unet)
+            # TODO must flatten （0, 1)
+            # [bs, num_heads, q_len, k_len] -> [bs*num_heads, q_len, k_len]
+            self.attnstore(attention_probs.flatten(0, 1), is_cross, self.place_in_unet)
 
         hidden_states = paddle.matmul(attention_probs, value)
         hidden_states = attn.batch_to_head_dim(hidden_states)
@@ -509,6 +511,7 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
             smoothing = GaussianSmoothing()
             input = F.pad(image.unsqueeze(0).unsqueeze(0), (1, 1, 1, 1), mode="reflect")
             image = smoothing(input).squeeze(0).squeeze(0)
+            # paddle.max donot support float16
             max_indices_list.append(image.max())
         return max_indices_list
 
@@ -650,6 +653,7 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
         max_iter_to_alter: int = 25,
         thresholds: dict = {0: 0.05, 10: 0.5, 20: 0.8},
         scale_factor: int = 20,
+        attn_res: int = 16,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -720,6 +724,8 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
                 Dictionary defining the iterations and desired thresholds to apply iterative latent refinement in.
             scale_factor (`int`, *optional*, default to 20):
                 Scale factor that controls the step size of each Attend and Excite update.
+            attn_res (`int`, *optional*, default to 16):
+                The resolution of most semantic attention map.
 
         Examples:
 
@@ -789,7 +795,7 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
         # 6. Prepare extra step kwargs. TODO: Logic should ideally just be moved out of the pipeline
         extra_step_kwargs = self.prepare_extra_step_kwargs(generator, eta)
 
-        self.attention_store = AttentionStore()
+        self.attention_store = AttentionStore(attn_res=attn_res)
         self.register_attention_control()
 
         # default config for step size from original repo
@@ -855,7 +861,7 @@ class StableDiffusionAttendAndExcitePipeline(DiffusionPipeline):
                                     loss=loss,
                                     step_size=step_size[i],
                                 )
-                            logger.info(f"Iteration {i} | Loss: {loss:0.4f}")
+                            logger.info(f"Iteration {i} | Loss: {loss.item():0.4f}")
 
                         updated_latents.append(latent)
 

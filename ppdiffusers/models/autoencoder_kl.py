@@ -71,7 +71,9 @@ class AutoencoderKL(ModelMixin, ConfigMixin):
         in_channels: int = 3,
         out_channels: int = 3,
         down_block_types: Tuple[str] = ("DownEncoderBlock2D",),
+        down_block_out_channels: Tuple[int] = None,
         up_block_types: Tuple[str] = ("UpDecoderBlock2D",),
+        up_block_out_channels: Tuple[int] = None,
         block_out_channels: Tuple[int] = (64,),
         layers_per_block: int = 1,
         act_fn: str = "silu",
@@ -87,7 +89,10 @@ class AutoencoderKL(ModelMixin, ConfigMixin):
             in_channels=in_channels,
             out_channels=latent_channels,
             down_block_types=down_block_types,
-            block_out_channels=block_out_channels,
+            block_out_channels=down_block_out_channels
+            if down_block_out_channels
+            is not None  # if down_block_out_channels not givien, we will use block_out_channels
+            else block_out_channels,
             layers_per_block=layers_per_block,
             act_fn=act_fn,
             norm_num_groups=norm_num_groups,
@@ -99,7 +104,9 @@ class AutoencoderKL(ModelMixin, ConfigMixin):
             in_channels=latent_channels,
             out_channels=out_channels,
             up_block_types=up_block_types,
-            block_out_channels=block_out_channels,
+            block_out_channels=up_block_out_channels  # if up_block_out_channels not givien, we will use block_out_channels
+            if up_block_out_channels is not None
+            else block_out_channels,
             layers_per_block=layers_per_block,
             norm_num_groups=norm_num_groups,
             act_fn=act_fn,

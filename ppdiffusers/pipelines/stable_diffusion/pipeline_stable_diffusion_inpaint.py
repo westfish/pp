@@ -127,10 +127,11 @@ def prepare_mask_and_masked_image(image, mask):
             mask = mask.astype(np.float32) / 255.0
         elif isinstance(mask, list) and isinstance(mask[0], np.ndarray):
             mask = np.concatenate([m[None, None, :] for m in mask], axis=0)
-
+        
         mask[mask < 0.5] = 0
         mask[mask >= 0.5] = 1
         mask = paddle.to_tensor(mask)
+        
 
     masked_image = image * (mask < 0.5)
 
@@ -708,7 +709,7 @@ class StableDiffusionInpaintPipeline(DiffusionPipeline):
             prompt_embeds=prompt_embeds,
             negative_prompt_embeds=negative_prompt_embeds,
         )
-
+        
         # 4. Preprocess mask and image
         mask, masked_image = prepare_mask_and_masked_image(image, mask_image)
 
@@ -768,7 +769,7 @@ class StableDiffusionInpaintPipeline(DiffusionPipeline):
 
                 # predict the noise residual
                 noise_pred = self.unet(latent_model_input, t, encoder_hidden_states=prompt_embeds).sample
-
+                
                 # perform guidance
                 if do_classifier_free_guidance:
                     noise_pred_uncond, noise_pred_text = noise_pred.chunk(2)
@@ -782,6 +783,7 @@ class StableDiffusionInpaintPipeline(DiffusionPipeline):
                     progress_bar.update()
                     if callback is not None and i % callback_steps == 0:
                         callback(i, t, latents)
+
 
         # 11. Post-processing
         image = self.decode_latents(latents)

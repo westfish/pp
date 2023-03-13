@@ -12,19 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import math
-from typing import Callable, Optional
+from typing import Optional
 
 import paddle
 import paddle.nn.functional as F
 from paddle import nn
 
-from ..utils import is_cutlass_fused_multi_head_attention_available
+from ..utils import is_cutlass_fused_multihead_attention_available, is_flash_attention_available
 from .resnet import Downsample1D, ResidualTemporalBlock1D, Upsample1D, rearrange_dims
 
-if is_cutlass_fused_multi_head_attention_available():
-    from paddle.incubate.nn.functional import cutlass_fused_multi_head_attention
+if is_cutlass_fused_multihead_attention_available():
+    from paddle.incubate.nn.functional import cutlass_fused_multihead_attention
+
 else:
-    cutlass_fused_multi_head_attention = None
+    cutlass_fused_multihead_attention = None
+
+if is_flash_attention_available():
+    from paddle.nn.functional.flash_attention import flash_attention
+
+else:
+    flash_attention = None
 
 
 class DownResnetBlock1D(nn.Layer):
@@ -364,25 +371,38 @@ class SelfAttention1d(nn.Layer):
         return tensor
 
     def set_use_memory_efficient_attention_xformers(
-        self, use_memory_efficient_attention_xformers: bool, attention_op: Optional[Callable] = None
+        self, use_memory_efficient_attention_xformers: bool, attention_op: Optional[str] = None
     ):
         if use_memory_efficient_attention_xformers:
-            if not is_cutlass_fused_multi_head_attention_available():
+            if not is_cutlass_fused_multihead_attention_available() and not is_flash_attention_available():
                 raise NotImplementedError(
-                    "requires the CUTLASS_FUSED_MULTI_HEAD_ATTENTIOPN but your PaddlePaddle donot have this. Checkout the instructions on the installation page: https://www.paddlepaddle.org.cn/install/quick and follow the ones that match your environment."
+                    "requires the CUTLASS_FUSED_MULTI_HEAD_ATTENTIOPN or FLASH ATTENTION but your PaddlePaddle donot have this. Checkout the instructions on the installation page: https://www.paddlepaddle.org.cn/install/quick and follow the ones that match your environment."
                 )
             else:
-                try:
-                    # Make sure we can run the cutlass_fused_multi_head_attention
-                    _ = cutlass_fused_multi_head_attention(
-                        paddle.randn((1, 1, 2, 40)),
-                        paddle.randn((1, 1, 2, 40)),
-                        paddle.randn((1, 1, 2, 40)),
-                    )
-                except Exception as e:
-                    raise e
+                if attention_op is None or attention_op == "cutlass_attention":
+                    try:
+                        # Make sure we can run the cutlass_fused_multihead_attention
+                        _ = cutlass_fused_multihead_attention(
+                            paddle.randn((1, 1, 2, 40), dtype=paddle.float16),
+                            paddle.randn((1, 1, 2, 40), dtype=paddle.float16),
+                            paddle.randn((1, 1, 2, 40), dtype=paddle.float16),
+                        )
+                    except Exception as e:
+                        raise e
+                elif attention_op == "flash_attention":
+                    try:
+                        _ = flash_attention(
+                            paddle.randn((1, 1, 2, 40), dtype=paddle.float16),
+                            paddle.randn((1, 1, 2, 40), dtype=paddle.float16),
+                            paddle.randn((1, 1, 2, 40), dtype=paddle.float16),
+                        )
+                    except Exception as e:
+                        raise e
         self._use_memory_efficient_attention_xformers = use_memory_efficient_attention_xformers
         self._attention_op = attention_op
+
+        if self.head_size > 128 and attention_op == "flash_attention":
+            self._use_memory_efficient_attention_xformers = False
 
     def forward(self, hidden_states):
         residual = hidden_states
@@ -399,9 +419,22 @@ class SelfAttention1d(nn.Layer):
         value_proj = self.reshape_heads_to_batch_dim(value_proj, transpose=not self._use_memory_efficient_attention_xformers)
 
         if self._use_memory_efficient_attention_xformers:
-            # Memory efficient attention
-            hidden_states = cutlass_fused_multi_head_attention(query_proj, key_proj, value_proj, None, self.scale)
-            hidden_states = hidden_states.cast(query_proj.dtype)
+            raw_dtype = hidden_states.dtype
+            if self._attention_op is None or self._attention_op == "cutlass_attention":
+                # Memory efficient attention
+                if raw_dtype in [paddle.float32, paddle.bfloat16]:
+                    query_proj = query_proj.cast(paddle.float16)
+                    key_proj = key_proj.cast(paddle.float16)
+                    value_proj = value_proj.cast(paddle.float16) 
+                hidden_states = cutlass_fused_multihead_attention(query_proj, key_proj, value_proj, None, self.scale)
+            elif self._attention_op == "flash_attention":
+                if query_proj.dtype == paddle.float32:
+                    query_proj = query_proj.cast(paddle.float16)
+                    key_proj = key_proj.cast(paddle.float16)
+                    value_proj = value_proj.cast(paddle.float16)
+                # [batch_size, seq_len, num_heads, head_dim]
+                hidden_states = flash_attention(query_proj, key_proj, value_proj, dropout=0.0, causal=False, return_softmax=False)[0]
+            hidden_states = hidden_states.cast(raw_dtype)
         else:
             attention_scores = paddle.matmul(query_proj, key_proj, transpose_y=True) * self.scale
             attention_probs = F.softmax(attention_scores.cast("float32"), axis=-1).cast(attention_scores.dtype)

@@ -261,11 +261,11 @@ class Pix2PixZeroCrossAttnProcessor:
         if self.is_pix2pix_zero and timestep is not None:
             # new bookkeeping to save the attention weights.
             if loss is None:
-                self.reference_cross_attn_map[timestep.item()] = attention_probs.detach().cpu()
+                self.reference_cross_attn_map[timestep.item()] = attention_probs.detach().flatten(0, 1)
             # compute loss
             elif loss is not None:
                 prev_attn_probs = self.reference_cross_attn_map.pop(timestep.item())
-                loss.compute_loss(attention_probs, prev_attn_probs)
+                loss.compute_loss(attention_probs.flatten(0, 1), prev_attn_probs)
 
         hidden_states = paddle.matmul(attention_probs, value)
         hidden_states = attn.batch_to_head_dim(hidden_states)
@@ -897,7 +897,7 @@ class StableDiffusionPix2PixZeroPipeline(DiffusionPipeline):
                 # optimizer
                 opt = paddle.optimizer.SGD(parameters=[x_in], learning_rate=cross_attention_guidance_amount)
 
-                with paddle.set_cuda_rng_state(True):
+                with paddle.set_grad_enabled(True):
                     # initialize loss
                     loss = Pix2PixZeroL2Loss()
 

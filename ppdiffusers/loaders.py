@@ -323,7 +323,7 @@ class UNet2DConditionLoadersMixin:
                     weights_name = _add_variant(TORCH_SAFETENSORS_LORA_WEIGHT_NAME, variant)
                 else:
                     if not is_torch_available():
-                        raise ImportError("`to_diffusers` requires the `torch library: `pip install torch`.")
+                        raise ImportError("`to_diffusers=True` with `safe_serialization=False` requires the `torch library: `pip install torch`.")
                     save_function = torch.save
                     weights_name = _add_variant(TORCH_LORA_WEIGHT_NAME, variant)
                     state_dict = convert_state_dict(state_dict, framework="torch")
