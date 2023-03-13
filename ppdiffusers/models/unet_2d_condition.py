@@ -652,6 +652,7 @@ class UNet2DConditionModel(ModelMixin, ConfigMixin, UNet2DConditionLoadersMixin)
                     res_hidden_states_tuple=res_samples,
                     upsample_size=upsample_size,
                 )
+        
         # 6. post-process
         if self.conv_norm_out:
             sample = self.conv_norm_out(sample)

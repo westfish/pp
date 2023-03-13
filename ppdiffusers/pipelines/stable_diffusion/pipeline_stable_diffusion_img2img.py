@@ -266,20 +266,20 @@ class StableDiffusionImg2ImgPipeline(DiffusionPipeline):
                     "The following part of your input was truncated because CLIP can only handle sequences up to"
                     f" {self.tokenizer.model_max_length} tokens: {removed_text}"
                 )
-                if (
-                    hasattr(self.text_encoder.config, "use_attention_mask")
-                    and self.text_encoder.config.use_attention_mask
-                ):
-                    attention_mask = text_inputs.attention_mask
-                else:
-                    attention_mask = None
+            if (
+                hasattr(self.text_encoder.config, "use_attention_mask")
+                and self.text_encoder.config.use_attention_mask
+            ):
+                attention_mask = text_inputs.attention_mask
+            else:
+                attention_mask = None
 
-                prompt_embeds = self.text_encoder(
-                    text_input_ids,
-                    attention_mask=attention_mask,
-                )
-                prompt_embeds = prompt_embeds[0]
-
+            prompt_embeds = self.text_encoder(
+                text_input_ids,
+                attention_mask=attention_mask,
+            )
+            prompt_embeds = prompt_embeds[0]
+        # breakpoint()
         prompt_embeds = prompt_embeds.cast(self.text_encoder.dtype)
 
         bs_embed, seq_len, _ = prompt_embeds.shape
