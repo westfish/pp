@@ -35,7 +35,7 @@ from ppdiffusers import (
 )
 from ppdiffusers.utils import logging
 from ppdiffusers.utils.import_utils import (
-    is_cutlass_fused_multi_head_attention_available,
+    is_cutlass_fused_multihead_attention_available,
 )
 from ppdiffusers.utils.testing_utils import require_paddle
 

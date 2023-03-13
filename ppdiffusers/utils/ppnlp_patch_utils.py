@@ -21,11 +21,12 @@ from collections import OrderedDict
 from types import FunctionType, MethodType
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
-from .constants import DIFFUSERS_CACHE, PPDIFFUSERS_CACHE
+from .constants import DIFFUSERS_CACHE, PPDIFFUSERS_CACHE, TO_DIFFUSERS
 from .hub_utils import HF_HUB_OFFLINE
 from .import_utils import (
     is_paddle_available,
     is_paddlenlp_available,
+    is_torch_available,
     is_safetensors_available,
 )
 from .load_utils import smart_load
@@ -76,21 +77,21 @@ if is_paddle_available():
     import paddle
     import paddle.nn as nn
     
-    group_norm_raw_forward = nn.GroupNorm.forward
-    @patch_to(nn.GroupNorm)
-    def forward(self, input):
-        if self.training:
-            return group_norm_raw_forward(self, input)
-        bfp16 = False
-        if input.dtype == paddle.bfloat16:
-            self.weight._to(dtype=paddle.float16)
-            self.bias._to(dtype=paddle.float16)
-            input = input.cast(paddle.float16)
-            bfp16 = True
-        out = group_norm_raw_forward(self, input)
-        if bfp16:
-            out = out.cast(paddle.bfloat16)
-        return out
+    # group_norm_raw_forward = nn.GroupNorm.forward
+    # @patch_to(nn.GroupNorm)
+    # def forward(self, input):
+    #     if self.training:
+    #         return group_norm_raw_forward(self, input)
+    #     bfp16 = False
+    #     if input.dtype == paddle.bfloat16:
+    #         self.weight._to(dtype=paddle.float16)
+    #         self.bias._to(dtype=paddle.float16)
+    #         input = input.cast(paddle.float16)
+    #         bfp16 = True
+    #     out = group_norm_raw_forward(self, input)
+    #     if bfp16:
+    #         out = out.cast(paddle.bfloat16)
+    #     return out
         
     paddle.long = paddle.int64
     paddle.int = paddle.int32
@@ -569,6 +570,7 @@ if is_paddle_available() and is_paddlenlp_available():
         )
 
     raw_from_pretrained = PretrainedModel.from_pretrained
+    raw_save_pretrained = PretrainedModel.save_pretrained
 
     TRANSFORMERS_SAFE_WEIGHTS_NAME = "model.safetensors"
     TRANSFORMERS_WEIGHTS_NAME = "pytorch_model.bin"
@@ -753,3 +755,87 @@ if is_paddle_available() and is_paddlenlp_available():
 
     PretrainedModel.from_pretrained = from_pretrained_model
     PretrainedModel.from_pretrained_v3 = from_pretrained_v3_model
+
+    def save_pretrained(self, save_dir: str, 
+                        is_main_process: bool = True,
+                        save_function: Callable = None,
+                        safe_serialization: bool = True,
+                        variant: Optional[str] = None,
+                        to_diffusers: Optional[bool] = None
+                        ):
+        if self.constructed_from_pretrained_config() and hasattr(self, "paddle_torch_name_mapping"):
+            return save_pretrained_v3(self, save_dir, is_main_process=is_main_process, 
+                                      save_function=save_function, 
+                                      safe_serialization=safe_serialization, 
+                                      variant=variant,
+                                      to_diffusers=to_diffusers)
+        return raw_save_pretrained(self, save_dir)
+    
+    PretrainedModel.save_pretrained = save_pretrained
+
+    if is_safetensors_available():
+        from safetensors.numpy import save_file as safetensors_numpy_save_file
+        if is_torch_available():
+            from safetensors.torch import save_file as safetensors_torch_save_file
+
+    if is_torch_available():
+        import torch
+    
+    def save_pretrained_v3(
+        self: PretrainedModel, 
+        save_directory: str,    
+        is_main_process: bool = True,
+        save_function: Callable = None,
+        safe_serialization: bool = True,
+        variant: Optional[str] = None,
+        to_diffusers: Optional[bool] = None,
+        ):
+        from ..models.modeling_utils import convert_state_dict
+        from ..models.modeling_pytorch_paddle_utils import convert_paddle_state_dict_to_pytorch
+        if to_diffusers is None:
+            to_diffusers = TO_DIFFUSERS
+            
+        if to_diffusers and safe_serialization and not is_safetensors_available():
+            raise ImportError("`safe_serialization` requires the `safetensors library: `pip install safetensors`.")
+
+        if os.path.isfile(save_directory):
+            logger.error(f"Provided path ({save_directory}) should be a directory, not a file")
+            return
+
+        model_to_save = self._layers if isinstance(self, paddle.DataParallel) else self
+        if is_main_process:
+            model_to_save.config.dtype = str(model_to_save._dtype).split(".")[1]
+            # Attach architecture to the config
+            model_to_save.config.architectures = [model_to_save.__class__.__name__]
+
+            model_to_save.config.save_pretrained(save_directory)
+
+        state_dict = model_to_save.state_dict()
+
+        # choose save_function
+        if save_function is None:
+            if to_diffusers:
+                if safe_serialization:
+                    if is_torch_available():
+                        save_function = safetensors_torch_save_file
+                        state_dict = convert_state_dict(state_dict, framework="torch")
+                    else:
+                        save_function = safetensors_numpy_save_file
+                        state_dict = convert_state_dict(state_dict, framework="numpy")
+                    weights_name = _add_variant("model.safetensors", variant)
+                else:
+                    if not is_torch_available():
+                        raise ImportError("`to_diffusers=True` with `safe_serialization=False` requires the `torch library: `pip install torch`.")
+                    save_function = torch.save
+                    weights_name = _add_variant("pytorch_model.bin", variant)
+                    state_dict = convert_state_dict(state_dict, framework="torch")
+                
+                state_dict = convert_paddle_state_dict_to_pytorch(state_dict, model_to_save)
+            else:
+                save_function = paddle.save
+                weights_name = _add_variant("model_state.pdparams", variant)
+
+        # Save the model
+        save_function(state_dict, os.path.join(save_directory, weights_name))
+
+        logger.info(f"Model weights saved in {os.path.join(save_directory, weights_name)}")

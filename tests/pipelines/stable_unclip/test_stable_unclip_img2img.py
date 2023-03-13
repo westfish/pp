@@ -41,7 +41,7 @@ from ppdiffusers.pipelines.pipeline_utils import DiffusionPipeline
 from ppdiffusers.pipelines.stable_diffusion.stable_unclip_image_normalizer import (
     StableUnCLIPImageNormalizer,
 )
-from ppdiffusers.utils.import_utils import is_cutlass_fused_multi_head_attention_available
+from ppdiffusers.utils.import_utils import is_cutlass_fused_multihead_attention_available
 from ppdiffusers.utils.testing_utils import (
     floats_tensor,
     load_image,
@@ -124,7 +124,7 @@ class StableUnCLIPImg2ImgPipelineFastTests(PipelineTesterMixin, unittest.
         self._test_inference_batch_single_identical(test_max_difference=
             test_max_difference)
 
-    @unittest.skipIf(not is_cutlass_fused_multi_head_attention_available(),
+    @unittest.skipIf(not is_cutlass_fused_multihead_attention_available(),
         reason=
         'XFormers attention is only available with CUDA and `xformers` installed'
         )

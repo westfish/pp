@@ -58,7 +58,7 @@ from .import_utils import (
     DummyObject,
     OptionalDependencyNotAvailable,
     is_flash_attention_available,
-    is_cutlass_fused_multi_head_attention_available,
+    is_cutlass_fused_multihead_attention_available,
     is_fastdeploy_available,
     is_inflect_available,
     is_k_diffusion_available,

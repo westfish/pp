@@ -315,6 +315,10 @@ class DiffusionPipeline(ConfigMixin):
             save_method_accept_to_diffusers = "to_diffusers" in save_method_signature.parameters
 
             save_kwargs = {}
+            # maybe we donot have torch so we use safe_serialization
+            if to_diffusers:
+                safe_serialization = True
+
             if save_method_accept_safe:
                 save_kwargs["safe_serialization"] = safe_serialization
             if save_method_accept_variant:
