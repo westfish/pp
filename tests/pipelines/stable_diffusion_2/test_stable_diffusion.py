@@ -263,12 +263,12 @@ class StableDiffusion2PipelineSlowTests(unittest.TestCase):
     #     pipe.enable_attention_slicing()
     #     inputs = self.get_inputs(dtype="float16")
     #     image_sliced = pipe(**inputs).images
-    #     mem_bytes = paddle.device.cuda.max_memory_allocated()
+    #     mem_bytes = paddle.device.cuda.memory_allocated()
     #     assert mem_bytes < 3.3 * 10**9
     #     pipe.disable_attention_slicing()
     #     inputs = self.get_inputs(dtype="float16")
     #     image = pipe(**inputs).images
-    #     mem_bytes = paddle.device.cuda.max_memory_allocated()
+    #     mem_bytes = paddle.device.cuda.memory_allocated()
     #     assert mem_bytes > 3.3 * 10**9
     #     assert np.abs(image_sliced - image).max() < 0.001
 

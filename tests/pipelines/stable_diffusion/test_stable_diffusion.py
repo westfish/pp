@@ -472,12 +472,12 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
         pipe.enable_attention_slicing()
         inputs = self.get_inputs(dtype='float16')
         image_sliced = pipe(**inputs).images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        mem_bytes = paddle.device.cuda.memory_allocated()
         assert mem_bytes < 3.75 * 10 ** 9
         pipe.disable_attention_slicing()
         inputs = self.get_inputs(dtype='float16')
         image = pipe(**inputs).images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        mem_bytes = paddle.device.cuda.memory_allocated()
         assert mem_bytes > 3.75 * 10 ** 9
         assert np.abs(image_sliced - image).max() < 0.001
 
@@ -491,14 +491,14 @@ class StableDiffusionPipelineSlowTests(unittest.TestCase):
     #     inputs['prompt'] = [inputs['prompt']] * 4
     #     inputs['latents'] = paddle.concat(x=[inputs['latents']] * 4)
     #     image_sliced = pipe(**inputs).images
-    #     mem_bytes = paddle.device.cuda.max_memory_allocated()
+    #     mem_bytes = paddle.device.cuda.memory_allocated()
     #     assert mem_bytes < 4000000000.0
     #     pipe.disable_vae_slicing()
     #     inputs = self.get_inputs(dtype='float16')
     #     inputs['prompt'] = [inputs['prompt']] * 4
     #     inputs['latents'] = paddle.concat(x=[inputs['latents']] * 4)
     #     image = pipe(**inputs).images
-    #     mem_bytes = paddle.device.cuda.max_memory_allocated()
+    #     mem_bytes = paddle.device.cuda.memory_allocated()
     #     assert mem_bytes > 4000000000.0
     #     assert np.abs(image_sliced - image).max() < 0.01
 

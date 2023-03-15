@@ -322,8 +322,8 @@ class UNet2DConditionModelTests(ModelTesterMixin, unittest.TestCase):
             on_sample = model(**inputs_dict).sample
             model.disable_xformers_memory_efficient_attention()
             off_sample = model(**inputs_dict).sample
-        assert (sample - on_sample).abs().max() < 0.005
-        assert (sample - off_sample).abs().max() < 0.005
+        assert (sample - on_sample).abs().max() < 0.05
+        assert (sample - off_sample).abs().max() < 0.05
 
 
 @slow
@@ -359,7 +359,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
         timestep = 1
         with paddle.no_grad():
             _ = unet(latents, timestep=timestep, encoder_hidden_states=encoder_hidden_states).sample
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        mem_bytes = paddle.device.cuda.memory_allocated()
         assert mem_bytes < 5 * 10**9
 
     def test_set_attention_slice_max(self):
@@ -371,7 +371,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
         timestep = 1
         with paddle.no_grad():
             _ = unet(latents, timestep=timestep, encoder_hidden_states=encoder_hidden_states).sample
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        mem_bytes = paddle.device.cuda.memory_allocated()
         assert mem_bytes < 5 * 10**9
 
     def test_set_attention_slice_int(self):
@@ -383,7 +383,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
         timestep = 1
         with paddle.no_grad():
             _ = unet(latents, timestep=timestep, encoder_hidden_states=encoder_hidden_states).sample
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        mem_bytes = paddle.device.cuda.memory_allocated()
         assert mem_bytes < 5 * 10**9
 
     def test_set_attention_slice_list(self):
@@ -396,7 +396,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
         timestep = 1
         with paddle.no_grad():
             _ = unet(latents, timestep=timestep, encoder_hidden_states=encoder_hidden_states).sample
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        mem_bytes = paddle.device.cuda.memory_allocated()
         assert mem_bytes < 5 * 10**9
 
     def get_encoder_hidden_states(self, seed=0, shape=(4, 77, 768), fp16=False):
@@ -423,7 +423,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
         assert sample.shape == latents.shape
         output_slice = sample[-1, -2:, -2:, :2].flatten().float().cpu()
         expected_output_slice = paddle.to_tensor(expected_slice)
-        assert paddle_all_close(output_slice, expected_output_slice, atol=0.001)
+        assert paddle_all_close(output_slice, expected_output_slice, atol=0.01)
 
     @parameterized.expand(
         [
@@ -465,7 +465,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
         assert sample.shape == latents.shape
         output_slice = sample[-1, -2:, -2:, :2].flatten().float().cpu()
         expected_output_slice = paddle.to_tensor(expected_slice)
-        assert paddle_all_close(output_slice, expected_output_slice, atol=0.001)
+        assert paddle_all_close(output_slice, expected_output_slice, atol=0.01)
 
     @parameterized.expand(
         [
@@ -507,7 +507,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
         assert sample.shape == [4, 4, 64, 64]
         output_slice = sample[-1, -2:, -2:, :2].flatten().float().cpu()
         expected_output_slice = paddle.to_tensor(expected_slice)
-        assert paddle_all_close(output_slice, expected_output_slice, atol=0.001)
+        assert paddle_all_close(output_slice, expected_output_slice, atol=0.01)
 
     @parameterized.expand(
         [

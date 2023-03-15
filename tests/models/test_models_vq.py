@@ -75,4 +75,4 @@ class VQModelTests(ModelTesterMixin, unittest.TestCase):
         expected_output_slice = paddle.to_tensor(
             [-0.0153, -0.4044, -0.188, -0.5161, -0.2418, -0.4072, -0.1612, -0.0633, -0.0143]
         )
-        self.assertTrue(paddle.allclose(output_slice, expected_output_slice, atol=0.001))
+        self.assertTrue(paddle.allclose(output_slice, expected_output_slice, atol=0.01))

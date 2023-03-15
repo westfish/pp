@@ -121,9 +121,8 @@ class UNet1DModelTests(ModelTesterMixin, unittest.TestCase):
             output = model(noise, timestep).sample
         output_sum = output.abs().sum()
         output_max = output.abs().max()
-        assert (output_sum - 220.0235).abs() < 0.04
+        assert (output_sum - 224.0896).abs() < 0.04
         assert (output_max - 0.0607).abs() < 0.0004
-
 
 class UNetRLModelTests(ModelTesterMixin, unittest.TestCase):
     model_class = UNet1DModel

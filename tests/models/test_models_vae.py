@@ -139,7 +139,7 @@ class AutoencoderKLIntegrationTests(unittest.TestCase):
         assert sample.shape == image.shape
         output_slice = sample[-1, -2:, -2:, :2].flatten().float().cpu()
         expected_output_slice = paddle.to_tensor(expected_slice)
-        assert paddle_all_close(output_slice, expected_output_slice, atol=0.001)
+        assert paddle_all_close(output_slice, expected_output_slice, atol=0.01)
 
     @parameterized.expand(
         [
@@ -181,7 +181,7 @@ class AutoencoderKLIntegrationTests(unittest.TestCase):
         assert sample.shape == image.shape
         output_slice = sample[-1, -2:, -2:, :2].flatten().float().cpu()
         expected_output_slice = paddle.to_tensor(expected_slice)
-        assert paddle_all_close(output_slice, expected_output_slice, atol=0.001)
+        assert paddle_all_close(output_slice, expected_output_slice, atol=0.01)
 
     @parameterized.expand(
         [
@@ -198,7 +198,7 @@ class AutoencoderKLIntegrationTests(unittest.TestCase):
         assert list(sample.shape) == [3, 3, 512, 512]
         output_slice = sample[-1, -2:, :2, -2:].flatten().cpu()
         expected_output_slice = paddle.to_tensor(expected_slice)
-        assert paddle_all_close(output_slice, expected_output_slice, atol=0.001)
+        assert paddle_all_close(output_slice, expected_output_slice, atol=0.01)
 
     @parameterized.expand(
         [

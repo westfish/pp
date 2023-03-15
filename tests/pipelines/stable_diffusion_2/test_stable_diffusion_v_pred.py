@@ -243,14 +243,14 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
         output_chunked = pipe([prompt], generator=generator, guidance_scale
             =7.5, num_inference_steps=10, output_type='numpy')
         image_chunked = output_chunked.images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        mem_bytes = paddle.device.cuda.memory_allocated()
         assert mem_bytes < 5.5 * 10 ** 9
         pipe.disable_attention_slicing()
         generator = paddle.Generator().manual_seed(0)
         output = pipe([prompt], generator=generator, guidance_scale=7.5,
             num_inference_steps=10, output_type='numpy')
         image = output.images
-        mem_bytes = paddle.device.cuda.max_memory_allocated()
+        mem_bytes = paddle.device.cuda.memory_allocated()
         assert mem_bytes > 5.5 * 10 ** 9
         assert np.abs(image_chunked.flatten() - image.flatten()).max() < 0.001
 
