@@ -217,7 +217,6 @@ class EMAModel:
             else:
                 s_param.copy_(param, True)
 
-        # torch.cuda.empty_cache()
 
     def copy_to(self, parameters) -> None:
         """

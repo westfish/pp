@@ -28,11 +28,22 @@ from ppdiffusers import (
 )
 from ppdiffusers.utils import slow
 from ppdiffusers.utils.testing_utils import require_paddle_gpu
-
+from ppdiffusers_test.pipeline_params import (
+    CLASS_CONDITIONED_IMAGE_GENERATION_BATCH_PARAMS,
+    CLASS_CONDITIONED_IMAGE_GENERATION_PARAMS,
+)
 
 class DiTPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = DiTPipeline
     test_cpu_offload = False
+    params = CLASS_CONDITIONED_IMAGE_GENERATION_PARAMS
+    required_optional_params = PipelineTesterMixin.required_optional_params - {
+        "latents",
+        "num_images_per_prompt",
+        "callback",
+        "callback_steps",
+    }
+    batch_params = CLASS_CONDITIONED_IMAGE_GENERATION_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

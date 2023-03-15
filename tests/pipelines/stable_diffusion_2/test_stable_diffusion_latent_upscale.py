@@ -19,7 +19,7 @@ import unittest
 import numpy as np
 import paddle
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS, TEXT_GUIDED_IMAGE_VARIATION_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -34,8 +34,17 @@ from ppdiffusers.utils.testing_utils import require_paddle_gpu
 
 class StableDiffusionLatentUpscalePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = StableDiffusionLatentUpscalePipeline
+    params = TEXT_GUIDED_IMAGE_VARIATION_PARAMS - {
+        "height",
+        "width",
+        "cross_attention_kwargs",
+        "negative_prompt_embeds",
+        "prompt_embeds",
+    }
+    required_optional_params = PipelineTesterMixin.required_optional_params - {"num_images_per_prompt"}
+    batch_params = TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS
     test_cpu_offload = False
-
+    
     @property
     def dummy_image(self):
         batch_size = 1

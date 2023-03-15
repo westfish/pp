@@ -29,10 +29,19 @@ from ppdiffusers import (
 )
 from ppdiffusers.utils import floats_tensor, load_image, load_numpy, slow
 from ppdiffusers.utils.testing_utils import require_paddle_gpu
+from ppdiffusers_test.pipeline_params import TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS, TEXT_GUIDED_IMAGE_VARIATION_PARAMS
 
 
 class CycleDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = CycleDiffusionPipeline
+    params = TEXT_GUIDED_IMAGE_VARIATION_PARAMS - {
+        "negative_prompt",
+        "height",
+        "width",
+        "negative_prompt_embeds",
+    }
+    required_optional_params = PipelineTesterMixin.required_optional_params - {"latents"}
+    batch_params = TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)
@@ -135,6 +144,9 @@ class CycleDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
                                     0.49804688, 0.36279297, 0.6484375 , 0.45361328])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
+    @unittest.skip("non-deterministic pipeline")
+    def test_inference_batch_single_identical(self):
+        return super().test_inference_batch_single_identical()
 
 @slow
 @require_paddle_gpu

@@ -20,14 +20,14 @@ import numpy as np
 import paddle
 
 from ppdiffusers import VersatileDiffusionTextToImagePipeline
-from ppdiffusers.utils.testing_utils import require_paddle_gpu, slow
+from ppdiffusers.utils.testing_utils import require_paddle_gpu, nightly
 
 
 class VersatileDiffusionTextToImagePipelineFastTests(unittest.TestCase):
     pass
 
 
-@slow
+@nightly
 @require_paddle_gpu
 class VersatileDiffusionTextToImagePipelineIntegrationTests(unittest.TestCase):
     def tearDown(self):

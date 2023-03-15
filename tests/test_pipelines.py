@@ -692,8 +692,10 @@ class PipelineSlowTests(unittest.TestCase):
             with CaptureLogger(logger) as cap_logger:
                 DiffusionPipeline.from_pretrained(model_id, not_used=True,
                     cache_dir=tmpdirname, force_download=True)
-        assert cap_logger.out == """Keyword arguments {'not_used': True} are not expected by DDPMPipeline and will be ignored.
-"""
+        assert (
+            cap_logger.out.strip().split("\n")[-1]
+            == "Keyword arguments {'not_used': True} are not expected by DDPMPipeline and will be ignored."
+        )
 
     def test_from_save_pretrained(self):
         model = UNet2DModel(block_out_channels=(32, 64), layers_per_block=2,

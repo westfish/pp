@@ -21,7 +21,7 @@ import numpy as np
 import paddle
 from PIL import Image
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS, TEXT_GUIDED_IMAGE_VARIATION_PARAMS
 from paddlenlp.transformers import (
     CLIPTextConfig,
     CLIPTextModel,
@@ -46,6 +46,9 @@ from ppdiffusers.utils.testing_utils import require_paddle_gpu
 class StableDiffusionDepth2ImgPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = StableDiffusionDepth2ImgPipeline
     test_save_load_optional_components = False
+    params = TEXT_GUIDED_IMAGE_VARIATION_PARAMS - {"height", "width"}
+    required_optional_params = PipelineTesterMixin.required_optional_params - {"latents"}
+    batch_params = TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

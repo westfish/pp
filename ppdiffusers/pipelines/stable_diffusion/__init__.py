@@ -59,6 +59,7 @@ else:
     from .pipeline_stable_diffusion_attend_and_excite import (
         StableDiffusionAttendAndExcitePipeline,
     )
+    from .pipeline_stable_diffusion_controlnet import StableDiffusionControlNetPipeline
     from .pipeline_stable_diffusion_depth2img import StableDiffusionDepth2ImgPipeline
     from .pipeline_stable_diffusion_image_variation import (
         StableDiffusionImageVariationPipeline,

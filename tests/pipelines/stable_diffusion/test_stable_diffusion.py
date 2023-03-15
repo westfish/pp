@@ -19,7 +19,7 @@ import unittest
 import numpy as np
 import paddle
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_TO_IMAGE_BATCH_PARAMS, TEXT_TO_IMAGE_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -41,6 +41,8 @@ from ...models.test_models_unet_2d_condition import create_lora_layers
 
 class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = StableDiffusionPipeline
+    params = TEXT_TO_IMAGE_PARAMS
+    batch_params = TEXT_TO_IMAGE_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)
@@ -264,6 +266,27 @@ class StableDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         output_2 = sd_pipe(**inputs)
         assert np.abs(output_2.images.flatten() - output_1.images.flatten()
             ).max() < 0.003
+
+    def test_stable_diffusion_vae_tiling(self):
+        components = self.get_dummy_components()
+
+        # make sure here that pndm scheduler skips prk
+        components["safety_checker"] = None
+        sd_pipe = StableDiffusionPipeline(**components)
+        sd_pipe.set_progress_bar_config(disable=None)
+
+        prompt = "A painting of a squirrel eating a burger"
+
+        # Test that tiled decode at 512x512 yields the same result as the non-tiled decode
+        generator = paddle.Generator().manual_seed(0)
+        output_1 = sd_pipe([prompt], generator=generator, guidance_scale=6.0, num_inference_steps=2, output_type="np")
+
+        # make sure tiled vae decode yields the same result
+        sd_pipe.enable_vae_tiling()
+        generator = paddle.Generator().manual_seed(0)
+        output_2 = sd_pipe([prompt], generator=generator, guidance_scale=6.0, num_inference_steps=2, output_type="np")
+
+        assert np.abs(output_2.images.flatten() - output_1.images.flatten()).max() < 5e-1
 
     def test_stable_diffusion_negative_prompt(self):
         components = self.get_dummy_components()

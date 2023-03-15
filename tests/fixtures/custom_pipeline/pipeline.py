@@ -50,8 +50,7 @@ class CustomLocalPipeline(DiffusionPipeline):
             batch_size (`int`, *optional*, defaults to 1):
                 The number of images to generate.
             generator (`paddle.Generator`, *optional*):
-                A [torch generator](https://pytorch.org/docs/stable/generated/paddle.Generator.html) to make generation
-                deterministic.
+                A paddle generator to make generation deterministic.
             eta (`float`, *optional*, defaults to 0.0):
                 The eta parameter which controls the scale of the variance (0 is DDIM and 1 is one type of DDPM).
             num_inference_steps (`int`, *optional*, defaults to 50):

@@ -22,7 +22,7 @@ from ppdiffusers_test.test_pipelines_common import (
     PipelineTesterMixin,
     assert_mean_pixel_difference,
 )
-
+from ppdiffusers_test.pipeline_params import IMAGE_VARIATION_BATCH_PARAMS, IMAGE_VARIATION_PARAMS
 from paddlenlp.transformers import (
     CLIPImageProcessor,
     CLIPTextConfig,
@@ -46,10 +46,10 @@ from ppdiffusers.utils.testing_utils import load_image, require_paddle_gpu
 class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
     TestCase):
     pipeline_class = UnCLIPImageVariationPipeline
+    params = IMAGE_VARIATION_PARAMS - {"height", "width", "guidance_scale"}
+    batch_params = IMAGE_VARIATION_BATCH_PARAMS
     required_optional_params = ['generator', 'return_dict',
         'decoder_num_inference_steps', 'super_res_num_inference_steps']
-    num_inference_steps_args = ['decoder_num_inference_steps',
-        'super_res_num_inference_steps']
 
     @property
     def text_embedder_hidden_size(self):
@@ -306,23 +306,26 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
     def test_inference_batch_single_identical(self):
         test_max_difference = False
         relax_max_difference = True
-        self._test_inference_batch_single_identical(test_max_difference=
-            test_max_difference, relax_max_difference=relax_max_difference)
+        additional_params_copy_to_batched_inputs = [
+            "decoder_num_inference_steps",
+            "super_res_num_inference_steps",
+        ]
+
+        self._test_inference_batch_single_identical(
+            test_max_difference=test_max_difference,
+            relax_max_difference=relax_max_difference,
+            additional_params_copy_to_batched_inputs=additional_params_copy_to_batched_inputs,
+        )
 
     def test_inference_batch_consistent(self):
-        self._test_inference_batch_consistent()
+        additional_params_copy_to_batched_inputs = [
+            "decoder_num_inference_steps",
+            "super_res_num_inference_steps",
+        ]
 
-
-    def test_dict_tuple_outputs_equivalent(self):
-        return super().test_dict_tuple_outputs_equivalent()
-
-
-    def test_save_load_local(self):
-        return super().test_save_load_local()
-
-
-    def test_save_load_optional_components(self):
-        return super().test_save_load_optional_components()
+        self._test_inference_batch_consistent(
+                additional_params_copy_to_batched_inputs=additional_params_copy_to_batched_inputs
+            )
 
 
 @slow

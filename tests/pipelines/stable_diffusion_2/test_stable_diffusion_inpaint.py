@@ -28,13 +28,15 @@ from ppdiffusers import (
     StableDiffusionInpaintPipeline,
     UNet2DConditionModel,
 )
-from ppdiffusers.utils import floats_tensor, load_image, load_numpy
+from ppdiffusers.utils import floats_tensor, load_image
 from ppdiffusers.utils.testing_utils import require_paddle_gpu, slow
-
+from ppdiffusers_test.pipeline_params import TEXT_GUIDED_IMAGE_INPAINTING_BATCH_PARAMS, TEXT_GUIDED_IMAGE_INPAINTING_PARAMS
 
 class StableDiffusion2InpaintPipelineFastTests(PipelineTesterMixin,
     unittest.TestCase):
     pipeline_class = StableDiffusionInpaintPipeline
+    params = TEXT_GUIDED_IMAGE_INPAINTING_PARAMS
+    batch_params = TEXT_GUIDED_IMAGE_INPAINTING_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

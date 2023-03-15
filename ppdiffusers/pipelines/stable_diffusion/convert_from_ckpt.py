@@ -29,6 +29,7 @@ from paddlenlp.transformers import (
 )
 from ppdiffusers import (
     AutoencoderKL,
+    ControlNetModel,
     DDIMScheduler,
     DPMSolverMultistepScheduler,
     EulerAncestralDiscreteScheduler,
@@ -37,6 +38,7 @@ from ppdiffusers import (
     LDMTextToImagePipeline,
     LMSDiscreteScheduler,
     PNDMScheduler,
+    StableDiffusionControlNetPipeline,
     StableDiffusionPipeline,
     UNet2DConditionModel,
 )
@@ -207,11 +209,15 @@ def conv_attn_to_linear(checkpoint):
                 checkpoint[key] = checkpoint[key][:, :, 0]
 
 
-def create_unet_diffusers_config(original_config, image_size: int):
+def create_unet_diffusers_config(original_config, image_size: int, controlnet=False):
     """
     Creates a config for the diffusers based on the config of the LDM model.
     """
-    unet_params = original_config.model.params.unet_config.params
+    if controlnet:
+        unet_params = original_config.model.params.control_stage_config.params
+    else:
+        unet_params = original_config.model.params.unet_config.params
+        
     vae_params = original_config.model.params.first_stage_config.params.ddconfig
 
     block_out_channels = [unet_params.model_channels * mult for mult in unet_params.channel_mult]
@@ -255,9 +261,7 @@ def create_unet_diffusers_config(original_config, image_size: int):
     config = dict(
         sample_size=image_size // vae_scale_factor,
         in_channels=unet_params.in_channels,
-        out_channels=unet_params.out_channels,
         down_block_types=tuple(down_block_types),
-        up_block_types=tuple(up_block_types),
         block_out_channels=tuple(block_out_channels),
         layers_per_block=unet_params.num_res_blocks,
         cross_attention_dim=unet_params.context_dim,
@@ -266,7 +270,10 @@ def create_unet_diffusers_config(original_config, image_size: int):
         class_embed_type=class_embed_type,
         projection_class_embeddings_input_dim=projection_class_embeddings_input_dim,
     )
-
+    if not controlnet:
+        config["out_channels"] = unet_params.out_channels
+        config["up_block_types"] = tuple(up_block_types)
+    
     return config
 
 
@@ -321,7 +328,7 @@ def create_ldm_bert_config(original_config):
     return LDMBertConfig(**config)
 
 
-def convert_ldm_unet_checkpoint(checkpoint, config, path=None, extract_ema=False):
+def convert_ldm_unet_checkpoint(checkpoint, config, path=None, extract_ema=False, controlnet=False):
     """
     Takes a state dict and a config, and returns a converted checkpoint.
     """
@@ -329,6 +336,11 @@ def convert_ldm_unet_checkpoint(checkpoint, config, path=None, extract_ema=False
     # extract state_dict for UNet
     unet_state_dict = {}
     keys = list(checkpoint.keys())
+
+    if controlnet:
+        unet_key = "control_model."
+    else:
+        unet_key = "model.diffusion_model."
 
     unet_key = "model.diffusion_model."
     # at least a 100 parameters have to start with `model_ema` in order for the checkpoint to be EMA
@@ -374,10 +386,11 @@ def convert_ldm_unet_checkpoint(checkpoint, config, path=None, extract_ema=False
     new_checkpoint["conv_in.weight"] = unet_state_dict["input_blocks.0.0.weight"]
     new_checkpoint["conv_in.bias"] = unet_state_dict["input_blocks.0.0.bias"]
 
-    new_checkpoint["conv_norm_out.weight"] = unet_state_dict["out.0.weight"]
-    new_checkpoint["conv_norm_out.bias"] = unet_state_dict["out.0.bias"]
-    new_checkpoint["conv_out.weight"] = unet_state_dict["out.2.weight"]
-    new_checkpoint["conv_out.bias"] = unet_state_dict["out.2.bias"]
+    if not controlnet:
+        new_checkpoint["conv_norm_out.weight"] = unet_state_dict["out.0.weight"]
+        new_checkpoint["conv_norm_out.bias"] = unet_state_dict["out.0.bias"]
+        new_checkpoint["conv_out.weight"] = unet_state_dict["out.2.weight"]
+        new_checkpoint["conv_out.bias"] = unet_state_dict["out.2.bias"]
 
     # Retrieves the keys for the input blocks only
     num_input_blocks = len({".".join(layer.split(".")[:2]) for layer in unet_state_dict if "input_blocks" in layer})
@@ -503,8 +516,49 @@ def convert_ldm_unet_checkpoint(checkpoint, config, path=None, extract_ema=False
 
                 new_checkpoint[new_path] = unet_state_dict[old_path]
 
-    return new_checkpoint
+    if controlnet:
+        # conditioning embedding
 
+        orig_index = 0
+
+        new_checkpoint["controlnet_cond_embedding.conv_in.weight"] = unet_state_dict.pop(
+            f"input_hint_block.{orig_index}.weight"
+        )
+        new_checkpoint["controlnet_cond_embedding.conv_in.bias"] = unet_state_dict.pop(
+            f"input_hint_block.{orig_index}.bias"
+        )
+
+        orig_index += 2
+
+        diffusers_index = 0
+
+        while diffusers_index < 6:
+            new_checkpoint[f"controlnet_cond_embedding.blocks.{diffusers_index}.weight"] = unet_state_dict.pop(
+                f"input_hint_block.{orig_index}.weight"
+            )
+            new_checkpoint[f"controlnet_cond_embedding.blocks.{diffusers_index}.bias"] = unet_state_dict.pop(
+                f"input_hint_block.{orig_index}.bias"
+            )
+            diffusers_index += 1
+            orig_index += 2
+
+        new_checkpoint["controlnet_cond_embedding.conv_out.weight"] = unet_state_dict.pop(
+            f"input_hint_block.{orig_index}.weight"
+        )
+        new_checkpoint["controlnet_cond_embedding.conv_out.bias"] = unet_state_dict.pop(
+            f"input_hint_block.{orig_index}.bias"
+        )
+
+        # down blocks
+        for i in range(num_input_blocks):
+            new_checkpoint[f"controlnet_down_blocks.{i}.weight"] = unet_state_dict.pop(f"zero_convs.{i}.0.weight")
+            new_checkpoint[f"controlnet_down_blocks.{i}.bias"] = unet_state_dict.pop(f"zero_convs.{i}.0.bias")
+
+        # mid block
+        new_checkpoint["controlnet_mid_block.weight"] = unet_state_dict.pop("middle_block_out.0.weight")
+        new_checkpoint["controlnet_mid_block.bias"] = unet_state_dict.pop("middle_block_out.0.bias")
+
+    return new_checkpoint
 
 def convert_ldm_vae_checkpoint(checkpoint, config):
     # extract state dict for VAE
@@ -744,7 +798,10 @@ def convert_open_clip_checkpoint(checkpoint):
 
     text_model_dict = {}
 
-    d_model = int(checkpoint["cond_stage_model.model.text_projection"].shape[0])
+    if "cond_stage_model.model.text_projection" in checkpoint:
+        d_model = int(checkpoint["cond_stage_model.model.text_projection"].shape[0])
+    else:
+        d_model = 1024
 
     for key in keys:
         if "resblocks.23" in key:  # Diffusers drops the final layer and only uses the penultimate layer
@@ -786,6 +843,7 @@ def load_pipeline_from_original_stable_diffusion_ckpt(
     upcast_attention: Optional[bool] = None,
     paddle_dtype: Optional[bool] = None,
     requires_safety_checker: bool =False,
+    controlnet: Optional[bool] = None,
     **kwargs,
 ) -> StableDiffusionPipeline:
     """
@@ -957,6 +1015,12 @@ def load_pipeline_from_original_stable_diffusion_ckpt(
         model_type = original_config.model.params.cond_stage_config.target.split(".")[-1]
         logger.debug(f"no `model_type` given, `model_type` inferred as: {model_type}")
 
+    if controlnet is None:
+        controlnet = "control_stage_config" in original_config.model.params
+
+    if controlnet and model_type != "FrozenCLIPEmbedder":
+        raise ValueError("`controlnet`=True only supports `model_type`='FrozenCLIPEmbedder'")
+
     if model_type == "FrozenOpenCLIPEmbedder":
         text_model = convert_open_clip_checkpoint(checkpoint)
         tokenizer = CLIPTokenizer.from_pretrained("stabilityai/stable-diffusion-2", subfolder="tokenizer")
@@ -988,22 +1052,54 @@ def load_pipeline_from_original_stable_diffusion_ckpt(
             )
         else:
             safety_checker = feature_extractor = None
+
         if paddle_dtype is not None:
             vae.to(dtype=paddle_dtype)
             text_model.to(dtype=paddle_dtype)
             unet.to(dtype=paddle_dtype)
             if requires_safety_checker:
                 safety_checker.to(dtype=paddle_dtype)
-        pipe = StableDiffusionPipeline(
-            vae=vae,
-            text_encoder=text_model,
-            tokenizer=tokenizer,
-            unet=unet,
-            scheduler=scheduler,
-            safety_checker=safety_checker,
-            feature_extractor=feature_extractor,
-            requires_safety_checker=requires_safety_checker,
-        )
+
+        if controlnet:
+            # Convert the ControlNetModel model.
+            ctrlnet_config = create_unet_diffusers_config(original_config, image_size=image_size, controlnet=True)
+            ctrlnet_config["upcast_attention"] = upcast_attention
+
+            ctrlnet_config.pop("sample_size")
+
+            controlnet_model = ControlNetModel(**ctrlnet_config)
+            controlnet_model.eval()
+
+            converted_ctrl_checkpoint = convert_ldm_unet_checkpoint(
+                checkpoint, ctrlnet_config, path=checkpoint_path, extract_ema=extract_ema, controlnet=True
+            )
+            controlnet_model.load_dict(convert_diffusers_vae_unet_to_ppdiffusers(converted_ctrl_checkpoint))
+
+            if paddle_dtype is not None:
+                controlnet_model.to(dtype=paddle_dtype)
+
+            pipe = StableDiffusionControlNetPipeline(
+                vae=vae,
+                text_encoder=text_model,
+                tokenizer=tokenizer,
+                unet=unet,
+                controlnet=controlnet_model,
+                scheduler=scheduler,
+                safety_checker=safety_checker,
+                feature_extractor=feature_extractor,
+                requires_safety_checker=requires_safety_checker,
+            )
+        else:
+            pipe = StableDiffusionPipeline(
+                vae=vae,
+                text_encoder=text_model,
+                tokenizer=tokenizer,
+                unet=unet,
+                scheduler=scheduler,
+                safety_checker=safety_checker,
+                feature_extractor=feature_extractor,
+                requires_safety_checker=requires_safety_checker,
+            )
     else:
         text_config = create_ldm_bert_config(original_config)
         text_model = convert_ldm_bert_checkpoint(checkpoint, text_config)

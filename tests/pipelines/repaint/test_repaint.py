@@ -18,7 +18,7 @@ import unittest
 import numpy as np
 import paddle
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import IMAGE_INPAINTING_BATCH_PARAMS, IMAGE_INPAINTING_PARAMS
 from ppdiffusers import RePaintPipeline, RePaintScheduler, UNet2DModel
 from ppdiffusers.utils.testing_utils import (
     load_image,
@@ -31,6 +31,14 @@ from ppdiffusers.utils.testing_utils import (
 class RepaintPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = RePaintPipeline
     test_cpu_offload = False
+    params = IMAGE_INPAINTING_PARAMS - {"width", "height", "guidance_scale"}
+    required_optional_params = PipelineTesterMixin.required_optional_params - {
+        "latents",
+        "num_images_per_prompt",
+        "callback",
+        "callback_steps",
+    }
+    batch_params = IMAGE_INPAINTING_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)
@@ -64,6 +72,11 @@ class RepaintPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         expected_slice = np.array([0.08341709, 0.54262626, 0.549711  , 0.00903523, 0.        ,  1.        , 0.05136755, 0.5604646 , 0.6273578 ])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.001
 
+    # RePaint can hardly be made deterministic since the scheduler is currently always
+    # nondeterministic
+    @unittest.skip("non-deterministic pipeline")
+    def test_inference_batch_single_identical(self):
+        return super().test_inference_batch_single_identical()
 
 @nightly
 @require_paddle_gpu

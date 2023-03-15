@@ -455,7 +455,6 @@ class StableDiffusionInpaintPipelineLegacy(DiffusionPipeline):
         return_dict: bool = True,
         callback: Optional[Callable[[int, int, paddle.Tensor], None]] = None,
         callback_steps: Optional[int] = 1,
-        **kwargs,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -527,9 +526,6 @@ class StableDiffusionInpaintPipelineLegacy(DiffusionPipeline):
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
         """
-        message = "Please use `image` instead of `init_image`."
-        init_image = deprecate("init_image", "0.14.0", message, take_from=kwargs)
-        image = init_image or image
 
         # 1. Check inputs
         self.check_inputs(prompt, strength, callback_steps)
