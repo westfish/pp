@@ -577,9 +577,14 @@ if is_paddle_available() and is_paddlenlp_available():
     from .download_utils import _add_variant, _get_model_file
 
     @classmethod
-    def from_pretrained_model(cls, pretrained_model_name_or_path, *args, from_hf_hub=False, **kwargs):
+    def from_pretrained_model(cls, pretrained_model_name_or_path, *args, from_hf_hub=False, subfolder=None, **kwargs):
         if cls.constructed_from_pretrained_config() and hasattr(cls, "smart_convert"):
             return cls.from_pretrained_v3(pretrained_model_name_or_path, from_hf_hub=from_hf_hub, *args, **kwargs)
+        # breakpoint()
+        elif cls.constructed_from_pretrained_config():
+            return cls.from_pretrained_v2(
+                pretrained_model_name_or_path, from_hf_hub=from_hf_hub, subfolder=subfolder, *args, **kwargs
+            )
         return raw_from_pretrained(pretrained_model_name_or_path, *args, from_hf_hub=False, **kwargs)
 
     @classmethod
