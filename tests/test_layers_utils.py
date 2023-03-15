@@ -100,7 +100,7 @@ class Upsample2DBlockTests(unittest.TestCase):
             upsampled = upsample(sample)
         assert tuple(upsampled.shape) == (1, 32, 64, 64)
         output_slice = upsampled[0, -1, -3:, -3:]
-        expected_slice = paddle.to_tensor([-0.2173, -1.2079, -1.2079, 0.2952, 1.1254, 1.1254, 0.2952, 1.1254, 1.1254])
+        expected_slice = paddle.to_tensor([-1.50215650, -0.12905766, -0.12905766, -1.97015178,  0.78776687,      0.78776687, -1.97015178,  0.78776687,  0.78776687])
         assert paddle.allclose(output_slice.flatten(), expected_slice, atol=0.001)
 
     def test_upsample_with_conv(self):

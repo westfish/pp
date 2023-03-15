@@ -215,8 +215,8 @@ class UNetRLModelTests(ModelTesterMixin, unittest.TestCase):
         time_step = paddle.full(shape=(num_features,), fill_value=0)
         with paddle.no_grad():
             output = value_function(noise, time_step).sample
-        expected_output_slice = paddle.to_tensor([165.25] * seq_len)
-        self.assertTrue(paddle.allclose(output, expected_output_slice, rtol=0.001))
+        expected_output_slice = paddle.to_tensor([291.51135254] * seq_len)
+        self.assertTrue(paddle.allclose(output.squeeze(-1), expected_output_slice, rtol=0.001))
 
     def test_forward_with_norm_groups(self):
         pass

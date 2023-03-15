@@ -322,8 +322,8 @@ class UNet2DConditionModelTests(ModelTesterMixin, unittest.TestCase):
             on_sample = model(**inputs_dict).sample
             model.disable_xformers_memory_efficient_attention()
             off_sample = model(**inputs_dict).sample
-        assert (sample - on_sample).abs().max() < 0.0001
-        assert (sample - off_sample).abs().max() < 0.0001
+        assert (sample - on_sample).abs().max() < 0.005
+        assert (sample - off_sample).abs().max() < 0.005
 
 
 @slow

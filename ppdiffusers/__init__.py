@@ -59,6 +59,7 @@ else:
         UNet2DConditionModel,
         UNet2DModel,
         VQModel,
+        ControlNetModel,
     )
     from .optimization import (
         get_constant_schedule,
@@ -178,6 +179,8 @@ else:
         FastDeployStableDiffusionInpaintPipelineLegacy,
         FastDeployStableDiffusionMegaPipeline,
         FastDeployStableDiffusionPipeline,
+        FastDeployCycleDiffusionPipeline,
+        FastDeployStableDiffusionControlNetPipeline,
     )
 
 try:

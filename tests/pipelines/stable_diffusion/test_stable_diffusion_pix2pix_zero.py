@@ -33,8 +33,7 @@ from ppdiffusers import (
     UNet2DConditionModel,
 )
 from ppdiffusers.utils import slow, load_image
-from ppdiffusers.utils.testing_utils import require_paddle_gpu
-from ppdiffusers.utils.load_utils import torch_load
+from ppdiffusers.utils.testing_utils import require_paddle_gpu, load_pt
 
 
 
@@ -53,11 +52,11 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
 
     @classmethod
     def setUpClass(cls):
-        cls.source_embeds = to_paddle(torch_load(
+        cls.source_embeds = to_paddle(load_pt(
             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/src_emb_0.pt"
         ))
 
-        cls.target_embeds = to_paddle(torch_load(
+        cls.target_embeds = to_paddle(load_pt(
             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/tgt_emb_0.pt"
         ))
     
@@ -182,11 +181,11 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.source_embeds = to_paddle(torch_load(
+        cls.source_embeds = to_paddle(load_pt(
             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/cat.pt"
         ))
 
-        cls.target_embeds = to_paddle(torch_load(
+        cls.target_embeds = to_paddle(load_pt(
             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/dog.pt"
         ))
     

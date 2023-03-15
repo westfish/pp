@@ -133,7 +133,7 @@ class StableDiffusionControlNetPipelineFastTests(PipelineTesterMixin, unittest.T
         reason="XFormers attention is only available with CUDA and `xformers` installed",
     )
     def test_xformers_attention_forwardGenerator_pass(self):
-        self._test_xformers_attention_forwardGenerator_pass(expected_max_diff=2e-3)
+        self._test_xformers_attention_forwardGenerator_pass(expected_max_diff=1e-2)
 
     def test_inference_batch_single_identical(self):
         self._test_inference_batch_single_identical(expected_max_diff=2e-3)

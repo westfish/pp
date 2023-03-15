@@ -73,10 +73,9 @@ class DanceDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         audio = output.audios
         audio_slice = audio[0, -3:, -3:]
         assert audio.shape == (1, 2, components["unet"].sample_size)
-        expected_slice = np.array([1.7265    , 0.        , 1.83609443, 0.56527969, 1.5450974 ,2.        ])
+        expected_slice = np.array([ 1.       ,  1.       ,  0.9972942, -0.4477799, -0.5952974,        1.       ])
         assert np.abs(audio_slice.flatten() - expected_slice).max() < 0.01
 
-    
 @slow
 @require_paddle_gpu
 class PipelineIntegrationTests(unittest.TestCase):

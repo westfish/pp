@@ -48,8 +48,8 @@ class UnCLIPImageVariationPipelineFastTests(PipelineTesterMixin, unittest.
     pipeline_class = UnCLIPImageVariationPipeline
     params = IMAGE_VARIATION_PARAMS - {"height", "width", "guidance_scale"}
     batch_params = IMAGE_VARIATION_BATCH_PARAMS
-    required_optional_params = ['generator', 'return_dict',
-        'decoder_num_inference_steps', 'super_res_num_inference_steps']
+    required_optional_params = frozenset(['generator', 'return_dict',
+        'decoder_num_inference_steps', 'super_res_num_inference_steps'])
 
     @property
     def text_embedder_hidden_size(self):

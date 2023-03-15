@@ -112,6 +112,8 @@ else:
         FastDeployStableDiffusionInpaintPipelineLegacy,
         FastDeployStableDiffusionMegaPipeline,
         FastDeployStableDiffusionPipeline,
+        FastDeployCycleDiffusionPipeline,
+        FastDeployStableDiffusionControlNetPipeline
     )
 
 try:

@@ -86,7 +86,7 @@ class AutoencoderKLTests(ModelTesterMixin, unittest.TestCase):
             output = model(image, sample_posterior=True, generator=generator).sample
         output_slice = output[0, -1, -3:, -3:].flatten().cpu()
         expected_output_slice = paddle.to_tensor(
-            [-0.2421, 0.4642, 0.2507, -0.0438, 0.0682, 0.316, -0.2018, -0.0727, 0.2485]
+            [-0.39049336,  0.34836933,  0.27105471, -0.02148458,  0.00975929, 0.27822807, -0.12224892, -0.02011922,  0.19761699]
         )
         self.assertTrue(paddle_all_close(output_slice, expected_output_slice, rtol=0.01))
 

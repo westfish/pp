@@ -25,3 +25,4 @@ if is_paddle_available():
     from .unet_2d import UNet2DModel
     from .unet_2d_condition import UNet2DConditionModel
     from .vq_model import VQModel
+    from .controlnet import ControlNetModel

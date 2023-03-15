@@ -122,7 +122,7 @@ class RePaintPipeline(DiffusionPipeline):
             True, otherwise a `tuple. When returning a tuple, the first element is a list with the generated images.
         """
 
-        original_image = _preprocess_image(original_image)
+        original_image = _preprocess_image(image)
         original_image = original_image.cast(self.unet.dtype)
         mask_image = _preprocess_mask(mask_image)
         mask_image = mask_image.cast(self.unet.dtype)

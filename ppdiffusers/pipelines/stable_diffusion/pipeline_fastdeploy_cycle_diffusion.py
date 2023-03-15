@@ -1,5 +1,4 @@
-# Copyright (c) 2022 PaddlePaddle Authors. All Rights Reserved.
-# Copyright 2022 The HuggingFace Team. All rights reserved.
+# Copyright (c) 2023 PaddlePaddle Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,19 +18,17 @@ from typing import Callable, List, Optional, Union
 import numpy as np
 import paddle
 import PIL
-from packaging import version
 
-from paddlenlp.transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
+from paddlenlp.transformers import CLIPFeatureExtractor, CLIPTokenizer
 
 from ...configuration_utils import FrozenDict
-from ...models import AutoencoderKL, UNet2DConditionModel
+from ..fastdeploy_utils import FastDeployRuntimeModel
+from ...pipeline_utils import DiffusionPipeline
 from ...schedulers import DDIMScheduler
-from ...utils import PIL_INTERPOLATION, deprecate, logging, randn_tensor
-from ..pipeline_utils import DiffusionPipeline
+from ...utils import PIL_INTERPOLATION, deprecate, logging
 from . import StableDiffusionPipelineOutput
-from .safety_checker import StableDiffusionSafetyChecker
 
-logger = logging.get_logger(__name__)  # pylint: disable=invalid-name
+logger = logging.get_logger(__name__)
 
 
 # Copied from ppdiffusers.pipelines.stable_diffusion.pipeline_stable_diffusion_img2img.preprocess
@@ -75,7 +72,7 @@ def posterior_sample(scheduler, latents, timestep, clean_latents, generator, eta
     # direction pointing to x_t
     e_t = (latents - alpha_prod_t ** (0.5) * clean_latents) / (1 - alpha_prod_t) ** (0.5)
     dir_xt = (1.0 - alpha_prod_t_prev - std_dev_t**2) ** (0.5) * e_t
-    noise = std_dev_t * randn_tensor(clean_latents.shape, dtype=clean_latents.dtype, generator=generator)
+    noise = std_dev_t * paddle.randn(clean_latents.shape, dtype=clean_latents.dtype, generator=generator)
     prev_latents = alpha_prod_t_prev ** (0.5) * clean_latents + dir_xt + noise
 
     return prev_latents
@@ -115,12 +112,12 @@ def compute_noise(scheduler, prev_latents, latents, timestep, noise_pred, eta):
     return noise
 
 
-class CycleDiffusionPipeline(DiffusionPipeline):
+class FastDeployCycleDiffusionPipeline(DiffusionPipeline):
     r"""
     Pipeline for text-guided image to image generation using Stable Diffusion.
 
     This model inherits from [`DiffusionPipeline`]. Check the superclass documentation for the generic methods the
-    library implements for all the pipelines (such as downloading or saving, running on a particular device, etc.)
+    library implements for all the pipelines (such as downloading or saving, running on a particular xxxx, etc.)
 
     Args:
         vae ([`AutoencoderKL`]):
@@ -142,16 +139,16 @@ class CycleDiffusionPipeline(DiffusionPipeline):
         feature_extractor ([`CLIPFeatureExtractor`]):
             Model that extracts features from generated images to be used as inputs for the `safety_checker`.
     """
-    _optional_components = ["safety_checker", "feature_extractor"]
 
     def __init__(
         self,
-        vae: AutoencoderKL,
-        text_encoder: CLIPTextModel,
+        vae_encoder: FastDeployRuntimeModel,
+        vae_decoder: FastDeployRuntimeModel,
+        text_encoder: FastDeployRuntimeModel,
         tokenizer: CLIPTokenizer,
-        unet: UNet2DConditionModel,
+        unet: FastDeployRuntimeModel,
         scheduler: DDIMScheduler,
-        safety_checker: StableDiffusionSafetyChecker,
+        safety_checker: FastDeployRuntimeModel,
         feature_extractor: CLIPFeatureExtractor,
         requires_safety_checker: bool = True,
     ):
@@ -180,35 +177,15 @@ class CycleDiffusionPipeline(DiffusionPipeline):
                 " it only for use-cases that involve analyzing network behavior or auditing its results. For more"
                 " information, please have a look at https://github.com/huggingface/diffusers/pull/254 ."
             )
-
         if safety_checker is not None and feature_extractor is None:
             raise ValueError(
-                f"Make sure to define a feature extractor when loading {self.__class__} if you want to use the safety"
+                "Make sure to define a feature extractor when loading {self.__class__} if you want to use the safety"
                 " checker. If you do not want to use the safety checker, you can pass `'safety_checker=None'` instead."
             )
-        is_unet_version_less_0_9_0 = hasattr(unet.config, "_ppdiffusers_version") and version.parse(
-            version.parse(unet.config._ppdiffusers_version).base_version
-        ) < version.parse("0.9.0.dev0")
-        is_unet_sample_size_less_64 = hasattr(unet.config, "sample_size") and unet.config.sample_size < 64
-        if is_unet_version_less_0_9_0 and is_unet_sample_size_less_64:
-            deprecation_message = (
-                "The configuration file of the unet has set the default `sample_size` to smaller than"
-                " 64 which seems highly unlikely .If your checkpoint is a fine-tuned version of any of the"
-                " following: \n- CompVis/stable-diffusion-v1-4 \n- CompVis/stable-diffusion-v1-3 \n-"
-                " CompVis/stable-diffusion-v1-2 \n- CompVis/stable-diffusion-v1-1 \n- runwayml/stable-diffusion-v1-5"
-                " \n- runwayml/stable-diffusion-inpainting \n you should change 'sample_size' to 64 in the"
-                " configuration file. Please make sure to update the config accordingly as leaving `sample_size=32`"
-                " in the config might lead to incorrect results in future versions. If you have downloaded this"
-                " checkpoint from the Hugging Face Hub, it would be very nice if you could open a Pull request for"
-                " the `unet/config.json` file"
-            )
-            deprecate("sample_size<64", "1.0.0", deprecation_message, standard_warn=False)
-            new_config = dict(unet.config)
-            new_config["sample_size"] = 64
-            unet._internal_dict = FrozenDict(new_config)
 
         self.register_modules(
-            vae=vae,
+            vae_encoder=vae_encoder,
+            vae_decoder=vae_decoder,
             text_encoder=text_encoder,
             tokenizer=tokenizer,
             unet=unet,
@@ -225,14 +202,13 @@ class CycleDiffusionPipeline(DiffusionPipeline):
         num_images_per_prompt,
         do_classifier_free_guidance,
         negative_prompt=None,
-        prompt_embeds: Optional[paddle.Tensor] = None,
-        negative_prompt_embeds: Optional[paddle.Tensor] = None,
+        prompt_embeds: Optional[Union[paddle.Tensor, np.ndarray]] = None,
+        negative_prompt_embeds: Optional[Union[paddle.Tensor, np.ndarray]] = None,
     ):
         r"""
         Encodes the prompt into text encoder hidden states.
-
         Args:
-             prompt (`str` or `List[str]`, *optional*):
+            prompt (`str` or `List[str]`, *optional*):
                 prompt to be encoded
             num_images_per_prompt (`int`):
                 number of images that should be generated per prompt
@@ -263,13 +239,13 @@ class CycleDiffusionPipeline(DiffusionPipeline):
                 padding="max_length",
                 max_length=self.tokenizer.model_max_length,
                 truncation=True,
-                return_tensors="pd",
+                return_tensors="np",
             )
             text_input_ids = text_inputs.input_ids
-            untruncated_ids = self.tokenizer(prompt, padding="longest", return_tensors="pd").input_ids
+            untruncated_ids = self.tokenizer(prompt, padding="longest", return_tensors="np").input_ids
 
             if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not paddle.equal_all(
-                text_input_ids, untruncated_ids
+                paddle.to_tensor(text_input_ids), paddle.to_tensor(untruncated_ids)
             ):
                 removed_text = self.tokenizer.batch_decode(
                     untruncated_ids[:, self.tokenizer.model_max_length - 1 : -1]
@@ -278,19 +254,8 @@ class CycleDiffusionPipeline(DiffusionPipeline):
                     "The following part of your input was truncated because CLIP can only handle sequences up to"
                     f" {self.tokenizer.model_max_length} tokens: {removed_text}"
                 )
-
-            if hasattr(self.text_encoder.config, "use_attention_mask") and self.text_encoder.config.use_attention_mask:
-                attention_mask = text_inputs.attention_mask
-            else:
-                attention_mask = None
-
-            prompt_embeds = self.text_encoder(
-                text_input_ids,
-                attention_mask=attention_mask,
-            )
-            prompt_embeds = prompt_embeds[0]
-
-        prompt_embeds = prompt_embeds.cast(self.text_encoder.dtype)
+            prompt_embeds = self.text_encoder(input_ids=text_input_ids.astype(np.int64))
+            prompt_embeds = paddle.to_tensor(prompt_embeds[0])
 
         bs_embed, seq_len, _ = prompt_embeds.shape
         # duplicate text embeddings for each generation per prompt, using mps friendly method
@@ -324,26 +289,17 @@ class CycleDiffusionPipeline(DiffusionPipeline):
                 padding="max_length",
                 max_length=max_length,
                 truncation=True,
-                return_tensors="pd",
+                return_tensors="np",
             )
-
-            if hasattr(self.text_encoder.config, "use_attention_mask") and self.text_encoder.config.use_attention_mask:
-                attention_mask = uncond_input.attention_mask
-            else:
-                attention_mask = None
 
             negative_prompt_embeds = self.text_encoder(
-                uncond_input.input_ids,
-                attention_mask=attention_mask,
+                input_ids=uncond_input.input_ids.astype(np.int64),
             )
-            negative_prompt_embeds = negative_prompt_embeds[0]
+            negative_prompt_embeds = paddle.to_tensor(negative_prompt_embeds[0])
 
         if do_classifier_free_guidance:
             # duplicate unconditional embeddings for each generation per prompt, using mps friendly method
             seq_len = negative_prompt_embeds.shape[1]
-
-            negative_prompt_embeds = negative_prompt_embeds.cast(self.text_encoder.dtype)
-
             negative_prompt_embeds = negative_prompt_embeds.tile([1, num_images_per_prompt, 1])
             negative_prompt_embeds = negative_prompt_embeds.reshape([batch_size * num_images_per_prompt, seq_len, -1])
 
@@ -426,12 +382,23 @@ class CycleDiffusionPipeline(DiffusionPipeline):
 
     # Copied from ppdiffusers.pipelines.stable_diffusion.pipeline_stable_diffusion.StableDiffusionPipeline.decode_latents
     def decode_latents(self, latents):
-        latents = 1 / self.vae.config.scaling_factor * latents
-        image = self.vae.decode(latents).sample
-        image = (image / 2 + 0.5).clip(0, 1)
-        # we always cast to float32 as this does not cause significant overhead and is compatible with bfloat16
-        image = image.transpose([0, 2, 3, 1]).cast("float32").numpy()
-        return image
+        latents = 1 / 0.18215 * latents
+        latents_shape = latents.shape
+        vae_output_shape = [latents_shape[0], 3, latents_shape[2] * 8, latents_shape[3] * 8]
+        images_vae = paddle.zeros(vae_output_shape, dtype="float32")
+
+        vae_input_name = self.vae_decoder.model.get_input_info(0).name
+        vae_output_name = self.vae_decoder.model.get_output_info(0).name
+
+        self.vae_decoder.zero_copy_infer(
+            prebinded_inputs={vae_input_name: latents},
+            prebinded_outputs={vae_output_name: images_vae},
+            share_with_raw_ptr=True,
+        )
+
+        images_vae = paddle.clip(images_vae / 2 + 0.5, 0, 1)
+        images = images_vae.transpose([0, 2, 3, 1])
+        return images.numpy()
 
     # Copied from ppdiffusers.pipelines.stable_diffusion.pipeline_stable_diffusion_img2img.StableDiffusionImg2ImgPipeline.get_timesteps
     def get_timesteps(self, num_inference_steps, strength):
@@ -453,15 +420,10 @@ class CycleDiffusionPipeline(DiffusionPipeline):
                 f" size of {batch_size}. Make sure the batch size matches the length of the generators."
             )
 
-        if isinstance(generator, list):
-            init_latents = [
-                self.vae.encode(image[i : i + 1]).latent_dist.sample(generator[i]) for i in range(batch_size)
-            ]
-            init_latents = paddle.concat(init_latents, axis=0)
-        else:
-            init_latents = self.vae.encode(image).latent_dist.sample(generator)
-
-        init_latents = self.vae.config.scaling_factor * init_latents
+        image = image.astype(dtype)
+        init_latents = self.vae_encoder(sample=image)[0]
+        init_latents = 0.18215 * init_latents
+        init_latents = paddle.to_tensor(init_latents)
 
         if batch_size > init_latents.shape[0] and batch_size % init_latents.shape[0] == 0:
             # expand init_latents for batch_size
@@ -483,7 +445,14 @@ class CycleDiffusionPipeline(DiffusionPipeline):
 
         # add noise to latents using the timestep
         shape = init_latents.shape
-        noise = randn_tensor(shape, generator=generator, dtype=dtype)
+        if isinstance(generator, list):
+            shape = [
+                1,
+            ] + shape[1:]
+            noise = [paddle.randn(shape, generator=generator[i], dtype=dtype) for i in range(batch_size)]
+            noise = paddle.concat(noise, axis=0)
+        else:
+            noise = paddle.randn(shape, generator=generator, dtype=dtype)
 
         # get latents
         clean_latents = init_latents
@@ -492,22 +461,21 @@ class CycleDiffusionPipeline(DiffusionPipeline):
 
         return latents, clean_latents
 
-    @paddle.no_grad()
     def __call__(
         self,
         prompt: Union[str, List[str]],
         source_prompt: Union[str, List[str]],
-        image: Union[paddle.Tensor, PIL.Image.Image] = None,
+        image: Union[paddle.Tensor, PIL.Image.Image, np.ndarray] = None,
         strength: float = 0.8,
         num_inference_steps: Optional[int] = 50,
         guidance_scale: Optional[float] = 7.5,
-        negative_prompt: Optional[paddle.Tensor] = None,
+        negative_prompt: Optional[Union[paddle.Tensor, np.ndarray]] = None,
         source_guidance_scale: Optional[float] = 1,
         num_images_per_prompt: Optional[int] = 1,
         eta: Optional[float] = 0.1,
         generator: Optional[Union[paddle.Generator, List[paddle.Generator]]] = None,
-        prompt_embeds: Optional[paddle.Tensor] = None,
-        negative_prompt_embeds: Optional[paddle.Tensor] = None,
+        prompt_embeds: Optional[Union[paddle.Tensor, np.ndarray]] = None,
+        negative_prompt_embeds: Optional[Union[paddle.Tensor, np.ndarray]] = None,
         output_type: Optional[str] = "pil",
         return_dict: bool = True,
         callback: Optional[Callable[[int, int, paddle.Tensor], None]] = None,
@@ -580,7 +548,6 @@ class CycleDiffusionPipeline(DiffusionPipeline):
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
         """
-
         # 1. Check inputs
         self.check_inputs(prompt, strength, callback_steps)
 
@@ -591,7 +558,7 @@ class CycleDiffusionPipeline(DiffusionPipeline):
         # corresponds to doing no classifier free guidance.
         do_classifier_free_guidance = guidance_scale > 1.0
 
-        # 3. Encode input prompt
+        # 3. Encode target prompt and source prompt
         prompt_embeds = self._encode_prompt(
             prompt,
             num_images_per_prompt,
@@ -624,8 +591,15 @@ class CycleDiffusionPipeline(DiffusionPipeline):
 
         # 8. Denoising loop
         num_warmup_steps = len(timesteps) - num_inference_steps * self.scheduler.order
+
+        # unet_output_name = self.unet.model.get_output_info(0).name
+        # unet_input_names = [self.unet.model.get_input_info(i).name for i in range(self.unet.model.num_inputs())]
+        # height, width = image.shape[-2:]
         with self.progress_bar(total=num_inference_steps) as progress_bar:
             for i, t in enumerate(timesteps):
+                # concat_noise_pred = paddle.zeros(
+                #     [4 * batch_size * num_images_per_prompt, 4, height // 8, width // 8], dtype="float32"
+                # )
                 # expand the latents if we are doing classifier free guidance
                 latent_model_input = paddle.concat([latents] * 2)
                 source_latent_model_input = paddle.concat([source_latents] * 2)
@@ -651,9 +625,24 @@ class CycleDiffusionPipeline(DiffusionPipeline):
                     ],
                     axis=0,
                 )
+
+                # predict the noise residual
+                # TODO(zhoushunjie): Use zero copy infer in the future
+                # self.unet.zero_copy_infer(
+                #     prebinded_inputs={
+                #         unet_input_names[0]: concat_latent_model_input,
+                #         unet_input_names[1]: t,
+                #         unet_input_names[2]: concat_prompt_embeds,
+                #     },
+                #     prebinded_outputs={unet_output_name: concat_noise_pred},
+                #     share_with_raw_ptr=True,
+                # )
                 concat_noise_pred = self.unet(
-                    concat_latent_model_input, t, encoder_hidden_states=concat_prompt_embeds
-                ).sample
+                    sample=concat_latent_model_input.numpy(),
+                    timestep=t.cast("float32").numpy(),
+                    encoder_hidden_states=concat_prompt_embeds.numpy(),
+                )[0]
+                concat_noise_pred = paddle.to_tensor(concat_noise_pred)
 
                 # perform guidance
                 (
@@ -681,7 +670,9 @@ class CycleDiffusionPipeline(DiffusionPipeline):
                 latents = self.scheduler.step(
                     noise_pred, t, latents, variance_noise=noise, **extra_step_kwargs
                 ).prev_sample
-
+                if i == len(timesteps) - 1:
+                    # sync for accuracy it/s measure
+                    paddle.device.cuda.synchronize()
                 # call the callback, if provided
                 if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % self.scheduler.order == 0):
                     progress_bar.update()

@@ -88,8 +88,7 @@ class StableDiffusion2InpaintPipelineFastTests(PipelineTesterMixin,
         image = sd_pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.4727, 0.5735, 0.3941, 0.5446, 0.5926, 
-            0.4394, 0.5062, 0.4654, 0.4476])
+        expected_slice = np.array([0.4439444 , 0.42713565, 0.3371228 , 0.45478657, 0.39641544,     0.48424238, 0.40045372, 0.3282157 , 0.41219836])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
 

@@ -320,7 +320,10 @@ if is_paddle_available() and is_paddlenlp_available():
 
     @patch_to(nn.Layer, as_prop=True)
     def dtype(parameter: nn.Layer) -> paddle.dtype:
-        return parameter._dtype
+        try:
+            return next(parameter.named_parameters())[1].dtype
+        except StopIteration:
+            return parameter._dtype
 
     @patch_to(PretrainedModel, as_prop=True)
     def device(self):
@@ -805,7 +808,10 @@ if is_paddle_available() and is_paddlenlp_available():
 
         model_to_save = self._layers if isinstance(self, paddle.DataParallel) else self
         if is_main_process:
-            model_to_save.config.dtype = str(model_to_save._dtype).split(".")[1]
+            try:
+                model_to_save.config.dtype = str(model_to_save._dtype).split(".")[-1]
+            except:
+                model_to_save.config.dtype = "float32"
             # Attach architecture to the config
             model_to_save.config.architectures = [model_to_save.__class__.__name__]
 

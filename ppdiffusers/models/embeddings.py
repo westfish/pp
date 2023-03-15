@@ -199,7 +199,7 @@ class TimestepEmbedding(nn.Layer):
 
     def forward(self, sample, condition=None):
         if condition is not None:
-            sample = sample + self.cond_proj(condition)
+            sample = sample + self.cond_proj(condition.cast(sample.dtype))
         sample = self.linear_1(sample)
 
         if self.act is not None:

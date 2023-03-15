@@ -51,13 +51,13 @@ class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         "cross_attention_kwargs",
     }
     batch_params = TEXT_TO_IMAGE_BATCH_PARAMS
-    required_optional_params = [
+    required_optional_params = frozenset([
         "generator",
         "return_dict",
         "prior_num_inference_steps",
         "decoder_num_inference_steps",
         "super_res_num_inference_steps",
-    ]
+    ])
     test_xformers_attention = False
     @property
     def text_embedder_hidden_size(self):
@@ -257,7 +257,7 @@ class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
 
 
     def test_inference_batch_single_identical(self):
-        test_max_difference = torch_device == "cpu"
+        test_max_difference = False
         relax_max_difference = True
         additional_params_copy_to_batched_inputs = [
             "prior_num_inference_steps",

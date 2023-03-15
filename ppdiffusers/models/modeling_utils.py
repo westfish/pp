@@ -65,7 +65,10 @@ def get_parameter_device(parameter: nn.Layer):
 
 
 def get_parameter_dtype(parameter: nn.Layer) -> paddle.dtype:
-    return parameter._dtype
+    try:
+        return next(parameter.named_parameters())[1].dtype
+    except StopIteration:
+        return parameter._dtype
 
 
 def convert_state_dict(state_dict, framework="torch"):

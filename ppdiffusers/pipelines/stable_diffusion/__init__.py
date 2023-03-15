@@ -108,3 +108,5 @@ else:
     from .pipeline_fastdeploy_stable_diffusion_mega import (
         FastDeployStableDiffusionMegaPipeline,
     )
+    from .pipeline_fastdeploy_cycle_diffusion import FastDeployCycleDiffusionPipeline
+    from .pipeline_fastdeploy_stable_diffusion_controlnet import FastDeployStableDiffusionControlNetPipeline
