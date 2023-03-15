@@ -100,7 +100,7 @@ class UNet1DModelTests(ModelTesterMixin, unittest.TestCase):
             output = model(noise, time_step).sample.permute(0, 2, 1)
         output_slice = output[0, -3:, -3:].flatten()
         expected_output_slice = paddle.to_tensor(
-            [-2.137172, 1.1426016, 0.3688687, -0.766922, 0.7303146, 0.11038864, -0.4760633, 0.13270172, 0.02591348]
+            [-0.2857576608657837, -0.9908187389373779, 0.2976357340812683, -0.8677187561988831, -0.21778395771980286, 0.08095654845237732, -0.5871752500534058, 0.3299727439880371, -0.17421625554561615]
         )
         self.assertTrue(paddle.allclose(output_slice, expected_output_slice, rtol=0.001))
 

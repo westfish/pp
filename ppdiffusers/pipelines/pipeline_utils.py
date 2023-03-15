@@ -49,6 +49,7 @@ from ..utils import (
     DIFFUSERS_CACHE,
     FROM_DIFFUSERS,
     FROM_HF_HUB,
+    TO_DIFFUSERS,
     HF_HUB_OFFLINE,
     PPDIFFUSERS_CACHE,
     TORCH_SAFETENSORS_WEIGHTS_NAME,
@@ -280,7 +281,7 @@ class DiffusionPipeline(ConfigMixin):
         save_directory: Union[str, os.PathLike],
         safe_serialization: bool = False,
         variant: Optional[str] = None,
-        to_diffusers: bool = False,
+        to_diffusers: bool = None,
     ):
         """
         Save all variables of the pipeline that can be saved and loaded as well as the pipelines configuration file to
@@ -295,6 +296,9 @@ class DiffusionPipeline(ConfigMixin):
             variant (`str`, *optional*):
                 If specified, weights are saved in the format pytorch_model.<variant>.bin.
         """
+        if to_diffusers is None:
+            to_diffusers = TO_DIFFUSERS
+
         self.save_config(save_directory)
 
         model_index_dict = dict(self.config)

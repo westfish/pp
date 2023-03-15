@@ -20,7 +20,7 @@ ppnlp_cache_home = os.path.expanduser(
 )
 
 ppdiffusers_default_cache_path = os.path.join(ppnlp_cache_home, "ppdiffusers")
-diffusers_default_cache_path = HUGGINGFACE_HUB_CACHE # os.path.join(hf_cache_home, "diffusers")
+diffusers_default_cache_path = os.path.join(hf_cache_home, "diffusers") # HUGGINGFACE_HUB_CACHE  i want to use old version.
 
 CONFIG_NAME = "config.json"
 TORCH_WEIGHTS_NAME = "diffusion_pytorch_model.bin"
