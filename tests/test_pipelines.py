@@ -61,7 +61,6 @@ from ppdiffusers.utils import (
     CONFIG_NAME,
     WEIGHTS_NAME,
     floats_tensor,
-    is_flax_available,
     nightly,
     slow,
 )
@@ -94,7 +93,6 @@ class DownloadTests(unittest.TestCase):
             'hf-internal-testing/tiny-stable-diffusion-torch',
             safety_checker=None, return_cached_folder=True)
         pipe_2 = StableDiffusionPipeline.from_pretrained(local_path)
-        pipe_2 = pipe_2
         generator = paddle.Generator().manual_seed(0)
         out = pipe(prompt, num_inference_steps=2, generator=generator,
             output_type='numpy').images
@@ -123,7 +121,6 @@ class DownloadTests(unittest.TestCase):
             output_type='numpy').images
         pipe_2 = StableDiffusionPipeline.from_pretrained(
             'hf-internal-testing/tiny-stable-diffusion-torch')
-        pipe_2 = pipe_2
         generator = paddle.Generator().manual_seed(0)
         out_2 = pipe_2(prompt, num_inference_steps=2, generator=generator,
             output_type='numpy').images
@@ -141,7 +138,6 @@ class DownloadTests(unittest.TestCase):
             pipe.save_pretrained(tmpdirname)
             pipe_2 = StableDiffusionPipeline.from_pretrained(tmpdirname,
                 safety_checker=None)
-            pipe_2 = pipe_2
             generator = paddle.Generator().manual_seed(0)
             out_2 = pipe_2(prompt, num_inference_steps=2, generator=
                 generator, output_type='numpy').images
@@ -157,7 +153,6 @@ class DownloadTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdirname:
             pipe.save_pretrained(tmpdirname)
             pipe_2 = StableDiffusionPipeline.from_pretrained(tmpdirname)
-            pipe_2 = pipe_2
             generator = paddle.Generator().manual_seed(0)
             out_2 = pipe_2(prompt, num_inference_steps=2, generator=
                 generator, output_type='numpy').images
@@ -534,7 +529,7 @@ class PipelineFastTests(unittest.TestCase):
             vae_path = os.path.join(tmpdirname, 'vae',
                 'diffusion_pytorch_model.safetensors')
             assert os.path.exists(vae_path), f'Could not find {vae_path}'
-             _ = safetensors.torch.load_file(vae_path)
+            _ = safetensors.torch.load_file(vae_path)
             unet_path = os.path.join(tmpdirname, 'unet',
                 'diffusion_pytorch_model.safetensors')
             assert os.path.exists(unet_path), f'Could not find {unet_path}'
@@ -776,33 +771,6 @@ class PipelineSlowTests(unittest.TestCase):
         images = pipe(num_inference_steps=4).images
         assert isinstance(images, list)
         assert isinstance(images[0], PIL.Image.Image)
-
-    def test_from_flax_from_pt(self):
-        pipe_pt = StableDiffusionPipeline.from_pretrained(
-            'hf-internal-testing/tiny-stable-diffusion-torch',
-            safety_checker=None)
-        pipe_pt
-        if not is_flax_available():
-            raise ImportError('Make sure flax is installed.')
-        from ppdiffusers import FlaxStableDiffusionPipeline
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            pipe_pt.save_pretrained(tmpdirname)
-            pipe_flax, params = FlaxStableDiffusionPipeline.from_pretrained(
-                tmpdirname, safety_checker=None, from_pt=True)
-        with tempfile.TemporaryDirectory() as tmpdirname:
-            pipe_flax.save_pretrained(tmpdirname, params=params)
-            pipe_pt_2 = StableDiffusionPipeline.from_pretrained(tmpdirname,
-                safety_checker=None, from_flax=True)
-            pipe_pt_2
-        prompt = 'Hello'
-        generator = paddle.Generator().manual_seed(0)
-        image_0 = pipe_pt([prompt], generator=generator,
-            num_inference_steps=2, output_type='np').images[0]
-        generator = paddle.Generator().manual_seed(0)
-        image_1 = pipe_pt_2([prompt], generator=generator,
-            num_inference_steps=2, output_type='np').images[0]
-        assert np.abs(image_0 - image_1).sum(
-            ) < 1e-05, "Models don't give the same forward pass"
 
 
 @nightly
