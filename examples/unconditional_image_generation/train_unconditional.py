@@ -6,7 +6,6 @@ import os
 from pathlib import Path
 from typing import Optional
 
-import accelerate
 import datasets
 import paddle
 import paddle.nn as nn
@@ -23,9 +22,9 @@ from ppdiffusers.optimization import get_scheduler
 from ppdiffusers.training_utils import EMAModel
 from paddlenlp.trainer import set_seed
 from paddlenlp.utils.log import logger
-# Will error if the minimal version of ppdiffusers is not installed. Remove at your own risks.
+from ppdiffusers.models.modeling_utils import unwrap_model
 
-# logger = get_logger(__name__, log_level="INFO")
+
 
 
 def _extract_into_tensor(arr, timesteps, broadcast_shape):
@@ -39,11 +38,25 @@ def _extract_into_tensor(arr, timesteps, broadcast_shape):
     :return: a tensor of shape [batch_size, 1, ...] where the shape has K dims.
     """
     if not isinstance(arr, paddle.Tensor):
-        arr = paddle.from_numpy(arr)
-    res = arr[timesteps].float().to(timesteps.device)
+        arr = paddle.to_tensor(arr)
+    res = arr[timesteps].cast('float32')
     while len(res.shape) < len(broadcast_shape):
         res = res[..., None]
     return res.expand(broadcast_shape)
+
+
+def get_report_to(args):
+    if args.logger == "visualdl":
+        from visualdl import LogWriter
+
+        writer = LogWriter(logdir=args.logging_dir)
+    elif args.logger == "tensorboard":
+        from tensorboardX import SummaryWriter
+
+        writer = SummaryWriter(logdir=args.logging_dir)
+    else:
+        raise ValueError("logger must be in ['visualdl', 'tensorboard']")
+    return writer
 
 
 def parse_args():
@@ -189,8 +202,8 @@ def parse_args():
     parser.add_argument(
         "--logger",
         type=str,
-        default="tensorboard",
-        choices=["tensorboard", "wandb"],
+        default="visualdl",
+        choices=["visualdl", "tensorboard"],
         help=(
             "Whether to use [tensorboard](https://www.tensorflow.org/tensorboard) or [wandb](https://www.wandb.ai)"
             " for experiment tracking and logging of model metrics and model checkpoints"
@@ -305,7 +318,6 @@ def main():
         if args.use_ema:
             load_model = EMAModel.from_pretrained(os.path.join(input_dir, "unet_ema"), UNet2DModel)
             ema_model.load_state_dict(load_model.state_dict())
-            # ema_model.to(accelerator.device)
             del load_model
 
         for i in range(len(models)):
@@ -328,13 +340,6 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
         level=logging.INFO,
     )
-    # logger.info(accelerator.state, main_process_only=False)
-    # if is_local_main_process:
-    #     datasets.utils.logging.set_verbosity_warning()
-    #     ppdiffusers.utils.logging.set_verbosity_info()
-    # else:
-    #     datasets.utils.logging.set_verbosity_error()
-    #     ppdiffusers.utils.logging.set_verbosity_error()
 
     # Handle the repository creation
     if is_main_process:
@@ -468,6 +473,13 @@ def main():
         grad_clip=nn.ClipGradByGlobalNorm(1.0),
     )
 
+    if is_main_process:
+        logger.info("-----------  Configuration Arguments -----------")
+        for arg, value in sorted(vars(args).items()):
+            logger.info("%s: %s" % (arg, value))
+        logger.info("------------------------------------------------")
+        writer = get_report_to(args)
+
     # Prepare everything with our `accelerator`.
     total_batch_size = args.train_batch_size * num_processes * args.gradient_accumulation_steps
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
@@ -484,42 +496,17 @@ def main():
     global_step = 0
     first_epoch = 0
 
-    # Potentially load in the weights and states from a previous save
-    if args.resume_from_checkpoint:
-        if args.resume_from_checkpoint != "latest":
-            path = os.path.basename(args.resume_from_checkpoint)
-        else:
-            # Get the most recent checkpoint
-            dirs = os.listdir(args.output_dir)
-            dirs = [d for d in dirs if d.startswith("checkpoint")]
-            dirs = sorted(dirs, key=lambda x: int(x.split("-")[1]))
-            path = dirs[-1] if len(dirs) > 0 else None
-
-        if path is None:
-            accelerator.print(
-                f"Checkpoint '{args.resume_from_checkpoint}' does not exist. Starting a new training run."
-            )
-            args.resume_from_checkpoint = None
-        else:
-            accelerator.print(f"Resuming from checkpoint {path}")
-            accelerator.load_state(os.path.join(args.output_dir, path))
-            global_step = int(path.split("-")[1])
-
-            resume_global_step = global_step * args.gradient_accumulation_steps
-            first_epoch = global_step // num_update_steps_per_epoch
-            resume_step = resume_global_step % (num_update_steps_per_epoch * args.gradient_accumulation_steps)
-
     # Train!
     for epoch in range(first_epoch, args.num_epochs):
         model.train()
-        progress_bar = tqdm(total=num_update_steps_per_epoch)
+        progress_bar = tqdm(total=num_update_steps_per_epoch, disable=not is_main_process)
         progress_bar.set_description(f"Epoch {epoch}")
         for step, batch in enumerate(train_dataloader):
             # Skip steps until we reach the resumed step
-            if args.resume_from_checkpoint and epoch == first_epoch and step < resume_step:
-                if step % args.gradient_accumulation_steps == 0:
-                    progress_bar.update(1)
-                continue
+            # if args.resume_from_checkpoint and epoch == first_epoch and step < resume_step:
+            #     if step % args.gradient_accumulation_steps == 0:
+            #         progress_bar.update(1)
+            #     continue
 
             clean_images = batch["input"]
             # Sample noise that we'll add to the images
@@ -561,30 +548,32 @@ def main():
 
             # Checks if the accelerator has performed an optimization step behind the scenes
     
-            # if args.use_ema:
-            #     ema_model.step(model.parameters())
-            # progress_bar.update(1)
-            # global_step += 1
+            if args.use_ema:
+                ema_model.step(model.parameters())
+            progress_bar.update(1)
+            global_step += 1
 
-            # if global_step % args.checkpointing_steps == 0:
-            #     if accelerator.is_main_process:
-            #         save_path = os.path.join(args.output_dir, f"checkpoint-{global_step}")
-            #         accelerator.save_state(save_path)
-            #         logger.info(f"Saved state to {save_path}")
+            if global_step % args.checkpointing_steps == 0:
+                if is_main_process:
+                    save_path = os.path.join(args.output_dir, f"checkpoint-{global_step}")
+                    if args.use_ema:
+                        unwrap_model(ema_model).save_pretrained(os.path.join(save_path, "unet_ema"))
+                    unwrap_model(model).save_pretrained(os.path.join(save_path, "unet"))
+                    
+                    logger.info(f"Saved state to {save_path}")
 
             logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_lr(), "step": global_step}
             if args.use_ema:
                 logs["ema_decay"] = ema_model.cur_decay_value
             progress_bar.set_postfix(**logs)
-            # accelerator.log(logs, step=global_step)
             
         progress_bar.close()
 
-
         # Generate sample images for visual inspection
         if is_main_process:
+            # writer.close()
             if epoch % args.save_images_epochs == 0 or epoch == args.num_epochs - 1:
-                unet = accelerator.unwrap_model(model)
+                unet = unwrap_model(model)
                 if args.use_ema:
                     ema_model.copy_to(unet.parameters())
                 pipeline = DDPMPipeline(
@@ -603,13 +592,11 @@ def main():
 
                 # denormalize the images and save to tensorboard
                 images_processed = (images * 255).round().astype("uint8")
+                # writer.add_images("test_samples", images_processed.transpose(0, 3, 1, 2), epoch)
 
             if epoch % args.save_model_epochs == 0 or epoch == args.num_epochs - 1:
                 # save the model
                 pipeline.save_pretrained(args.output_dir)
-        #         if args.push_to_hub:
-        #             repo.push_to_hub(commit_message=f"Epoch {epoch}", blocking=False)
-
 
 
 if __name__ == "__main__":

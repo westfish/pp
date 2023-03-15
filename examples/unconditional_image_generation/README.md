@@ -1,39 +1,24 @@
-## Training examples
+## 训练样本
 
-Creating a training image set is [described in a different document](https://huggingface.co/docs/datasets/image_process#image-datasets).
+### 安装依赖
 
-### Installing the dependencies
+运行脚本之前，请确保安装库的训练依赖：
 
-Before running the scripts, make sure to install the library's training dependencies:
 
-**Important**
-
-To make sure you can successfully run the latest versions of the example scripts, we highly recommend **installing from source** and keeping the install up to date as we update the example scripts frequently and install some example-specific requirements. To do this, execute the following steps in a new virtual environment:
-```bash
-git clone https://github.com/huggingface/diffusers
-cd diffusers
-pip install .
-```
-
-Then cd in the example folder  and run
+切换到 example 目录并且运行：
 ```bash
 pip install -r requirements.txt
 ```
 
 
-And initialize an [🤗Accelerate](https://github.com/huggingface/accelerate/) environment with:
-
-```bash
-accelerate config
-```
-
 ### Unconditional Flowers  
 
-The command to train a DDPM UNet model on the Oxford Flowers dataset:
+下面的命令是使用Oxford Flowers dataset来训练一个DDPM UNet模型：
 
 ```bash
-python -u train_unconditional.py \
+python -u -m paddle.distributed.launch --gpus "0,1,2,3"  train_unconditional.py \
   --dataset_name="huggan/flowers-102-categories" \
+  --cache_dir 'data' \
   --resolution=64 --center_crop --random_flip \
   --output_dir="ddpm-ema-flowers-64" \
   --train_batch_size=16 \
@@ -42,22 +27,20 @@ python -u train_unconditional.py \
   --use_ema \
   --learning_rate=1e-4 \
   --lr_warmup_steps=500 \
-  --mixed_precision=no \
-  --push_to_hub
+  --mixed_precision=no
 ```
-An example trained model: https://huggingface.co/anton-l/ddpm-ema-flowers-64
 
-A full training run takes 2 hours on 4xV100 GPUs.
+完整的训练需要在4xV100 GPUs上训练2小时.
 
 <img src="https://user-images.githubusercontent.com/26864830/180248660-a0b143d0-b89a-42c5-8656-2ebf6ece7e52.png" width="700" />
 
 
 ### Unconditional Pokemon 
 
-The command to train a DDPM UNet model on the Pokemon dataset:
+下面的命令是Pokemon dataset上训练一个DDPM UNet模型：
 
 ```bash
-accelerate launch train_unconditional.py \
+python -u -m paddle.distributed.launch --gpus "0,1,2,3" train_unconditional.py \
   --dataset_name="huggan/pokemon" \
   --resolution=64 --center_crop --random_flip \
   --output_dir="ddpm-ema-pokemon-64" \
@@ -67,27 +50,29 @@ accelerate launch train_unconditional.py \
   --use_ema \
   --learning_rate=1e-4 \
   --lr_warmup_steps=500 \
-  --mixed_precision=no \
-  --push_to_hub
+  --mixed_precision=no 
 ```
-An example trained model: https://huggingface.co/anton-l/ddpm-ema-pokemon-64
 
-A full training run takes 2 hours on 4xV100 GPUs.
+完整的训练需要在4xV100 GPUs上训练2小时.
 
 <img src="https://user-images.githubusercontent.com/26864830/180248200-928953b4-db38-48db-b0c6-8b740fe6786f.png" width="700" />
 
 
-### Using your own data
+### 使用你自己的数据
 
-To use your own dataset, there are 2 ways:
-- you can either provide your own folder as `--train_data_dir`
-- or you can upload your dataset to the hub (possibly as a private repo, if you prefer so), and simply pass the `--dataset_name` argument.
 
-Below, we explain both in more detail.
 
-#### Provide the dataset as a folder
+要使用自己的数据集，有两种方法：
 
-If you provide your own folders with images, the script expects the following directory structure:
+-您可以将自己的文件夹提供为`--train_data_dir`
+
+-或者，您可以将数据集上传到hub，然后简单地传递`--dataset_name`参数。
+
+下面，我们将对两者进行更详细的解释。
+
+#### 将数据集作为文件夹提供
+
+如果为自己的文件夹提供图像，脚本需要以下目录结构:
 
 ```bash
 data_dir/xxx.png
@@ -95,7 +80,7 @@ data_dir/xxy.png
 data_dir/[...]/xxz.png
 ```
 
-In other words, the script will take care of gathering all images inside the folder. You can then run the script like this:
+换句话说，脚本将负责收集文件夹中的所有图像。然后可以像这样运行脚本:
 
 ```bash
 accelerate launch train_unconditional.py \
@@ -103,11 +88,11 @@ accelerate launch train_unconditional.py \
     <other-arguments>
 ```
 
-Internally, the script will use the [`ImageFolder`](https://huggingface.co/docs/datasets/v2.0.0/en/image_process#imagefolder) feature which will automatically turn the folders into 🤗 Dataset objects.
+这个脚本将会使用 [`ImageFolder`](https://huggingface.co/docs/datasets/v2.0.0/en/image_process#imagefolder) 特征，并且自动把这些目录变成Dataset对象。
 
-#### Upload your data to the hub, as a (possibly private) repo
+#### 把你的数据上传到hub上
 
-It's very easy (and convenient) to upload your image dataset to the hub using the [`ImageFolder`](https://huggingface.co/docs/datasets/v2.0.0/en/image_process#imagefolder) feature available in 🤗 Datasets. Simply do the following:
+使用[`ImageFolder`](https://huggingface.co/docs/datasets/v2.0.0/en/image_process#imagefolder)中提供的功能将图像数据集上传到hub中心非常容易。只需执行以下操作:
 
 ```python
 from datasets import load_dataset
@@ -125,9 +110,9 @@ dataset = load_dataset("imagefolder", data_files="https://download.microsoft.com
 dataset = load_dataset("imagefolder", data_files={"train": ["path/to/file1", "path/to/file2"], "test": ["path/to/file3", "path/to/file4"]})
 ```
 
-`ImageFolder` will create an `image` column containing the PIL-encoded images.
+`ImageFolder将创建包含PIL编码图像的“image”列。
 
-Next, push it to the hub!
+下一步，将数据集推到hub上
 
 ```python
 # assuming you have ran the huggingface-cli login command in a terminal
@@ -137,6 +122,4 @@ dataset.push_to_hub("name_of_your_dataset")
 dataset.push_to_hub("name_of_your_dataset", private=True)
 ```
 
-and that's it! You can now train your model by simply setting the `--dataset_name` argument to the name of your dataset on the hub.
-
-More on this can also be found in [this blog post](https://huggingface.co/blog/image-search-datasets).
+就这样！现在，只需将“--dataset_name”参数设置为hub上数据集的名称，即可训练模型。
