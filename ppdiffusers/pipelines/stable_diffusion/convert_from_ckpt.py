@@ -832,6 +832,13 @@ def load_pipeline_from_original_stable_diffusion_ckpt(
     from omegaconf import OmegaConf
 
     checkpoint = smart_load(checkpoint_path, return_numpy=True)
+    # must cast them to float32
+    newcheckpoint = {}
+    for k, v in checkpoint.items():
+        if "int" in str(v.dtype):
+            continue
+        newcheckpoint[k] = v.astype("float32")
+    checkpoint = newcheckpoint
 
     # Sometimes models don't have the global_step item
     if "global_step" in checkpoint:
@@ -930,6 +937,7 @@ def load_pipeline_from_original_stable_diffusion_ckpt(
     unet_config = create_unet_diffusers_config(original_config, image_size=image_size)
     unet_config["upcast_attention"] = upcast_attention
     unet = UNet2DConditionModel(**unet_config)
+    unet.eval()
 
     converted_unet_checkpoint = convert_ldm_unet_checkpoint(
         checkpoint, unet_config, path=checkpoint_path, extract_ema=extract_ema
@@ -941,6 +949,7 @@ def load_pipeline_from_original_stable_diffusion_ckpt(
     converted_vae_checkpoint = convert_ldm_vae_checkpoint(checkpoint, vae_config)
 
     vae = AutoencoderKL(**vae_config)
+    vae.eval()
     vae.load_dict(convert_diffusers_vae_unet_to_ppdiffusers(vae, converted_vae_checkpoint))
 
     # Convert the text model.
