@@ -25,7 +25,7 @@ from ppdiffusers import (
     StableDiffusionPipeline,
     UNet2DConditionModel,
 )
-from ppdiffusers.fastdeploy_utils import FastDeployRuntimeModel
+from ppdiffusers import FastDeployRuntimeModel
 
 
 def convert_ppdiffusers_pipeline_to_fastdeploy_pipeline(

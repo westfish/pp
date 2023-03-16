@@ -95,21 +95,21 @@ if is_paddle_available():
     import paddle
     import paddle.nn as nn
     
-    # group_norm_raw_forward = nn.GroupNorm.forward
-    # @patch_to(nn.GroupNorm)
-    # def forward(self, input):
-    #     if self.training:
-    #         return group_norm_raw_forward(self, input)
-    #     bfp16 = False
-    #     if input.dtype == paddle.bfloat16:
-    #         self.weight._to(dtype=paddle.float16)
-    #         self.bias._to(dtype=paddle.float16)
-    #         input = input.cast(paddle.float16)
-    #         bfp16 = True
-    #     out = group_norm_raw_forward(self, input)
-    #     if bfp16:
-    #         out = out.cast(paddle.bfloat16)
-    #     return out
+    group_norm_raw_forward = nn.GroupNorm.forward
+    @patch_to(nn.GroupNorm)
+    def forward(self, input):
+        if self.training:
+            return group_norm_raw_forward(self, input)
+        bfp16 = False
+        if input.dtype == paddle.bfloat16:
+            self.weight._to(dtype=paddle.float16)
+            self.bias._to(dtype=paddle.float16)
+            input = input.cast(paddle.float16)
+            bfp16 = True
+        out = group_norm_raw_forward(self, input)
+        if bfp16:
+            out = out.cast(paddle.bfloat16)
+        return out
         
     paddle.long = paddle.int64
     paddle.int = paddle.int32
@@ -1030,7 +1030,6 @@ if is_paddle_available() and is_paddlenlp_available():
         
         return new_model_state
 
-    # TODO implement LDMBertModel with PretrainedConfig
     LDMBertModel.smart_convert = ldmbert_smart_convert
     for cls_ in [
         CLIPTextModel,

@@ -24,7 +24,7 @@ from ppdiffusers import (
     StableDiffusionControlNetPipeline,
     UNet2DConditionModel,
 )
-from ppdiffusers.fastdeploy_utils import FastDeployRuntimeModel
+from ppdiffusers import FastDeployRuntimeModel
 
 
 class ControlNetWithUnetModel(paddle.nn.Layer):
