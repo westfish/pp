@@ -114,22 +114,6 @@ class LDMTextToImagePipeline(DiffusionPipeline):
         self.register_modules(vqvae=vqvae, bert=bert, tokenizer=tokenizer, unet=unet, scheduler=scheduler)
         self.vae_scale_factor = 8  # 2 ** (len(self.vqvae.config.block_out_channels) - 1)
 
-    def enable_vae_slicing(self):
-        r"""
-        Enable sliced VAE decoding.
-
-        When this option is enabled, the VAE will split the input tensor in slices to compute decoding in several
-        steps. This is useful to save some memory and allow larger batch sizes.
-        """
-        self.vqvae.enable_slicing()
-
-    def disable_vae_slicing(self):
-        r"""
-        Disable sliced VAE decoding. If `enable_vae_slicing` was previously invoked, this method will go back to
-        computing decoding in one step.
-        """
-        self.vqvae.disable_slicing()
-
     def _encode_prompt(
         self,
         prompt,

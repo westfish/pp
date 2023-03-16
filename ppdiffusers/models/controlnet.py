@@ -455,6 +455,7 @@ class ControlNetModel(ModelMixin, ConfigMixin):
         timestep: Union[paddle.Tensor, float, int],
         encoder_hidden_states: paddle.Tensor,
         controlnet_cond: paddle.Tensor,
+        conditioning_scale: Union[List[float], float],
         class_labels: Optional[paddle.Tensor] = None,
         timestep_cond: Optional[paddle.Tensor] = None,
         attention_mask: Optional[paddle.Tensor] = None,
@@ -566,6 +567,19 @@ class ControlNetModel(ModelMixin, ConfigMixin):
         down_block_res_samples = controlnet_down_block_res_samples
 
         mid_block_res_sample = self.controlnet_mid_block(sample)
+
+        # add conditioning_scale https://github.com/huggingface/diffusers/pull/2627
+        if isinstance(conditioning_scale, float):
+            down_block_res_samples = [sample * conditioning_scale for sample in down_block_res_samples]
+            mid_block_res_sample *= conditioning_scale
+        else:
+            down_block_res_samples = [
+                sample * ccs
+                for sample, ccs in zip(
+                    down_block_res_samples, conditioning_scale[:-1]
+                )
+            ]
+            mid_block_res_sample *= conditioning_scale[-1]
 
         if not return_dict:
             return (down_block_res_samples, mid_block_res_sample)

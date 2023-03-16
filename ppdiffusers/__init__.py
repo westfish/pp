@@ -124,6 +124,7 @@ try:
 except OptionalDependencyNotAvailable:
     from .utils.dummy_paddle_and_paddlenlp_objects import *  # noqa F403
 else:
+    from .pipelines.latent_diffusion.pipeline_latent_diffusion import LDMBertModel
     from .pipelines import (
         AltDiffusionImg2ImgPipeline,
         AltDiffusionPipeline,
