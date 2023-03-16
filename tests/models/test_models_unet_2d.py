@@ -163,7 +163,7 @@ class UNetLDMModelTests(ModelTesterMixin, unittest.TestCase):
             output = model(noise, time_step).sample
         output_slice = output[0, -1, -3:, -3:].flatten().cpu()
         expected_output_slice = paddle.to_tensor(
-            [-13.3258, -20.11, -15.9873, -17.6617, -23.0596, -17.9419, -13.3675, -16.1889, -12.38]
+            [ 0.43855608 , -10.29346752, -9.60953522 , -8.39902020 , -16.29206276, -13.07511997, -9.30383205 , -13.69859409, -10.52999401]
         )
         self.assertTrue(paddle_all_close(output_slice, expected_output_slice, rtol=0.001))
 

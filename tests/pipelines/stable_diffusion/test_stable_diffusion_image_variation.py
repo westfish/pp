@@ -20,7 +20,7 @@ import numpy as np
 import paddle
 from PIL import Image
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import IMAGE_VARIATION_BATCH_PARAMS, IMAGE_VARIATION_PARAMS
 from paddlenlp.transformers import (
     CLIPImageProcessor,
     CLIPVisionConfig,
@@ -40,6 +40,8 @@ from ppdiffusers.utils.testing_utils import require_paddle_gpu
 class StableDiffusionImageVariationPipelineFastTests(PipelineTesterMixin,
     unittest.TestCase):
     pipeline_class = StableDiffusionImageVariationPipeline
+    params = IMAGE_VARIATION_PARAMS
+    batch_params = IMAGE_VARIATION_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

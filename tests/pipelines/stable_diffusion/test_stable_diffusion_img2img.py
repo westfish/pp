@@ -32,11 +32,14 @@ from ppdiffusers import (
 )
 from ppdiffusers.utils import floats_tensor, load_image, load_numpy, nightly, slow
 from ppdiffusers.utils.testing_utils import require_paddle_gpu
-
+from ppdiffusers_test.pipeline_params import TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS, TEXT_GUIDED_IMAGE_VARIATION_PARAMS
 
 class StableDiffusionImg2ImgPipelineFastTests(PipelineTesterMixin, unittest
     .TestCase):
     pipeline_class = StableDiffusionImg2ImgPipeline
+    params = TEXT_GUIDED_IMAGE_VARIATION_PARAMS - {"height", "width"}
+    required_optional_params = PipelineTesterMixin.required_optional_params - {"latents"}
+    batch_params = TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

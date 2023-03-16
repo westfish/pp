@@ -157,7 +157,7 @@ class StableDiffusionInpaintPipelineLegacy(DiffusionPipeline):
 
         if safety_checker is not None and feature_extractor is None:
             raise ValueError(
-                "Make sure to define a feature extractor when loading {self.__class__} if you want to use the safety"
+                f"Make sure to define a feature extractor when loading {self.__class__} if you want to use the safety"
                 " checker. If you do not want to use the safety checker, you can pass `'safety_checker=None'` instead."
             )
 
@@ -455,7 +455,6 @@ class StableDiffusionInpaintPipelineLegacy(DiffusionPipeline):
         return_dict: bool = True,
         callback: Optional[Callable[[int, int, paddle.Tensor], None]] = None,
         callback_steps: Optional[int] = 1,
-        **kwargs,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -527,9 +526,6 @@ class StableDiffusionInpaintPipelineLegacy(DiffusionPipeline):
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
         """
-        message = "Please use `image` instead of `init_image`."
-        init_image = deprecate("init_image", "0.14.0", message, take_from=kwargs)
-        image = init_image or image
 
         # 1. Check inputs
         self.check_inputs(prompt, strength, callback_steps)

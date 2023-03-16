@@ -127,7 +127,7 @@ class AltDiffusionPipeline(DiffusionPipeline):
 
         if safety_checker is not None and feature_extractor is None:
             raise ValueError(
-                "Make sure to define a feature extractor when loading {self.__class__} if you want to use the safety"
+                f"Make sure to define a feature extractor when loading {self.__class__} if you want to use the safety"
                 " checker. If you do not want to use the safety checker, you can pass `'safety_checker=None'` instead."
             )
 
@@ -179,6 +179,21 @@ class AltDiffusionPipeline(DiffusionPipeline):
         computing decoding in one step.
         """
         self.vae.disable_slicing()
+
+    def enable_vae_tiling(self):
+        r"""
+        Enable tiled VAE decoding.
+        When this option is enabled, the VAE will split the input tensor into tiles to compute decoding and encoding in
+        several steps. This is useful to save a large amount of memory and to allow the processing of larger images.
+        """
+        self.vae.enable_tiling()
+
+    def disable_vae_tiling(self):
+        r"""
+        Disable tiled VAE decoding. If `enable_vae_tiling` was previously invoked, this method will go back to
+        computing decoding in one step.
+        """
+        self.vae.disable_tiling()
 
     def _encode_prompt(
         self,

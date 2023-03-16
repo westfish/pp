@@ -13,16 +13,14 @@
 # limitations under the License.
 import os
 
-hf_cache_home = os.path.expanduser(
-    os.getenv("HF_HOME", os.path.join(os.getenv("XDG_CACHE_HOME", "~/.cache"), "huggingface"))
-)
+from huggingface_hub.constants import HUGGINGFACE_HUB_CACHE, hf_cache_home
+
 ppnlp_cache_home = os.path.expanduser(
     os.getenv("PPNLP_HOME", os.path.join(os.getenv("XDG_CACHE_HOME", "~/.cache"), "paddlenlp"))
 )
 
 ppdiffusers_default_cache_path = os.path.join(ppnlp_cache_home, "ppdiffusers")
-diffusers_default_cache_path = os.path.join(hf_cache_home, "diffusers")
-
+diffusers_default_cache_path = os.path.join(hf_cache_home, "diffusers") # HUGGINGFACE_HUB_CACHE  i want to use old version.
 
 CONFIG_NAME = "config.json"
 TORCH_WEIGHTS_NAME = "diffusion_pytorch_model.bin"

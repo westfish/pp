@@ -18,7 +18,7 @@ import os
 from packaging import version
 
 from ..version import VERSION as __version__
-from . import initializer_utils, ppnlp_patch_utils
+from . import initializer_utils
 from .constants import (
     CONFIG_NAME,
     DEPRECATED_REVISION_ARGS,
@@ -92,6 +92,7 @@ if is_paddle_available():
         floats_tensor,
         image_grid,
         load_hf_numpy,
+        load_ppnlp_numpy,
         load_image,
         load_numpy,
         nightly,

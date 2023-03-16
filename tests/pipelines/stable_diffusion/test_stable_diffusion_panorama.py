@@ -18,7 +18,7 @@ import unittest
 import numpy as np
 import paddle
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_TO_IMAGE_BATCH_PARAMS, TEXT_TO_IMAGE_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -36,6 +36,8 @@ from ppdiffusers.utils.testing_utils import require_paddle_gpu
 class StableDiffusionPanoramaPipelineFastTests(PipelineTesterMixin,
     unittest.TestCase):
     pipeline_class = StableDiffusionPanoramaPipeline
+    params = TEXT_TO_IMAGE_PARAMS
+    batch_params = TEXT_TO_IMAGE_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

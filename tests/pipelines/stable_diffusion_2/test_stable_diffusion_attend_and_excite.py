@@ -18,7 +18,7 @@ import unittest
 import numpy as np
 import paddle
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_TO_IMAGE_BATCH_PARAMS, TEXT_TO_IMAGE_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -33,6 +33,8 @@ from ppdiffusers.utils.testing_utils import require_paddle_gpu
 class StableDiffusionAttendAndExcitePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = StableDiffusionAttendAndExcitePipeline
     test_attention_slicing = False
+    params = TEXT_TO_IMAGE_PARAMS
+    batch_params = TEXT_TO_IMAGE_BATCH_PARAMS.union({"token_indices"})
 
     def get_dummy_components(self):
         paddle.seed(0)
@@ -121,9 +123,9 @@ class StableDiffusionAttendAndExcitePipelineFastTests(PipelineTesterMixin, unitt
         max_diff = np.abs(image_slice.flatten() - expected_slice).max()
         self.assertLessEqual(max_diff, 0.001)
 
-    def test_inference_batch_single_identical(self):
-        self._test_inference_batch_single_identical(relax_max_difference=False)
-
+    def test_inference_batch_consistent(self):
+        # NOTE: Larger batch sizes cause this test to timeout, only test on smaller batches
+        self._test_inference_batch_consistent(batch_sizes=[2, 4])
 
 @require_paddle_gpu
 @slow
@@ -136,9 +138,8 @@ class StableDiffusionAttendAndExcitePipelineIntegrationTests(unittest.TestCase):
     def test_attend_and_excite_fp16(self):
         generator = paddle.Generator().manual_seed(seed=51)
         pipe = StableDiffusionAttendAndExcitePipeline.from_pretrained(
-            "CompVis/stable-diffusion-v1-4", paddle_dtype=paddle.float16
+            "CompVis/stable-diffusion-v1-4", safety_checker=None, paddle_dtype=paddle.float16
         )
-        pipe.to("gpu")
 
         prompt = "a painting of an elephant with glasses"
         token_indices = [5, 7]
@@ -147,8 +148,9 @@ class StableDiffusionAttendAndExcitePipelineIntegrationTests(unittest.TestCase):
             token_indices=token_indices,
             guidance_scale=7.5,
             generator=generator,
-            num_inference_steps=50,
-            max_iter_to_alter=25,
+            num_inference_steps=5,
+            max_iter_to_alter=5,
+            output_type="numpy",
         ).images[0]
         expected_image = load_numpy(
             "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/attend-and-excite/elephant_glasses.npy"

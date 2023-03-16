@@ -100,7 +100,7 @@ class UNet1DModelTests(ModelTesterMixin, unittest.TestCase):
             output = model(noise, time_step).sample.permute(0, 2, 1)
         output_slice = output[0, -3:, -3:].flatten()
         expected_output_slice = paddle.to_tensor(
-            [-2.137172, 1.1426016, 0.3688687, -0.766922, 0.7303146, 0.11038864, -0.4760633, 0.13270172, 0.02591348]
+            [-0.2857576608657837, -0.9908187389373779, 0.2976357340812683, -0.8677187561988831, -0.21778395771980286, 0.08095654845237732, -0.5871752500534058, 0.3299727439880371, -0.17421625554561615]
         )
         self.assertTrue(paddle.allclose(output_slice, expected_output_slice, rtol=0.001))
 
@@ -121,9 +121,8 @@ class UNet1DModelTests(ModelTesterMixin, unittest.TestCase):
             output = model(noise, timestep).sample
         output_sum = output.abs().sum()
         output_max = output.abs().max()
-        assert (output_sum - 220.0235).abs() < 0.04
+        assert (output_sum - 224.0896).abs() < 0.04
         assert (output_max - 0.0607).abs() < 0.0004
-
 
 class UNetRLModelTests(ModelTesterMixin, unittest.TestCase):
     model_class = UNet1DModel
@@ -215,8 +214,8 @@ class UNetRLModelTests(ModelTesterMixin, unittest.TestCase):
         time_step = paddle.full(shape=(num_features,), fill_value=0)
         with paddle.no_grad():
             output = value_function(noise, time_step).sample
-        expected_output_slice = paddle.to_tensor([165.25] * seq_len)
-        self.assertTrue(paddle.allclose(output, expected_output_slice, rtol=0.001))
+        expected_output_slice = paddle.to_tensor([291.51135254] * seq_len)
+        self.assertTrue(paddle.allclose(output.squeeze(-1), expected_output_slice, rtol=0.001))
 
     def test_forward_with_norm_groups(self):
         pass

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import patch
+from . import ppnlp_patch_utils
 from .configuration_utils import ConfigMixin
 from .utils import (
     OptionalDependencyNotAvailable,
@@ -50,6 +50,7 @@ except OptionalDependencyNotAvailable:
 else:
     from .models import (
         AutoencoderKL,
+        ControlNetModel,
         LitEma,
         ModelMixin,
         PriorTransformer,
@@ -58,6 +59,7 @@ else:
         UNet2DConditionModel,
         UNet2DModel,
         VQModel,
+        ControlNetModel,
     )
     from .optimization import (
         get_constant_schedule,
@@ -130,6 +132,7 @@ else:
         PaintByExamplePipeline,
         SemanticStableDiffusionPipeline,
         StableDiffusionAttendAndExcitePipeline,
+        StableDiffusionControlNetPipeline,
         StableDiffusionDepth2ImgPipeline,
         StableDiffusionImageVariationPipeline,
         StableDiffusionImg2ImgPipeline,
@@ -176,6 +179,8 @@ else:
         FastDeployStableDiffusionInpaintPipelineLegacy,
         FastDeployStableDiffusionMegaPipeline,
         FastDeployStableDiffusionPipeline,
+        FastDeployCycleDiffusionPipeline,
+        FastDeployStableDiffusionControlNetPipeline,
     )
 
 try:

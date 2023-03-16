@@ -20,7 +20,7 @@ import numpy as np
 import paddle
 from PIL import Image
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_GUIDED_IMAGE_INPAINTING_BATCH_PARAMS, TEXT_GUIDED_IMAGE_INPAINTING_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -40,6 +40,8 @@ from ppdiffusers.utils.testing_utils import require_paddle_gpu
 class StableDiffusionInpaintPipelineFastTests(PipelineTesterMixin, unittest
     .TestCase):
     pipeline_class = StableDiffusionInpaintPipeline
+    params = TEXT_GUIDED_IMAGE_INPAINTING_PARAMS
+    batch_params = TEXT_GUIDED_IMAGE_INPAINTING_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

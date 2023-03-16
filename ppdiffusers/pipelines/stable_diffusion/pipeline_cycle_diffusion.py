@@ -99,7 +99,7 @@ def compute_noise(scheduler, prev_latents, latents, timestep, noise_pred, eta):
 
     # 4. Clip "predicted x_0"
     if scheduler.config.clip_sample:
-        pred_original_sample = paddle.clip(pred_original_sample, -1, 1)
+        pred_original_sample = pred_original_sample.clip(-1, 1)
 
     # 5. compute variance: "sigma_t(η)" -> see formula (16)
     # σ_t = sqrt((1 − α_t−1)/(1 − α_t)) * sqrt(1 − α_t/α_t−1)
@@ -183,7 +183,7 @@ class CycleDiffusionPipeline(DiffusionPipeline):
 
         if safety_checker is not None and feature_extractor is None:
             raise ValueError(
-                "Make sure to define a feature extractor when loading {self.__class__} if you want to use the safety"
+                f"Make sure to define a feature extractor when loading {self.__class__} if you want to use the safety"
                 " checker. If you do not want to use the safety checker, you can pass `'safety_checker=None'` instead."
             )
         is_unet_version_less_0_9_0 = hasattr(unet.config, "_ppdiffusers_version") and version.parse(
@@ -512,7 +512,6 @@ class CycleDiffusionPipeline(DiffusionPipeline):
         return_dict: bool = True,
         callback: Optional[Callable[[int, int, paddle.Tensor], None]] = None,
         callback_steps: Optional[int] = 1,
-        **kwargs,
     ):
         r"""
         Function invoked when calling the pipeline for generation.
@@ -581,9 +580,6 @@ class CycleDiffusionPipeline(DiffusionPipeline):
             list of `bool`s denoting whether the corresponding generated image likely represents "not-safe-for-work"
             (nsfw) content, according to the `safety_checker`.
         """
-        message = "Please use `image` instead of `init_image`."
-        init_image = deprecate("init_image", "0.14.0", message, take_from=kwargs)
-        image = init_image or image
 
         # 1. Check inputs
         self.check_inputs(prompt, strength, callback_steps)

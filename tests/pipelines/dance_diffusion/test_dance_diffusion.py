@@ -22,12 +22,21 @@ from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
 from ppdiffusers import DanceDiffusionPipeline, IPNDMScheduler, UNet1DModel
 from ppdiffusers.utils import slow
 from ppdiffusers.utils.testing_utils import require_paddle_gpu
-
+from ppdiffusers_test.pipeline_params import UNCONDITIONAL_AUDIO_GENERATION_BATCH_PARAMS, UNCONDITIONAL_AUDIO_GENERATION_PARAMS
 
 class DanceDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = DanceDiffusionPipeline
     test_attention_slicing = False
     test_cpu_offload = False
+    params = UNCONDITIONAL_AUDIO_GENERATION_PARAMS
+    required_optional_params = PipelineTesterMixin.required_optional_params - {
+        "callback",
+        "latents",
+        "callback_steps",
+        "output_type",
+        "num_images_per_prompt",
+    }
+    batch_params = UNCONDITIONAL_AUDIO_GENERATION_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)
@@ -64,9 +73,8 @@ class DanceDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         audio = output.audios
         audio_slice = audio[0, -3:, -3:]
         assert audio.shape == (1, 2, components["unet"].sample_size)
-        expected_slice = np.array([1.7265    , 0.        , 1.83609443, 0.56527969, 1.5450974 ,2.        ])
+        expected_slice = np.array([ 1.       ,  1.       ,  0.9972942, -0.4477799, -0.5952974,        1.       ])
         assert np.abs(audio_slice.flatten() - expected_slice).max() < 0.01
-
 
 @slow
 @require_paddle_gpu

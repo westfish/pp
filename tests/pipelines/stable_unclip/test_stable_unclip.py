@@ -38,12 +38,13 @@ from ppdiffusers import (
 from ppdiffusers.pipelines.stable_diffusion.stable_unclip_image_normalizer import (
     StableUnCLIPImageNormalizer,
 )
-from ppdiffusers.utils.testing_utils import load_numpy, require_paddle_gpu, slow
-
+from ppdiffusers_test.pipeline_params import TEXT_TO_IMAGE_BATCH_PARAMS, TEXT_TO_IMAGE_PARAMS
 
 class StableUnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = StableUnCLIPPipeline
     test_xformers_attention = False
+    params = TEXT_TO_IMAGE_PARAMS
+    batch_params = TEXT_TO_IMAGE_BATCH_PARAMS
 
     def get_dummy_components(self):
         embedder_hidden_size = 32

@@ -33,10 +33,12 @@ from ppdiffusers.pipelines.alt_diffusion.modeling_roberta_series import (
 )
 from ppdiffusers.utils import slow
 from ppdiffusers.utils.testing_utils import require_paddle_gpu
-
+from ppdiffusers_test.pipeline_params import TEXT_TO_IMAGE_BATCH_PARAMS, TEXT_TO_IMAGE_PARAMS
 
 class AltDiffusionPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = AltDiffusionPipeline
+    params = TEXT_TO_IMAGE_PARAMS
+    batch_params = TEXT_TO_IMAGE_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

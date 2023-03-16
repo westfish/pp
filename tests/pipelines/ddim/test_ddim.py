@@ -20,11 +20,19 @@ from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
 
 from ppdiffusers import DDIMPipeline, DDIMScheduler, UNet2DModel
 from ppdiffusers.utils.testing_utils import require_paddle_gpu, slow
-
+from ppdiffusers_test.pipeline_params import UNCONDITIONAL_IMAGE_GENERATION_BATCH_PARAMS, UNCONDITIONAL_IMAGE_GENERATION_PARAMS
 
 class DDIMPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = DDIMPipeline
     test_cpu_offload = False
+    params = UNCONDITIONAL_IMAGE_GENERATION_PARAMS
+    required_optional_params = PipelineTesterMixin.required_optional_params - {
+        "num_images_per_prompt",
+        "latents",
+        "callback",
+        "callback_steps",
+    }
+    batch_params = UNCONDITIONAL_IMAGE_GENERATION_BATCH_PARAMS
 
     def get_dummy_components(self):
         paddle.seed(0)

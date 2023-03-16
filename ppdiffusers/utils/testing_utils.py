@@ -29,7 +29,7 @@ import PIL.Image
 import PIL.ImageOps
 import requests
 
-from .import_utils import is_fastdeploy_available, is_paddle_available
+from .import_utils import is_fastdeploy_available, is_paddle_available, is_torch_available
 from .logging import get_logger
 
 global_rng = random.Random()
@@ -213,6 +213,21 @@ def load_numpy(arry: Union[str, np.ndarray], local_path: Optional[str] = None) -
 
     return arry
 
+def load_pt(url: str):
+    if is_torch_available():
+        import torch
+        response = requests.get(url)
+        response.raise_for_status()
+        arry = torch.load(BytesIO(response.content), map_location="cpu")
+        return arry
+    else:
+        raise ValueError("Please install torch firstly!")
+
+def load_pd(url: str):
+    response = requests.get(url)
+    response.raise_for_status()
+    arry = paddle.load(BytesIO(response.content))
+    return arry
 
 def load_image(image: Union[str, PIL.Image.Image]) -> PIL.Image.Image:
     """
@@ -251,6 +266,12 @@ def load_hf_numpy(path) -> np.ndarray:
 
     return load_numpy(path)
 
+def load_ppnlp_numpy(path) -> np.ndarray:
+    if not path.startswith("http://") or path.startswith("https://"):
+        path = os.path.join(
+            "https://paddlenlp.bj.bcebos.com/models/community/CompVis/data/diffusers-testing", urllib.parse.quote(path)
+        )
+    return load_numpy(path)
 
 # --- pytest conf functions --- #
 

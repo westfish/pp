@@ -521,6 +521,10 @@ def ppdiffusers_bos_dir_download(
     variant: Optional[str] = None,
     is_fastdeploy_model: Optional[str] = False,
 ) -> str:
+    # update repo id must end with @fastdeploy
+    if is_fastdeploy_model and repo_id.endswith("@fastdeploy"):
+        repo_id = f"{repo_id}@fastdeploy"
+
     filtered_repo_files = [["model_index.json", None]]
     for subfolder in folder_names:
         allow_patterns = ALLOW_PATTERNS_MAPPING.get(subfolder, ALLOW_PATTERNS_MAPPING["others"])

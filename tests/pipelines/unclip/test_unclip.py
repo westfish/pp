@@ -21,7 +21,7 @@ from ppdiffusers_test.test_pipelines_common import (
     PipelineTesterMixin,
     assert_mean_pixel_difference,
 )
-
+from ppdiffusers_test.pipeline_params import TEXT_TO_IMAGE_BATCH_PARAMS, TEXT_TO_IMAGE_PARAMS
 from paddlenlp.transformers import (
     CLIPTextConfig,
     CLIPTextModelWithProjection,
@@ -41,13 +41,24 @@ from ppdiffusers.utils.testing_utils import require_paddle_gpu
 
 class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = UnCLIPPipeline
+    params = TEXT_TO_IMAGE_PARAMS - {
+        "negative_prompt",
+        "height",
+        "width",
+        "negative_prompt_embeds",
+        "guidance_scale",
+        "prompt_embeds",
+        "cross_attention_kwargs",
+    }
+    batch_params = TEXT_TO_IMAGE_BATCH_PARAMS
+    required_optional_params = frozenset([
+        "generator",
+        "return_dict",
+        "prior_num_inference_steps",
+        "decoder_num_inference_steps",
+        "super_res_num_inference_steps",
+    ])
     test_xformers_attention = False
-    required_optional_params = ['generator', 'return_dict',
-        'prior_num_inference_steps', 'decoder_num_inference_steps',
-        'super_res_num_inference_steps']
-    num_inference_steps_args = ['prior_num_inference_steps',
-        'decoder_num_inference_steps', 'super_res_num_inference_steps']
-
     @property
     def text_embedder_hidden_size(self):
         return 32
@@ -248,23 +259,29 @@ class UnCLIPPipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     def test_inference_batch_single_identical(self):
         test_max_difference = False
         relax_max_difference = True
-        self._test_inference_batch_single_identical(test_max_difference=
-            test_max_difference, relax_max_difference=relax_max_difference)
+        additional_params_copy_to_batched_inputs = [
+            "prior_num_inference_steps",
+            "decoder_num_inference_steps",
+            "super_res_num_inference_steps",
+        ]
+
+        self._test_inference_batch_single_identical(
+            test_max_difference=test_max_difference,
+            relax_max_difference=relax_max_difference,
+            additional_params_copy_to_batched_inputs=additional_params_copy_to_batched_inputs,
+        )
+
 
     def test_inference_batch_consistent(self):
-        self._test_inference_batch_consistent()
+        additional_params_copy_to_batched_inputs = [
+            "prior_num_inference_steps",
+            "decoder_num_inference_steps",
+            "super_res_num_inference_steps",
+        ]
 
-
-    def test_dict_tuple_outputs_equivalent(self):
-        return super().test_dict_tuple_outputs_equivalent()
-
-
-    def test_save_load_local(self):
-        return super().test_save_load_local()
-
-
-    def test_save_load_optional_components(self):
-        return super().test_save_load_optional_components()
+        self._test_inference_batch_consistent(
+                additional_params_copy_to_batched_inputs=additional_params_copy_to_batched_inputs
+            )
 
 
 @slow

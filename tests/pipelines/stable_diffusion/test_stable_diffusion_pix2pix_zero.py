@@ -20,7 +20,7 @@ import paddle
 import requests
 from PIL import Image
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS, TEXT_GUIDED_IMAGE_VARIATION_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -32,14 +32,9 @@ from ppdiffusers import (
     StableDiffusionPix2PixZeroPipeline,
     UNet2DConditionModel,
 )
-from ppdiffusers.utils import load_numpy, slow
-from ppdiffusers.utils.testing_utils import require_paddle_gpu
-from ppdiffusers.utils.load_utils import torch_load
+from ppdiffusers.utils import slow, load_image
+from ppdiffusers.utils.testing_utils import require_paddle_gpu, load_pt
 
-def download_from_url(embedding_url, local_filepath):
-    r = requests.get(embedding_url)
-    with open(local_filepath, 'wb') as f:
-        f.write(r.content)
 
 
 def to_paddle(x):
@@ -52,6 +47,19 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
     unittest.TestCase):
     pipeline_class = StableDiffusionPix2PixZeroPipeline
 
+    params = TEXT_GUIDED_IMAGE_VARIATION_PARAMS
+    batch_params = TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS
+
+    @classmethod
+    def setUpClass(cls):
+        cls.source_embeds = to_paddle(load_pt(
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/src_emb_0.pt"
+        ))
+
+        cls.target_embeds = to_paddle(load_pt(
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/tgt_emb_0.pt"
+        ))
+    
     def get_dummy_components(self):
         paddle.seed(0)
         unet = UNet2DConditionModel(block_out_channels=(32, 64),
@@ -81,21 +89,11 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
         return components
 
     def get_dummy_inputs(self, seed=0):
-        src_emb_url = (
-            'https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/src_emb_0.pt'
-            )
-        tgt_emb_url = (
-            'https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/tgt_emb_0.pt'
-            )
-        for url in [src_emb_url, tgt_emb_url]:
-            download_from_url(url, url.split('/')[-1])
-        src_embeds = to_paddle(torch_load(src_emb_url.split('/')[-1]))
-        target_embeds = to_paddle(torch_load(tgt_emb_url.split('/')[-1]))
         generator = paddle.Generator().manual_seed(seed)
         inputs = {'prompt': 'A painting of a squirrel eating a burger',
             'generator': generator, 'num_inference_steps': 2,
             'guidance_scale': 6.0, 'cross_attention_guidance_amount': 0.15,
-            'source_embeds': src_embeds, 'target_embeds': target_embeds,
+            'source_embeds': self.source_embeds, 'target_embeds': self.target_embeds,
             'output_type': 'numpy'}
         return inputs
 
@@ -167,6 +165,10 @@ class StableDiffusionPix2PixZeroPipelineFastTests(PipelineTesterMixin,
             ).images
         assert images.shape == (batch_size * num_images_per_prompt, 64, 64, 3)
 
+    # Non-determinism caused by the scheduler optimizing the latent inputs during inference
+    @unittest.skip("non-deterministic pipeline")
+    def test_inference_batch_single_identical(self):
+        return super().test_inference_batch_single_identical()
 
 @slow
 @require_paddle_gpu
@@ -177,22 +179,22 @@ class StableDiffusionPix2PixZeroPipelineSlowTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
+    @classmethod
+    def setUpClass(cls):
+        cls.source_embeds = to_paddle(load_pt(
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/cat.pt"
+        ))
+
+        cls.target_embeds = to_paddle(load_pt(
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/dog.pt"
+        ))
+    
     def get_inputs(self, seed=0):
         generator = paddle.Generator().manual_seed(seed=seed)
-        src_emb_url = (
-            'https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/cat.pt'
-            )
-        tgt_emb_url = (
-            'https://hf.co/datasets/sayakpaul/sample-datasets/resolve/main/dog.pt'
-            )
-        for url in [src_emb_url, tgt_emb_url]:
-            download_from_url(url, url.split('/')[-1])
-        src_embeds = to_paddle(torch_load(src_emb_url.split('/')[-1]))
-        target_embeds = to_paddle(torch_load(tgt_emb_url.split('/')[-1]))
         inputs = {'prompt': 'turn him into a cyborg', 'generator':
             generator, 'num_inference_steps': 3, 'guidance_scale': 7.5,
             'cross_attention_guidance_amount': 0.15, 'source_embeds':
-            src_embeds, 'target_embeds': target_embeds, 'output_type': 'numpy'}
+            self.source_embeds, 'target_embeds': self.target_embeds, 'output_type': 'numpy'}
         return inputs
 
     def test_stable_diffusion_pix2pix_zero_default(self):
@@ -266,12 +268,17 @@ class InversionPipelineSlowTests(unittest.TestCase):
         gc.collect()
         paddle.device.cuda.empty_cache()
 
+    @classmethod
+    def setUpClass(cls):
+        raw_image = load_image(
+            "https://huggingface.co/datasets/hf-internal-testing/diffusers-images/resolve/main/pix2pix/cat_6.png"
+        )
+
+        raw_image = raw_image.convert("RGB").resize((512, 512))
+
+        cls.raw_image = raw_image
+
     def test_stable_diffusion_pix2pix_inversion(self):
-        img_url = (
-            'https://github.com/pix2pixzero/pix2pix-zero/raw/main/assets/test_images/cats/cat_6.png'
-            )
-        raw_image = Image.open(requests.get(img_url, stream=True).raw).convert(
-            'RGB').resize((512, 512))
         pipe = StableDiffusionPix2PixZeroPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4', safety_checker=None,
             paddle_dtype=paddle.float16)
@@ -283,7 +290,7 @@ class InversionPipelineSlowTests(unittest.TestCase):
         pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
         pipe.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
-        output = pipe.invert(caption, image=raw_image, generator=generator,
+        output = pipe.invert(caption, image=self.raw_image, generator=generator,
             num_inference_steps=10)
         inv_latents = output[0]
         image_slice = inv_latents[0, -3:, -3:, -1].flatten()
@@ -293,11 +300,6 @@ class InversionPipelineSlowTests(unittest.TestCase):
         assert np.abs(expected_slice - image_slice.cpu().numpy()).max() < 0.05
 
     def test_stable_diffusion_pix2pix_full(self):
-        img_url = (
-            'https://github.com/pix2pixzero/pix2pix-zero/raw/main/assets/test_images/cats/cat_6.png'
-            )
-        raw_image = Image.open(requests.get(img_url, stream=True).raw).convert(
-            'RGB').resize((512, 512))
         pipe = StableDiffusionPix2PixZeroPipeline.from_pretrained(
             'CompVis/stable-diffusion-v1-4', safety_checker=None,
             paddle_dtype=paddle.float16)
@@ -309,7 +311,7 @@ class InversionPipelineSlowTests(unittest.TestCase):
         pipe.scheduler = DDIMScheduler.from_config(pipe.scheduler.config)
         pipe.set_progress_bar_config(disable=None)
         generator = paddle.Generator().manual_seed(0)
-        output = pipe.invert(caption, image=raw_image, generator=generator)
+        output = pipe.invert(caption, image=self.raw_image, generator=generator)
         inv_latents = output[0]
         source_prompts = 4 * ['a cat sitting on the street',
             'a cat playing in the field', 'a face of a cat']

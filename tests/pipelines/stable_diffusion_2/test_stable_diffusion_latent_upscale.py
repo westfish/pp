@@ -19,7 +19,7 @@ import unittest
 import numpy as np
 import paddle
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS, TEXT_GUIDED_IMAGE_VARIATION_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -34,8 +34,17 @@ from ppdiffusers.utils.testing_utils import require_paddle_gpu
 
 class StableDiffusionLatentUpscalePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = StableDiffusionLatentUpscalePipeline
+    params = TEXT_GUIDED_IMAGE_VARIATION_PARAMS - {
+        "height",
+        "width",
+        "cross_attention_kwargs",
+        "negative_prompt_embeds",
+        "prompt_embeds",
+    }
+    required_optional_params = PipelineTesterMixin.required_optional_params - {"num_images_per_prompt"}
+    batch_params = TEXT_GUIDED_IMAGE_VARIATION_BATCH_PARAMS
     test_cpu_offload = False
-
+    
     @property
     def dummy_image(self):
         batch_size = 1
@@ -124,7 +133,7 @@ class StableDiffusionLatentUpscalePipelineFastTests(PipelineTesterMixin, unittes
         image_slice = image[0, -3:, -3:, -1]
         self.assertEqual(image.shape, (1, 256, 256, 3))
         expected_slice = np.array(
-            [0.47222412, 0.41921633, 0.44717434, 0.46874192, 0.42588258, 0.46150726, 0.4677534, 0.45583832, 0.48579055]
+            [0.47222412, 0.41921633, 0.44717434, 0.46874192, 0.42588258, 0.46150726, 0.4677534, 0.45583832, 0.48579055] #TODO check this
         )
         max_diff = np.abs(image_slice.flatten() - expected_slice).max()
         self.assertLessEqual(max_diff, 0.001)

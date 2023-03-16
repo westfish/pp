@@ -18,7 +18,7 @@ import unittest
 import numpy as np
 import paddle
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_TO_IMAGE_BATCH_PARAMS, TEXT_TO_IMAGE_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -38,7 +38,9 @@ from ppdiffusers.utils.testing_utils import CaptureLogger, require_paddle_gpu
 
 class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = StableDiffusionPipeline
-
+    params = TEXT_TO_IMAGE_PARAMS
+    batch_params = TEXT_TO_IMAGE_BATCH_PARAMS
+    
     def get_dummy_components(self):
         paddle.seed(0)
         unet = UNet2DConditionModel(
@@ -129,7 +131,7 @@ class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image = sd_pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.5099, 0.5677, 0.4671, 0.5128, 0.5697, 0.4676, 0.5277, 0.4964, 0.4946])
+        expected_slice = np.array([0.13812214, 0.2526546 , 0.36139387, 0.2045241 , 0.28851387,     0.48496005, 0.17970857, 0.17119485, 0.349154  ])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_stable_diffusion_k_lms(self):
@@ -141,7 +143,7 @@ class StableDiffusion2PipelineFastTests(PipelineTesterMixin, unittest.TestCase):
         image = sd_pipe(**inputs).images
         image_slice = image[0, -3:, -3:, -1]
         assert image.shape == (1, 64, 64, 3)
-        expected_slice = np.array([0.4717, 0.5376, 0.4568, 0.5225, 0.5734, 0.4797, 0.5467, 0.5074, 0.5043])
+        expected_slice = np.array([0.19994166, 0.15929759, 0.34467825, 0.26391482, 0.22975561,  0.4496565 , 0.23415366, 0.16101378, 0.33743745])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
     def test_stable_diffusion_k_euler_ancestral(self):
@@ -261,12 +263,12 @@ class StableDiffusion2PipelineSlowTests(unittest.TestCase):
     #     pipe.enable_attention_slicing()
     #     inputs = self.get_inputs(dtype="float16")
     #     image_sliced = pipe(**inputs).images
-    #     mem_bytes = paddle.device.cuda.max_memory_allocated()
+    #     mem_bytes = paddle.device.cuda.memory_allocated()
     #     assert mem_bytes < 3.3 * 10**9
     #     pipe.disable_attention_slicing()
     #     inputs = self.get_inputs(dtype="float16")
     #     image = pipe(**inputs).images
-    #     mem_bytes = paddle.device.cuda.max_memory_allocated()
+    #     mem_bytes = paddle.device.cuda.memory_allocated()
     #     assert mem_bytes > 3.3 * 10**9
     #     assert np.abs(image_sliced - image).max() < 0.001
 

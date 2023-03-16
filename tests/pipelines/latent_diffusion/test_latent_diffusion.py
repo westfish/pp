@@ -18,7 +18,7 @@ import unittest
 import numpy as np
 import paddle
 from ppdiffusers_test.test_pipelines_common import PipelineTesterMixin
-
+from ppdiffusers_test.pipeline_params import TEXT_TO_IMAGE_BATCH_PARAMS, TEXT_TO_IMAGE_PARAMS
 from paddlenlp.transformers import CLIPTextConfig, CLIPTextModel, CLIPTokenizer
 from ppdiffusers import (
     AutoencoderKL,
@@ -36,6 +36,18 @@ from ppdiffusers.utils.testing_utils import (
 
 class LDMTextToImagePipelineFastTests(PipelineTesterMixin, unittest.TestCase):
     pipeline_class = LDMTextToImagePipeline
+    params = TEXT_TO_IMAGE_PARAMS - {
+        "negative_prompt",
+        "negative_prompt_embeds",
+        "cross_attention_kwargs",
+        "prompt_embeds",
+    }
+    required_optional_params = PipelineTesterMixin.required_optional_params - {
+        "num_images_per_prompt",
+        "callback",
+        "callback_steps",
+    }
+    batch_params = TEXT_TO_IMAGE_BATCH_PARAMS
     test_cpu_offload = False
 
     def get_dummy_components(self):

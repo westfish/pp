@@ -90,7 +90,6 @@ class RePaintPipeline(DiffusionPipeline):
         generator: Optional[Union[paddle.Generator, List[paddle.Generator]]] = None,
         output_type: Optional[str] = "pil",
         return_dict: bool = True,
-        **kwargs,
     ) -> Union[ImagePipelineOutput, Tuple]:
         r"""
         Args:
@@ -123,11 +122,7 @@ class RePaintPipeline(DiffusionPipeline):
             True, otherwise a `tuple. When returning a tuple, the first element is a list with the generated images.
         """
 
-        message = "Please use `image` instead of `original_image`."
-        original_image = deprecate("original_image", "0.15.0", message, take_from=kwargs)
-        original_image = original_image or image
-
-        original_image = _preprocess_image(original_image)
+        original_image = _preprocess_image(image)
         original_image = original_image.cast(self.unet.dtype)
         mask_image = _preprocess_mask(mask_image)
         mask_image = mask_image.cast(self.unet.dtype)
