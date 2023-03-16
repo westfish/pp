@@ -92,6 +92,7 @@ if is_paddle_available():
         floats_tensor,
         image_grid,
         load_hf_numpy,
+        load_ppnlp_numpy,
         load_image,
         load_numpy,
         nightly,

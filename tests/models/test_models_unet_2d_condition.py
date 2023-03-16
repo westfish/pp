@@ -28,7 +28,7 @@ from ppdiffusers.models.cross_attention import (
 )
 from ppdiffusers.utils import (
     floats_tensor,
-    load_hf_numpy,
+    load_ppnlp_numpy,
     logging,
     paddle_all_close,
     require_paddle_gpu,
@@ -338,7 +338,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
 
     def get_latents(self, seed=0, shape=(4, 4, 64, 64), fp16=False):
         dtype = paddle.float16 if fp16 else paddle.float32
-        image = paddle.to_tensor(data=load_hf_numpy(self.get_file_format(seed, shape))).cast(dtype)
+        image = paddle.to_tensor(data=load_ppnlp_numpy(self.get_file_format(seed, shape))).cast(dtype)
         return image
 
     def get_unet_model(self, fp16=False, model_id="CompVis/stable-diffusion-v1-4"):
@@ -401,7 +401,7 @@ class UNet2DConditionModelIntegrationTests(unittest.TestCase):
 
     def get_encoder_hidden_states(self, seed=0, shape=(4, 77, 768), fp16=False):
         dtype = "float16" if fp16 else "float32"
-        hidden_states = paddle.to_tensor(data=load_hf_numpy(self.get_file_format(seed, shape))).cast(dtype)
+        hidden_states = paddle.to_tensor(data=load_ppnlp_numpy(self.get_file_format(seed, shape))).cast(dtype)
         return hidden_states
 
     @parameterized.expand(

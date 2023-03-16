@@ -22,7 +22,7 @@ from ppdiffusers_test.test_modeling_common import ModelTesterMixin
 from ppdiffusers import AutoencoderKL
 from ppdiffusers.utils import (
     floats_tensor,
-    load_hf_numpy,
+    load_ppnlp_numpy,
     paddle_all_close,
     require_paddle_gpu,
     slow,
@@ -103,7 +103,7 @@ class AutoencoderKLIntegrationTests(unittest.TestCase):
 
     def get_sd_image(self, seed=0, shape=(4, 3, 512, 512), fp16=False):
         dtype = paddle.float16 if fp16 else paddle.float32
-        image = paddle.to_tensor(data=load_hf_numpy(self.get_file_format(seed, shape))).cast(dtype)
+        image = paddle.to_tensor(data=load_ppnlp_numpy(self.get_file_format(seed, shape))).cast(dtype)
         return image
 
     def get_sd_vae_model(self, model_id="CompVis/stable-diffusion-v1-4", fp16=False):

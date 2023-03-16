@@ -218,7 +218,7 @@ def load_pt(url: str):
         import torch
         response = requests.get(url)
         response.raise_for_status()
-        arry = torch.load(BytesIO(response.content))
+        arry = torch.load(BytesIO(response.content), map_location="cpu")
         return arry
     else:
         raise ValueError("Please install torch firstly!")
@@ -266,6 +266,12 @@ def load_hf_numpy(path) -> np.ndarray:
 
     return load_numpy(path)
 
+def load_ppnlp_numpy(path) -> np.ndarray:
+    if not path.startswith("http://") or path.startswith("https://"):
+        path = os.path.join(
+            "https://paddlenlp.bj.bcebos.com/models/community/CompVis/data/diffusers-testing", urllib.parse.quote(path)
+        )
+    return load_numpy(path)
 
 # --- pytest conf functions --- #
 

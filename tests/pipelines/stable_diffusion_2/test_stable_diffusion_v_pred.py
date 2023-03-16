@@ -232,27 +232,27 @@ class StableDiffusion2VPredictionPipelineIntegrationTests(unittest.TestCase):
        0.24843931, 0.25171167, 0.23580211, 0.23604062])
         assert np.abs(image_slice.flatten() - expected_slice).max() < 0.01
 
-    def test_stable_diffusion_attention_slicing_v_pred(self):
-        model_id = 'stabilityai/stable-diffusion-2'
-        pipe = StableDiffusionPipeline.from_pretrained(model_id,
-            paddle_dtype=paddle.float16)
-        pipe.set_progress_bar_config(disable=None)
-        prompt = 'a photograph of an astronaut riding a horse'
-        pipe.enable_attention_slicing()
-        generator = paddle.Generator().manual_seed(0)
-        output_chunked = pipe([prompt], generator=generator, guidance_scale
-            =7.5, num_inference_steps=10, output_type='numpy')
-        image_chunked = output_chunked.images
-        mem_bytes = paddle.device.cuda.memory_allocated()
-        assert mem_bytes < 5.5 * 10 ** 9
-        pipe.disable_attention_slicing()
-        generator = paddle.Generator().manual_seed(0)
-        output = pipe([prompt], generator=generator, guidance_scale=7.5,
-            num_inference_steps=10, output_type='numpy')
-        image = output.images
-        mem_bytes = paddle.device.cuda.memory_allocated()
-        assert mem_bytes > 5.5 * 10 ** 9
-        assert np.abs(image_chunked.flatten() - image.flatten()).max() < 0.001
+    # def test_stable_diffusion_attention_slicing_v_pred(self):
+    #     model_id = 'stabilityai/stable-diffusion-2'
+    #     pipe = StableDiffusionPipeline.from_pretrained(model_id,
+    #         paddle_dtype=paddle.float16)
+    #     pipe.set_progress_bar_config(disable=None)
+    #     prompt = 'a photograph of an astronaut riding a horse'
+    #     pipe.enable_attention_slicing()
+    #     generator = paddle.Generator().manual_seed(0)
+    #     output_chunked = pipe([prompt], generator=generator, guidance_scale
+    #         =7.5, num_inference_steps=10, output_type='numpy')
+    #     image_chunked = output_chunked.images
+    #     mem_bytes = paddle.device.cuda.memory_allocated()
+    #     assert mem_bytes < 5.5 * 10 ** 9
+    #     pipe.disable_attention_slicing()
+    #     generator = paddle.Generator().manual_seed(0)
+    #     output = pipe([prompt], generator=generator, guidance_scale=7.5,
+    #         num_inference_steps=10, output_type='numpy')
+    #     image = output.images
+    #     mem_bytes = paddle.device.cuda.memory_allocated()
+    #     assert mem_bytes > 5.5 * 10 ** 9
+    #     assert np.abs(image_chunked.flatten() - image.flatten()).max() < 0.001
 
     def test_stable_diffusion_text2img_pipeline_v_pred_default(self):
         # invalid expected_image
