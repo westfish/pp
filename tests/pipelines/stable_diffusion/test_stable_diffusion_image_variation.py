@@ -236,7 +236,6 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
     def test_img_variation_pndm(self):
         sd_pipe = StableDiffusionImageVariationPipeline.from_pretrained(
             'fusing/sd-image-variations-diffusers')
-        sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         image = sd_pipe(**inputs).images[0]
@@ -251,7 +250,6 @@ class StableDiffusionImageVariationPipelineNightlyTests(unittest.TestCase):
             'fusing/sd-image-variations-diffusers')
         sd_pipe.scheduler = DPMSolverMultistepScheduler.from_config(sd_pipe
             .scheduler.config)
-        sd_pipe
         sd_pipe.set_progress_bar_config(disable=None)
         inputs = self.get_inputs()
         inputs['num_inference_steps'] = 25
