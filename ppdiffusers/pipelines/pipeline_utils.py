@@ -782,7 +782,6 @@ class DiffusionPipeline(ConfigMixin):
             version.parse(_ppdiffusers_version).base_version
         ) <= version.parse("0.5.1"):
             from ppdiffusers import (
-                StableDiffusionInpaintPipeline,
                 StableDiffusionInpaintPipelineLegacy,
             )
 
@@ -790,7 +789,7 @@ class DiffusionPipeline(ConfigMixin):
 
             deprecation_message = (
                 "You are using a legacy checkpoint for inpainting with Stable Diffusion, therefore we are loading the"
-                f" {StableDiffusionInpaintPipelineLegacy} class instead of {StableDiffusionInpaintPipeline}. For"
+                " {StableDiffusionInpaintPipelineLegacy} class instead of {StableDiffusionInpaintPipeline}. For"
                 " better inpainting results, we strongly suggest using Stable Diffusion's official inpainting"
                 " checkpoint: https://huggingface.co/runwayml/stable-diffusion-inpainting instead or adapting your"
                 f" checkpoint {pretrained_model_name_or_path} to the format of"
