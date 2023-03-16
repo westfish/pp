@@ -164,37 +164,6 @@ class AltDiffusionPipeline(DiffusionPipeline):
         self.vae_scale_factor = 2 ** (len(self.vae.config.block_out_channels) - 1)
         self.register_to_config(requires_safety_checker=requires_safety_checker)
 
-    def enable_vae_slicing(self):
-        r"""
-        Enable sliced VAE decoding.
-
-        When this option is enabled, the VAE will split the input tensor in slices to compute decoding in several
-        steps. This is useful to save some memory and allow larger batch sizes.
-        """
-        self.vae.enable_slicing()
-
-    def disable_vae_slicing(self):
-        r"""
-        Disable sliced VAE decoding. If `enable_vae_slicing` was previously invoked, this method will go back to
-        computing decoding in one step.
-        """
-        self.vae.disable_slicing()
-
-    def enable_vae_tiling(self):
-        r"""
-        Enable tiled VAE decoding.
-        When this option is enabled, the VAE will split the input tensor into tiles to compute decoding and encoding in
-        several steps. This is useful to save a large amount of memory and to allow the processing of larger images.
-        """
-        self.vae.enable_tiling()
-
-    def disable_vae_tiling(self):
-        r"""
-        Disable tiled VAE decoding. If `enable_vae_tiling` was previously invoked, this method will go back to
-        computing decoding in one step.
-        """
-        self.vae.disable_tiling()
-
     def _encode_prompt(
         self,
         prompt,

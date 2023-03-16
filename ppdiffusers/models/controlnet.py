@@ -569,7 +569,10 @@ class ControlNetModel(ModelMixin, ConfigMixin):
         mid_block_res_sample = self.controlnet_mid_block(sample)
 
         # add conditioning_scale https://github.com/huggingface/diffusers/pull/2627
-        if isinstance(conditioning_scale, list):
+        if isinstance(conditioning_scale, float):
+            down_block_res_samples = [sample * conditioning_scale for sample in down_block_res_samples]
+            mid_block_res_sample *= conditioning_scale
+        else:
             down_block_res_samples = [
                 sample * ccs
                 for sample, ccs in zip(
@@ -577,9 +580,6 @@ class ControlNetModel(ModelMixin, ConfigMixin):
                 )
             ]
             mid_block_res_sample *= conditioning_scale[-1]
-        else:    
-            down_block_res_samples = [sample * conditioning_scale for sample in down_block_res_samples]
-            mid_block_res_sample *= conditioning_scale
 
         if not return_dict:
             return (down_block_res_samples, mid_block_res_sample)
